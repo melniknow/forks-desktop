@@ -1,4 +1,4 @@
-package com.melniknow.fd;
+package com.melniknow.fd.UI;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
