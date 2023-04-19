@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.pengrad</groupId>
             <artifactId>java-telegram-bot-api</artifactId>
             <version>6.6.1</version>
