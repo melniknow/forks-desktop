@@ -8,4 +8,8 @@ module com.melniknow.fd {
     exports com.melniknow.fd;
     exports com.melniknow.fd.UI;
     opens com.melniknow.fd.UI to javafx.fxml;
+    exports com.melniknow.fd.UI.panels;
+    opens com.melniknow.fd.UI.panels to javafx.fxml;
+    exports com.melniknow.fd.UI.panels.impl;
+    opens com.melniknow.fd.UI.panels.impl to javafx.fxml;
 }

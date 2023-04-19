@@ -7,9 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.melniknow.fd.UI.TabsController">
-
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.melniknow.fd.UI.Controller">
     <top>
         <HBox>
             <padding>
@@ -31,8 +29,8 @@
             <padding>
                 <Insets top="20" bottom="20" left="20" right="20"/>
             </padding>
-            <Button text="Старт" fx:id="run" onAction="#onRunButtonClick"/>
+            <Button text="Старт" style="-fx-background-color: #00FF00; -fx-text-fill: #000;"
+                    fx:id="run" onAction="#onRunButtonClick"/>
         </HBox>
     </bottom>
 </BorderPane>
-

@@ -1,4 +1,4 @@
-package com.melniknow.fd.UI;
+package com.melniknow.fd.UI.panels;
 
 import javafx.scene.layout.GridPane;
 
