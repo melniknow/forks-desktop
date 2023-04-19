@@ -2,6 +2,10 @@
 
 Десктопное приложение для автоматизации вилок на JavaFX (Java 17)
 
+## Telegram
+
+[Бот](https://github.com/ArkadyRudenko/forks-tgbot) для оповещений на Python (FastAPI)
+
 ## Гении разработчики
 
 [Сергей](https://vk.com/melniknow) - погиб при весьма загадочных обстоятельствах
