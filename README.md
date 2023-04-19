@@ -4,7 +4,7 @@
 
 ## Telegram
 
-[Бот](https://github.com/ArkadyRudenko/forks-tgbot) для оповещений на Python (FastAPI)
+[Бот](https://t.me/forks_desktop_bot) для оповещений о сделках
 
 ## Гении разработчики
 
