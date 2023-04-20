@@ -10,7 +10,6 @@ public class Core implements Runnable {
     @Override
     public void run() { // Ебать как важно очень пиздато обработать прерывания в этом методе, иначе ставки будут делаться в фоне...
         while (!Thread.currentThread().isInterrupted()) {
-            System.out.println("I'm work");
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -20,6 +19,9 @@ public class Core implements Runnable {
                 new ArrayList<>(), false, new ArrayList<>());
 
             var forks = Parser.getForks(params);
+            var calculated = MathUtils.calculate(forks);
+
+            System.out.println(calculated);
         }
     }
 }

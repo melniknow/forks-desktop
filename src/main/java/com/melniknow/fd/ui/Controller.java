@@ -13,10 +13,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Controller {
-    private static ExecutorService pool = Executors.newSingleThreadExecutor();
+    private ExecutorService pool = Executors.newSingleThreadExecutor();
+
     @FXML
     private TabPane tabPane;
-
     @FXML
     private Button run;
 
@@ -58,7 +58,6 @@ public class Controller {
 
         run.setStyle("-fx-background-color: #00FF00; -fx-text-fill: #000;");
         run.setText("Старт");
-
     }
 
     private Tab tabConstructor(String label, IPanel panel) {
