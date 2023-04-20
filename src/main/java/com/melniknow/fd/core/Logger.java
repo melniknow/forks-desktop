@@ -1,4 +1,4 @@
-package com.melniknow.fd.oddscorp;
+package com.melniknow.fd.core;
 
 public class Logger {
     public static void writeToLogSession(String message) {
