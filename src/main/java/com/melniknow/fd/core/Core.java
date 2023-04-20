@@ -1,6 +1,7 @@
 package com.melniknow.fd.core;
 
 import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.tg.Sender;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class Core implements Runnable {
             var forks = Parser.getForks(params);
             var calculated = MathUtils.calculate(forks);
 
-            System.out.println(calculated);
+            if (!calculated.isEmpty()) Sender.send(calculated.get(0));
         }
     }
 }
