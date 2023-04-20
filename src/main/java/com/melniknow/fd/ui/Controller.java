@@ -1,6 +1,6 @@
 package com.melniknow.fd.ui;
 
-import com.melniknow.fd.core.Core;
+import com.melniknow.fd.core.ForksBot;
 import com.melniknow.fd.ui.panels.*;
 import com.melniknow.fd.ui.panels.impl.*;
 import javafx.fxml.FXML;
@@ -37,7 +37,7 @@ public class Controller {
     }
 
     private void start() {
-        pool.submit(new Core());
+        pool.submit(new ForksBot());
         run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;");
         run.setText("Стоп");
     }

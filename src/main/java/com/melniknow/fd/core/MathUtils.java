@@ -3,18 +3,30 @@ package com.melniknow.fd.core;
 import com.melniknow.fd.oddscorp.Parser;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MathUtils {
-    public record BetsParams(BigDecimal minBet, BigDecimal maxBet) { }
-    public record CalculatedFork(Parser.Fork fork, BigDecimal подумать_чё_надо) { }
+    public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
 
-    public static List<CalculatedFork> calculate(BetsParams params, List<Parser.Fork> forks) {
-        return forks.stream().map(n -> calculateOne(params, n)).collect(Collectors.toList());
-    }
+    public static CalculatedFork calculate(List<Parser.Fork> forks) {
+        if (forks == null || forks.isEmpty()) return null;
 
-    private static CalculatedFork calculateOne(BetsParams params, Parser.Fork fork) {
-        return new CalculatedFork(fork, BigDecimal.ONE);
+        forks.sort(Comparator.comparing(Parser.Fork::income));
+        var fork = forks.get(0);
+
+        var mode = RoundingMode.DOWN;
+        var scale = 8;
+
+        var income1 = BigDecimal.ONE.divide(fork.ratio1(), scale, mode);
+        var income2 = BigDecimal.ONE.divide(fork.ratio2(), scale, mode);
+
+        var income = income1.add(income2);
+
+        var c1 = BigDecimal.ONE.divide(fork.ratio1(), scale, mode).divide(income, scale, mode);
+        var c2 = BigDecimal.ONE.divide(fork.ratio2(), scale, mode).divide(income, scale, mode);
+
+        return new CalculatedFork(fork, c1, c2);
     }
 }

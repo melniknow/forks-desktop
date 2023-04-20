@@ -22,6 +22,14 @@ public class Parser {
                        String bkName2, String event2, BetType type2, String link2,
                        BigDecimal ratio2, String bet2) { }
 
+    public record OddScorpParams(String URITokenAuth, List<Bookmakers> bookmakers,
+                                 BigDecimal min_fi) { }
+    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, boolean middles,
+                               List<BetType> types) { }
+
+    public record Forks(ArrayList<Fork> forks) { }
+
+
     public static List<Fork> getForks(ParserParams params) {
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
