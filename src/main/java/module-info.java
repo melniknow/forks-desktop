@@ -6,6 +6,8 @@ module com.melniknow.fd {
     requires java.net.http;
     requires urlbuilder;
     requires com.google.gson;
+    requires io.github.bonigarcia.webdrivermanager;
+    requires org.seleniumhq.selenium.chrome_driver;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;

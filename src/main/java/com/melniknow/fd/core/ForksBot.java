@@ -19,7 +19,10 @@ public class ForksBot implements Runnable {
                 if (calculated != null) {
                     Sender.send(calculated);
 
-                    // Делаем ставку, используя Selenium, betsParams и настройки букмекера (валюта и тд)
+//                    Делаем ставку, используя Selenium, betsParams и настройки букмекера (валюта и тд)
+//
+//                    WebDriverManager.chromedriver().setup();
+//                    new ChromeDriver().get("https://selenium.dev");
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
