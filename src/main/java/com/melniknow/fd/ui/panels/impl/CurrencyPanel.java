@@ -1,6 +1,6 @@
-package com.melniknow.fd.UI.panels.impl;
+package com.melniknow.fd.ui.panels.impl;
 
-import com.melniknow.fd.UI.panels.IPanel;
+import com.melniknow.fd.ui.panels.IPanel;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 

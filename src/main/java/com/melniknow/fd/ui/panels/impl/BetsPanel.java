@@ -1,14 +1,14 @@
-package com.melniknow.fd.UI.panels.impl;
+package com.melniknow.fd.ui.panels.impl;
 
-import com.melniknow.fd.UI.panels.IPanel;
+import com.melniknow.fd.ui.panels.IPanel;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 
-public class SettingPanel implements IPanel {
+public class BetsPanel implements IPanel {
     @Override
     public GridPane getGrid() {
         var grid = new GridPane();
-        grid.add(new Button("SettingPanel"), 1, 0);
+        grid.add(new Button("BetsPanel"), 1, 0);
 
         return grid;
     }

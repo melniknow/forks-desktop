@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.melniknow.fd.UI.Controller">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.melniknow.fd.ui.Controller">
     <top>
         <HBox>
             <padding>

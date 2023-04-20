@@ -6,10 +6,10 @@ module com.melniknow.fd {
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;
-    exports com.melniknow.fd.UI;
-    opens com.melniknow.fd.UI to javafx.fxml;
-    exports com.melniknow.fd.UI.panels;
-    opens com.melniknow.fd.UI.panels to javafx.fxml;
-    exports com.melniknow.fd.UI.panels.impl;
-    opens com.melniknow.fd.UI.panels.impl to javafx.fxml;
+    exports com.melniknow.fd.ui;
+    opens com.melniknow.fd.ui to javafx.fxml;
+    exports com.melniknow.fd.ui.panels;
+    opens com.melniknow.fd.ui.panels to javafx.fxml;
+    exports com.melniknow.fd.ui.panels.impl;
+    opens com.melniknow.fd.ui.panels.impl to javafx.fxml;
 }
