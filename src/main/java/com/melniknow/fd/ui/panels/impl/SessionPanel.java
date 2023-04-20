@@ -2,10 +2,8 @@ package com.melniknow.fd.ui.panels.impl;
 
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 
 public class SessionPanel implements IPanel {
 
@@ -17,8 +15,8 @@ public class SessionPanel implements IPanel {
 
     @Override
     public VBox getGrid() {
-        sessionLog.setEditable(false);
         sessionLog.appendText("Start Session...\n");
+        sessionLog.setEditable(false);
         sessionLog.setMinSize(1200, 600);
         sessionLog.setPadding(new Insets(20, 20, 20, 20));
 
