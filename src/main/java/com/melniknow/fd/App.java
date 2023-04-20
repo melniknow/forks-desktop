@@ -1,6 +1,7 @@
 package com.melniknow.fd;
 
 import atlantafx.base.theme.PrimerDark;
+import com.melniknow.fd.ui.Controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,6 +24,11 @@ public class App extends Application {
 
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        Controller.pool.shutdownNow();
     }
 
     public static void main(String[] args) {

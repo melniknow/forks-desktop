@@ -1,7 +1,6 @@
 package com.melniknow.fd.ui;
 
 import com.melniknow.fd.core.Core;
-import com.melniknow.fd.tg.Sender;
 import com.melniknow.fd.ui.panels.*;
 import com.melniknow.fd.ui.panels.impl.*;
 import javafx.fxml.FXML;
@@ -14,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Controller {
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
+    public static ExecutorService pool = Executors.newSingleThreadExecutor();
 
     @FXML
     private TabPane tabPane;
@@ -33,7 +32,6 @@ public class Controller {
 
     @FXML
     protected void onRunButtonClick() {
-        Sender.send("TEST");
         if (run.getText().equals("Старт")) start();
         else stop();
     }
