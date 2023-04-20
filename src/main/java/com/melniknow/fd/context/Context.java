@@ -12,15 +12,21 @@ import java.util.Arrays;
 public class Context {
     public static volatile MathUtils.BetsParams betsParams = new MathUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE);
     public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(BigDecimal.valueOf(10.0),
-        new ArrayList<Bookmakers>() {{
+        new ArrayList<>() {{
             add(Bookmakers.PINNACLE);
             add(Bookmakers._188BET);
         }},
         0,
-        new ArrayList<BetType>() {{
+        new ArrayList<>() {{
             add(BetType.CORRECT_SCORE);
             add(BetType.HALF_WHO_SCORE);
-        }});
+        }},
+        new BigDecimal(1),
+        new BigDecimal(40),
+        new BigDecimal(1),
+        new BigDecimal(100),
+        new BigDecimal(2)
+    );
 
     public static volatile String URITokenAuth = "TOKEN";
 }
