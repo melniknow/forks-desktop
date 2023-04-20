@@ -4,6 +4,7 @@ module com.melniknow.fd {
     requires java.telegram.bot.api;
     requires atlantafx.base;
     requires java.net.http;
+    requires urlbuilder;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;

@@ -11,10 +11,10 @@ public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal подумать_чё_надо) { }
 
     public static List<CalculatedFork> calculate(BetsParams params, List<Parser.Fork> forks) {
-        return forks.stream().map(n -> calculatedOne(params, n)).collect(Collectors.toList());
+        return forks.stream().map(n -> calculateOne(params, n)).collect(Collectors.toList());
     }
 
-    private static CalculatedFork calculatedOne(BetsParams params, Parser.Fork fork) {
+    private static CalculatedFork calculateOne(BetsParams params, Parser.Fork fork) {
         return new CalculatedFork(fork, BigDecimal.ONE);
     }
 }
