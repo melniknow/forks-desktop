@@ -6,7 +6,7 @@ import com.melniknow.fd.tg.Sender;
 
 import java.util.concurrent.TimeUnit;
 
-public class Core implements Runnable {
+public class ForksBot implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {

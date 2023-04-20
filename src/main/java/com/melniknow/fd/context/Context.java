@@ -1,6 +1,6 @@
 package com.melniknow.fd.context;
 
-import com.melniknow.fd.Bets.BetsUtils;
+import com.melniknow.fd.core.BetsUtils;
 import com.melniknow.fd.oddscorp.Bookmakers;
 import com.melniknow.fd.oddscorp.Parser;
 

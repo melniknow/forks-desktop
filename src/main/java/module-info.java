@@ -18,6 +18,5 @@ module com.melniknow.fd {
     exports com.melniknow.fd.core;
     exports com.melniknow.fd.oddscorp;
     exports com.melniknow.fd.context;
-    exports com.melniknow.fd.Bets;
     opens com.melniknow.fd.context to javafx.fxml;
 }

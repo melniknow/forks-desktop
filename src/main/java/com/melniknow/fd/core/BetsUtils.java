@@ -1,4 +1,4 @@
-package com.melniknow.fd.Bets;
+package com.melniknow.fd.core;
 
 import java.math.BigDecimal;
 
