@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
-    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, boolean middles,
-                               List<BetType> types) { }
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
                        BigDecimal ratio1, String bet1,
@@ -19,6 +17,8 @@ public class Parser {
 
     public record OddScorpParams(String URITokenAuth, List<Bookmakers> bookmakers,
                                  BigDecimal min_fi) { }
+    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, boolean middles,
+                               List<BetType> types) { }
 
     public record Forks(ArrayList<Fork> forks) { }
 

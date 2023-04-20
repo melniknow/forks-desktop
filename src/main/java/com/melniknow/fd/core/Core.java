@@ -11,15 +11,19 @@ public class Core implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
+                TimeUnit.SECONDS.sleep(2);
+
+                var forks = Parser.getForks(Context.parserParams);
+                var calculated = MathUtils.calculate(forks);
+
+                if (calculated != null) {
+                    Sender.send(calculated);
+
+                    // Делаем ставку, используя Selenium, betsParams и настройки букмекера (валюта и тд)
+                }
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
-            var forks = Parser.getForks(Context.parserParams);
-            var calculated = MathUtils.calculate(Context.betsParams, forks);
-
-            if (!calculated.isEmpty()) Sender.send(calculated.get(0));
         }
     }
 }
