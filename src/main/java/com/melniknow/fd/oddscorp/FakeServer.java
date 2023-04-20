@@ -3,7 +3,7 @@ package com.melniknow.fd.oddscorp;
 public class FakeServer {
     public static String get(String request) {
         return """
-            {
+            [{
                 "fork_id": "f1ac7a88fc584cff08",
                 "income": 14.04,
                 "ow_income": 0,
@@ -38,7 +38,7 @@ public class FakeServer {
                 "BK2_score": "0:0 (2:5) (15:00)",
                 "BK2_event_meta": "{\\"start_at\\":1681819260.0,\\"raw_start_at\\":\\"2023-04-18T15:01:00Z\\"}",
                 "BK2_market_meta": "{\\"marketName\\":\\"Total Games - Set 1\\",\\"selectionName\\":\\"Over 8,5\\",\\"marketId\\":921564275,\\"resId\\":-1588373981}"
-            }
+            }]
             """;
     }
 }

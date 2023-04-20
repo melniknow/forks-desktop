@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MathUtils {
-    public record BetsParams() { }
+    public record BetsParams(BigDecimal minBet, BigDecimal maxBet) { }
     public record CalculatedFork(Parser.Fork fork, BigDecimal подумать_чё_надо) { }
 
     public static List<CalculatedFork> calculate(BetsParams params, List<Parser.Fork> forks) {

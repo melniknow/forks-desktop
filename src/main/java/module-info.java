@@ -5,6 +5,7 @@ module com.melniknow.fd {
     requires atlantafx.base;
     requires java.net.http;
     requires urlbuilder;
+    requires com.google.gson;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;
