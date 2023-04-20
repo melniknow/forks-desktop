@@ -13,4 +13,8 @@ module com.melniknow.fd {
     opens com.melniknow.fd.ui.panels to javafx.fxml;
     exports com.melniknow.fd.ui.panels.impl;
     opens com.melniknow.fd.ui.panels.impl to javafx.fxml;
+    exports com.melniknow.fd.core;
+    exports com.melniknow.fd.oddscorp;
+    exports com.melniknow.fd.context;
+    opens com.melniknow.fd.context to javafx.fxml;
 }

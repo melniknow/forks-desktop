@@ -1,26 +1,23 @@
 package com.melniknow.fd.core;
 
+import com.melniknow.fd.context.Context;
 import com.melniknow.fd.oddscorp.Parser;
 import com.melniknow.fd.tg.Sender;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Core implements Runnable {
     @Override
-    public void run() { // Ебать как важно очень пиздато обработать прерывания в этом методе, иначе ставки будут делаться в фоне...
+    public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            var params = new Parser.Params(BigDecimal.valueOf(10.0), new ArrayList<>(),
-                new ArrayList<>(), false, new ArrayList<>());
 
-            var forks = Parser.getForks(params);
-            var calculated = MathUtils.calculate(forks);
+            var forks = Parser.getForks(Context.parserParams);
+            var calculated = MathUtils.calculate(Context.betsParams, forks);
 
             if (!calculated.isEmpty()) Sender.send(calculated.get(0));
         }
