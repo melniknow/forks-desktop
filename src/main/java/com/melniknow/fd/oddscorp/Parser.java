@@ -9,16 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
-    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, boolean middles,
+    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, int middles,
                                List<BetType> types) { }
+
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
                        BigDecimal ratio1, String bet1,
                        String bkName2, String event2, BetType type2, String link2,
                        BigDecimal ratio2, String bet2) { }
-
-    public record OddScorpParams(String URITokenAuth, List<Bookmakers> bookmakers,
-                                 BigDecimal min_fi) { }
 
     public record Forks(ArrayList<Fork> forks) { }
 
@@ -27,11 +25,14 @@ public class Parser {
         var forks = new ArrayList<Fork>();
 
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
-            .addParameter("bk2_name", "") // a2bet,afdasd,fas
-            .addParameter("middles", "") // + betType
-            .addParameter("min_fi", params.minIncome.toPlainString()) // toPlainString
-            .addParameter("token", Context.oddScorpParams.URITokenAuth)
+            .addParameter("bk2_name", buildBookmakers(params.bookmakers))
+            .addParameter("is_middles", Integer.toString(params.middles))
+            .addParameter("min_fi", params.minIncome.toPlainString())
+            .addParameter("bet_types", buildBetTypes(params.types))
+            .addParameter("token", Context.URITokenAuth)
             .toUri();
+
+        System.out.println(uri.toString());
 
         var stringForks = FakeServer.get(uri.getQuery());
 
@@ -67,5 +68,23 @@ public class Parser {
         }
 
         return forks;
+    }
+
+    private static String buildBookmakers(List<Bookmakers> bookmakers) {
+        StringBuilder result = new StringBuilder();
+        for (var bookmaker : bookmakers) {
+            result.append(bookmaker.name().toLowerCase());
+            result.append(",");
+        }
+        return result.deleteCharAt(result.length() - 1).toString();
+    }
+
+    private static String buildBetTypes(List<BetType> types) {
+        StringBuilder result = new StringBuilder();
+        for (var type : types) {
+            result.append(type.toString().toLowerCase());
+            result.append(",");
+        }
+        return result.deleteCharAt(result.length() - 1).toString();
     }
 }
