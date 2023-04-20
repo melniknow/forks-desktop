@@ -1,7 +1,6 @@
 package com.melniknow.fd.core;
 
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.oddscorp.Logger;
 import com.melniknow.fd.oddscorp.Parser;
 import com.melniknow.fd.tg.Sender;
 
