@@ -1,16 +1,15 @@
 package com.melniknow.fd.context;
 
-import com.melniknow.fd.core.MathUtils;
+import com.melniknow.fd.core.BetsUtils;
 import com.melniknow.fd.oddscorp.BetType;
 import com.melniknow.fd.oddscorp.Bookmakers;
 import com.melniknow.fd.oddscorp.Parser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Context {
-    public static volatile MathUtils.BetsParams betsParams = new MathUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE);
+    public static volatile BetsUtils.BetsParams betsParams = new BetsUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
     public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(BigDecimal.valueOf(10.0),
         new ArrayList<>() {{
             add(Bookmakers.PINNACLE);

@@ -21,13 +21,11 @@ public class Controller {
     private Button run;
 
     public void initialize() {
-        var settingTab = tabConstructor("Настройки бк", new SettingPanel());
+        var settingTab = tabConstructor("Настройки", new SettingPanel());
         var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
-        var securityTab = tabConstructor("Безопасность", new SecurityPanel());
-        var currencyTab = tabConstructor("Валюта", new CurrencyPanel());
-        var betsTab = tabConstructor("Вилки и ставки", new BetsPanel());
+        var sessionTab = tabConstructor("Сессия", new SessionPanel());
 
-        tabPane.getTabs().addAll(settingTab, bookmakersTab, securityTab, currencyTab, betsTab);
+        tabPane.getTabs().addAll(settingTab, bookmakersTab, sessionTab);
     }
 
     @FXML

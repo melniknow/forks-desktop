@@ -22,13 +22,6 @@ public class Parser {
                        String bkName2, String event2, BetType type2, String link2,
                        BigDecimal ratio2, String bet2) { }
 
-    public record OddScorpParams(String URITokenAuth, List<Bookmakers> bookmakers,
-                                 BigDecimal min_fi) { }
-    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, boolean middles,
-                               List<BetType> types) { }
-
-    public record Forks(ArrayList<Fork> forks) { }
-
 
     public static List<Fork> getForks(ParserParams params) {
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
@@ -43,20 +36,17 @@ public class Parser {
             .addParameter("token", Context.URITokenAuth)
             .toUri();
 
-        System.out.println(buildArrayParams(params.bookmakers.stream().map(Enum::name)));
-        System.out.println(uri);
-
         var stringForks = FakeServer.get(uri.getQuery());
 
         var jsonParser = JsonParser.parseString(stringForks);
 
         var forks = new ArrayList<Fork>();
         if (!jsonParser.isJsonArray()) {
-            return forks;
+            return null;
         }
 
         for (var fork : jsonParser.getAsJsonArray()) {
-            if (!fork.isJsonObject()) return forks; // Or null?
+            if (!fork.isJsonObject()) return null;
             forks.add(buildForkByJson(fork.getAsJsonObject()));
         }
 
