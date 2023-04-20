@@ -1,7 +1,9 @@
 package com.melniknow.fd.core;
 
+import com.melniknow.fd.ui.panels.impl.SessionPanel;
+
 public class Logger {
     public static void writeToLogSession(String message) {
-        // Пишем в нашу панель
+        SessionPanel.addMessageToLog(message);
     }
 }
