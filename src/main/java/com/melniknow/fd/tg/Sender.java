@@ -8,7 +8,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class Sender {
-    private static final HttpClient client = HttpClient.newHttpClient();
+    public static final HttpClient client = HttpClient.newHttpClient();
 
     public static void send(MathUtils.CalculatedFork fork) {
         var data = getDataMessage(fork);

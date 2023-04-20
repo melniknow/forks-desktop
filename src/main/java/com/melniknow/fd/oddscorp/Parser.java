@@ -1,20 +1,28 @@
 package com.melniknow.fd.oddscorp;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
+import com.melniknow.fd.core.Logger;
 import io.mikael.urlbuilder.UrlBuilder;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Parser {
-    public record ParserParams(BigDecimal minIncome, List<Bookmakers> bookmakers, int middles,
+    public record ParserParams(List<Bookmakers> bookmakers, int middles,
                                List<BetType> types, BigDecimal minCf, BigDecimal maxCf,
-                               BigDecimal minFi, BigDecimal maxFi, BigDecimal aliveSec) { }
+                               BigDecimal minFi, BigDecimal maxFi) { }
 
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
@@ -27,16 +35,30 @@ public class Parser {
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
-            .addParameter("bet_types", buildArrayParams(params.types.stream().map(Enum::toString)))
+            // .addParameter("bet_types", buildArrayParams(params.types.stream().map(Enum::toString)))
             .addParameter("min_cf", params.minCf.toString())
             .addParameter("max_cf", params.maxCf.toString())
             .addParameter("min_fi", params.minFi.toString())
             .addParameter("max_fi", params.maxFi.toString())
-            .addParameter("alive_sec", params.aliveSec.toString())
             .addParameter("token", Context.URITokenAuth)
             .toUri();
 
-        var stringForks = FakeServer.get(uri.getQuery());
+        var stringForks = FakeServer.get(uri.toString());
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            var br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.US_ASCII));
+            var sb = new StringBuilder();
+            String output;
+            while ((output = br.readLine()) != null) {
+                sb.append(output);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         var jsonParser = JsonParser.parseString(stringForks);
 
@@ -45,11 +67,13 @@ public class Parser {
             return null;
         }
 
+        Gson json = new GsonBuilder().setPrettyPrinting().create();
         for (var fork : jsonParser.getAsJsonArray()) {
             if (!fork.isJsonObject()) return null;
-            forks.add(buildForkByJson(fork.getAsJsonObject()));
+            var f = buildForkByJson(fork.getAsJsonObject());
+            Logger.writeToLogSession(json.toJson(f));
+            forks.add(f);
         }
-
         return forks;
     }
 

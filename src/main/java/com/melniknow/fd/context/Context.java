@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Context {
     public static volatile BetsUtils.BetsParams betsParams = new BetsUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
-    public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(BigDecimal.ONE,
+    public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(
         new ArrayList<>() {{
             add(Bookmakers.PINNACLE);
             add(Bookmakers._188BET);
@@ -19,13 +19,14 @@ public class Context {
         0,
         new ArrayList<>() {{
             add(BetType.CORRECT_SCORE);
+            add(BetType.WIN);
+            add(BetType.TOTALS);
             add(BetType.HALF_WHO_SCORE);
         }},
-        new BigDecimal(1),
-        new BigDecimal(40),
-        new BigDecimal(1),
+        new BigDecimal(-1),
         new BigDecimal(100),
-        new BigDecimal(2)
+        new BigDecimal(-1),
+        new BigDecimal(100)
     );
 
     public static volatile String URITokenAuth = "c9af132a2632cb74c1f59d524dbbb5b2";
