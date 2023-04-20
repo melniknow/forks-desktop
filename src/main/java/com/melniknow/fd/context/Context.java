@@ -10,10 +10,11 @@ import java.util.ArrayList;
 
 public class Context {
     public static volatile BetsUtils.BetsParams betsParams = new BetsUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
-    public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(BigDecimal.valueOf(10.0),
+    public static volatile Parser.ParserParams parserParams = new Parser.ParserParams(BigDecimal.ONE,
         new ArrayList<>() {{
             add(Bookmakers.PINNACLE);
             add(Bookmakers._188BET);
+            add(Bookmakers.BET365);
         }},
         0,
         new ArrayList<>() {{
@@ -27,5 +28,5 @@ public class Context {
         new BigDecimal(2)
     );
 
-    public static volatile String URITokenAuth = "TOKEN";
+    public static volatile String URITokenAuth = "c9af132a2632cb74c1f59d524dbbb5b2";
 }
