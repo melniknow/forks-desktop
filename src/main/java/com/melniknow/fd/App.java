@@ -28,7 +28,8 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        Controller.pool.shutdownNow();
+        Controller.botPool.shutdownNow();
+        Controller.parsingPool.shutdownNow();
     }
 
     public static void main(String[] args) {

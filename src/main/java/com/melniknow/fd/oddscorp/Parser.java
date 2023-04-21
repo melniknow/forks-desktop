@@ -4,9 +4,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
 import io.mikael.urlbuilder.UrlBuilder;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigDecimal;
@@ -45,7 +46,16 @@ public class Parser {
 
         var stringForks = "";
 
-        try (var httpClient = HttpClients.createDefault()) {
+        var timeout = 2;
+
+        var config = RequestConfig.custom()
+            .setConnectTimeout(timeout * 1000)
+            .setConnectionRequestTimeout(timeout * 1000)
+            .setSocketTimeout(timeout * 1000).build();
+
+        try (var httpClient = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config)
+            .build()) {
             var request = new HttpGet(uri);
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 if (response.getStatusLine().getStatusCode() != 200) {

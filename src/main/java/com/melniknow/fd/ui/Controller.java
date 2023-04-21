@@ -3,16 +3,21 @@ package com.melniknow.fd.ui;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.core.ForksBot;
 import com.melniknow.fd.core.Logger;
-import com.melniknow.fd.ui.panels.*;
-import com.melniknow.fd.ui.panels.impl.*;
+import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.ui.panels.impl.BookmakersPanel;
+import com.melniknow.fd.ui.panels.impl.CurrencyPanel;
+import com.melniknow.fd.ui.panels.impl.SessionPanel;
+import com.melniknow.fd.ui.panels.impl.SettingPanel;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.util.concurrent.ExecutorService;
@@ -20,7 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Controller {
-    public static ExecutorService pool = Executors.newSingleThreadExecutor();
+    public static ExecutorService botPool = Executors.newSingleThreadExecutor();
+    public static ExecutorService parsingPool = Executors.newCachedThreadPool();
 
     @FXML
     private TabPane tabPane;
@@ -45,9 +51,9 @@ public class Controller {
     }
 
     private void start() {
-        pool.submit(new ForksBot());
-        run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;");
-        run.setText("Стоп");
+        botPool.submit(new ForksBot());
+        Platform.runLater(() -> run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;"));
+        Platform.runLater(() -> run.setText("Стоп"));
         Logger.writeToLogSession("Сессия запущена");
     }
 
@@ -55,18 +61,18 @@ public class Controller {
         boolean isInterrupted;
 
         try {
-            pool.shutdownNow();
-            isInterrupted = pool.awaitTermination(10, TimeUnit.SECONDS);
+            botPool.shutdownNow();
+            isInterrupted = botPool.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        if (!isInterrupted) throw new RuntimeException("Поток не прервался");
+        if (!isInterrupted) throw new RuntimeException();
 
-        pool = Executors.newSingleThreadExecutor();
+        botPool = Executors.newSingleThreadExecutor();
 
-        run.setStyle("-fx-background-color: #00FF00; -fx-text-fill: #000;");
-        run.setText("Старт");
+        Platform.runLater(() -> run.setStyle("-fx-background-color: #00FF00; -fx-text-fill: #000;"));
+        Platform.runLater(() -> run.setText("Старт"));
         Logger.writeToLogSession("Сессия остановлена");
     }
 
@@ -80,26 +86,36 @@ public class Controller {
     }
 
     private void PolypokerCheck() {
-        var uri = "http://nepolypoker.ru/flag.json";
+        parsingPool.submit(() -> {
+            var uri = "http://nepolypoker.ru/flag.json";
+            var timeout = 2;
 
-        try (var httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(uri);
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    throw new NullPointerException();
-                }
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    var status = JsonParser.parseString(EntityUtils.toString(entity)).getAsJsonObject().get("flag").getAsBoolean();
-                    if (!status) {
+            var config = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
+
+            try (var httpClient = HttpClientBuilder.create()
+                .setDefaultRequestConfig(config)
+                .build()) {
+                HttpGet request = new HttpGet(uri);
+                try (CloseableHttpResponse response = httpClient.execute(request)) {
+                    if (response.getStatusLine().getStatusCode() != 200) {
                         throw new NullPointerException();
                     }
+                    HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        var status = JsonParser.parseString(EntityUtils.toString(entity)).getAsJsonObject().get("flag").getAsBoolean();
+                        if (!status) {
+                            throw new NullPointerException();
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new NullPointerException();
                 }
             } catch (Exception e) {
                 throw new NullPointerException();
             }
-        } catch (Exception e) {
-            throw new NullPointerException();
-        }
+        });
     }
 }

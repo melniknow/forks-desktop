@@ -3,6 +3,7 @@ package com.melniknow.fd.ui.panels.impl;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
 import com.melniknow.fd.core.Currency;
+import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -18,9 +19,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigDecimal;
@@ -96,11 +98,20 @@ public class CurrencyPanel implements IPanel {
                 showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
         });
 
-        updateButton.setOnAction(event -> Platform.runLater(() -> {
+        updateButton.setOnAction(event -> Controller.parsingPool.submit(() -> {
             var uri = "https://www.cbr-xml-daily.ru/daily_json.js";
             var isGood = true;
 
-            try (var httpClient = HttpClients.createDefault()) {
+            var timeout = 2;
+
+            var config = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
+
+            try (var httpClient = HttpClientBuilder.create()
+                .setDefaultRequestConfig(config)
+                .build()) {
                 HttpGet request = new HttpGet(uri);
                 try (CloseableHttpResponse response = httpClient.execute(request)) {
                     if (response.getStatusLine().getStatusCode() == 200) {
