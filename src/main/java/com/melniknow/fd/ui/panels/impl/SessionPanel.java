@@ -16,7 +16,7 @@ public class SessionPanel implements IPanel {
 
     @Override
     public VBox getGrid() {
-        sessionLog.appendText("Start Session...\n");
+        sessionLog.appendText("Для запуска сессии нажмите кнопку Старт...\n");
         sessionLog.setEditable(false);
         sessionLog.setMinSize(1200, 600);
         sessionLog.setPadding(new Insets(20, 20, 20, 20));

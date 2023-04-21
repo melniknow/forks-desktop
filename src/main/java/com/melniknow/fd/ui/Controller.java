@@ -2,6 +2,7 @@ package com.melniknow.fd.ui;
 
 import com.google.gson.JsonParser;
 import com.melniknow.fd.core.ForksBot;
+import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.ui.panels.*;
 import com.melniknow.fd.ui.panels.impl.*;
 import javafx.fxml.FXML;
@@ -46,6 +47,7 @@ public class Controller {
         pool.submit(new ForksBot());
         run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;");
         run.setText("Стоп");
+        Logger.writeToLogSession("Сессия запущена");
     }
 
     private void stop() {
@@ -64,6 +66,7 @@ public class Controller {
 
         run.setStyle("-fx-background-color: #00FF00; -fx-text-fill: #000;");
         run.setText("Старт");
+        Logger.writeToLogSession("Сессия остановлена");
     }
 
     private Tab tabConstructor(String label, IPanel panel) {

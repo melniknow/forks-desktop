@@ -13,7 +13,7 @@ public class MathUtils {
     public static CalculatedFork calculate(List<Parser.Fork> forks) {
         if (forks == null || forks.isEmpty()) return null;
 
-        forks.sort(Comparator.comparing(Parser.Fork::income));
+        forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
         var fork = forks.get(0);
 
         var mode = RoundingMode.DOWN;

@@ -1,13 +1,9 @@
 package com.melniknow.fd.oddscorp;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.core.Logger;
 import io.mikael.urlbuilder.UrlBuilder;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
@@ -20,9 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Parser {
-    public record ParserParams(List<Bookmakers> bookmakers, int middles,
-                               List<BetType> types, BigDecimal minCf, BigDecimal maxCf,
-                               BigDecimal minFi, BigDecimal maxFi) { }
+    public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
+                               BigDecimal maxCf, int middles, List<Bookmakers> bookmakers,
+                               List<BetType> types) { }
 
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
@@ -31,10 +27,12 @@ public class Parser {
                        BigDecimal ratio2, String bet2) { }
 
     public static List<Fork> getForks(ParserParams params) {
+        if (params == null) return null;
+
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
-            // .addParameter("bet_types", buildArrayParams(params.types.stream().map(Enum::toString)))
+            // .addParameter("bet_types", buildArrayParams(params.types.stream().map(Enum::toString))) - Позже
             .addParameter("min_cf", params.minCf.toString())
             .addParameter("max_cf", params.maxCf.toString())
             .addParameter("min_fi", params.minFi.toString())

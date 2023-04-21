@@ -9,28 +9,20 @@
 <?import javafx.scene.image.ImageView?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.melniknow.fd.ui.Controller">
     <top>
-        <HBox>
+        <HBox spacing="1000">
             <padding>
-                <Insets top="10" bottom="10" left="10" right="10"/>
+                <Insets top="20" bottom="10" left="10" right="10"/>
             </padding>
 
-            <ImageView style="-fx-padding: 0 0 100 0;">
+            <ImageView>
                 <Image url="@text.png"/>
             </ImageView>
+            <Button text="Старт" style="-fx-background-color: #00FF00; -fx-text-fill: #000;"
+                    fx:id="run" onAction="#onRunButtonClick"/>
         </HBox>
     </top>
 
     <center>
         <TabPane fx:id="tabPane"/>
     </center>
-
-    <bottom>
-        <HBox alignment="CENTER">
-            <padding>
-                <Insets top="20" bottom="20" left="20" right="20"/>
-            </padding>
-            <Button text="Старт" style="-fx-background-color: #00FF00; -fx-text-fill: #000;"
-                    fx:id="run" onAction="#onRunButtonClick"/>
-        </HBox>
-    </bottom>
 </BorderPane>
