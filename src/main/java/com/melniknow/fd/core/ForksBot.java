@@ -11,7 +11,7 @@ public class ForksBot implements Runnable {
         var count = 1L;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.MILLISECONDS.sleep(500);
+                TimeUnit.MILLISECONDS.sleep(100);
 
                 var forks = Parser.getForks(Context.parserParams);
                 var calculated = MathUtils.calculate(forks);
