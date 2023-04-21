@@ -2,16 +2,16 @@ package com.melniknow.fd.core;
 
 import com.melniknow.fd.context.Context;
 import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.tg.Sender;
 
 import java.util.concurrent.TimeUnit;
 
 public class ForksBot implements Runnable {
     @Override
     public void run() {
-        var count = 1L;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.MILLISECONDS.sleep(500);
+                TimeUnit.MILLISECONDS.sleep(1000);
 
                 var forks = Parser.getForks(Context.parserParams);
                 var calculated = MathUtils.calculate(forks);
@@ -26,11 +26,10 @@ public class ForksBot implements Runnable {
 //
 //                    После того как сделали ставку извещаем об этом юзера
 //
-//                    var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
-//
-//                    Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
-//                    Sender.send(completed);
-                    Logger.writeToLogSession(String.valueOf(count++));
+                    var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
+
+                    Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
+                    Sender.send(completed);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
