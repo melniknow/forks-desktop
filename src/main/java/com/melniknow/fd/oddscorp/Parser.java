@@ -52,7 +52,7 @@ public class Parser {
                 }
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    stringForks = EntityUtils.toString(entity); // GetBody
+                    stringForks = EntityUtils.toString(entity);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -60,8 +60,6 @@ public class Parser {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println(stringForks);
-        System.out.println(uri);
 
         var jsonParser = JsonParser.parseString(stringForks);
 
@@ -70,11 +68,9 @@ public class Parser {
             return null;
         }
 
-        Gson json = new GsonBuilder().setPrettyPrinting().create();
         for (var fork : jsonParser.getAsJsonArray()) {
             if (!fork.isJsonObject()) return null;
             var f = buildForkByJson(fork.getAsJsonObject());
-            Logger.writeToLogSession(json.toJson(f));
             forks.add(f);
         }
         return forks;
