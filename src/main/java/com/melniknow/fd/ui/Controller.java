@@ -28,6 +28,7 @@ public class Controller {
 
     public void initialize() {
         PolypokerCheck();
+
         var settingTab = tabConstructor("Настройки", new SettingPanel());
         var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
         var sessionTab = tabConstructor("Сессия", new SessionPanel());

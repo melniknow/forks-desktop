@@ -27,8 +27,9 @@ public class ForksBot implements Runnable {
 //                    После того как сделали ставку извещаем об этом юзера
 
                     var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
+
                     Sender.send(completed);
-                    Logger.writeToLogSession("Я ебал твою мать " + completed);
+                    Logger.writeToLogSession(completed.toString());
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
