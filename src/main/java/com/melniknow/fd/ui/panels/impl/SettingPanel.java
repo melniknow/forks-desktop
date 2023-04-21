@@ -63,50 +63,43 @@ public class SettingPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, 4);
 
-        var forkLiveRatio = new Label("Процент вилки, для расчёта времени жизни *");
-        grid.add(forkLiveRatio, 0, 5);
-        var forkLiveRatioField = new TextField();
-        forkLiveRatioField.setPromptText("Доступны значения: -1, 0, 0.5, 1, 1.5, 2, 2.5, 3");
-        forkLiveRatioField.setPrefHeight(40);
-        grid.add(forkLiveRatioField, 1, 5);
-
         var forkLive = new Label("Минимальное время жизни вилки (сек) *");
-        grid.add(forkLive, 0, 6);
+        grid.add(forkLive, 0, 5);
         var forkLiveField = new TextField();
-        forkLiveField.setPromptText("Считается относительно указанного выше процента");
+        forkLiveField.setPromptText("Считается относительно процента -1");
         forkLiveField.setPrefHeight(40);
-        grid.add(forkLiveField, 1, 6);
+        grid.add(forkLiveField, 1, 5);
 
         var bookmakers = new Label("Букмекеры *");
-        grid.add(bookmakers, 0, 7);
+        grid.add(bookmakers, 0, 6);
         var pinnacle = new CheckBox("PINNACLE");
-        grid.add(pinnacle, 1, 7);
+        grid.add(pinnacle, 1, 6);
         var _188Bet = new CheckBox("_188BET");
-        grid.add(_188Bet, 1, 8);
+        grid.add(_188Bet, 1, 7);
         var bet365 = new CheckBox("BET365");
-        grid.add(bet365, 1, 9);
+        grid.add(bet365, 1, 8);
 
         var middles = new Label("Коридоры *");
-        grid.add(middles, 0, 10);
+        grid.add(middles, 0, 9);
         var middlesField = new TextField();
         middlesField.setPromptText("-1 - без коридоров. 0 - вилки и коридоры. 1 - только коридоры");
         middlesField.setPrefHeight(40);
-        grid.add(middlesField, 1, 10);
+        grid.add(middlesField, 1, 9);
 
         var typesBet = new Label("Виды ставок *");
-        grid.add(typesBet, 0, 11);
+        grid.add(typesBet, 0, 10);
         var wins = new CheckBox("WIN");
-        grid.add(wins, 1, 11);
+        grid.add(wins, 1, 10);
         var totals = new CheckBox("TOTALS");
-        grid.add(totals, 1, 12);
+        grid.add(totals, 1, 11);
         var handicaps = new CheckBox("HANDICAP");
-        grid.add(handicaps, 1, 13);
+        grid.add(handicaps, 1, 12);
 
         var saveButton = new Button("Сохранить");
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(150);
-        grid.add(saveButton, 0, 15, 2, 1);
+        grid.add(saveButton, 0, 14, 2, 1);
         GridPane.setHalignment(saveButton, HPos.CENTER);
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
@@ -128,7 +121,7 @@ public class SettingPanel implements IPanel {
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 typesBetData.stream().noneMatch(CheckBox::isSelected) ||
-                forkLiveRatioField.getText().isEmpty() || forkLiveField.getText().isEmpty()) {
+                forkLiveField.getText().isEmpty()) {
 
                 showErrorAlert(grid.getScene().getWindow());
                 return;
@@ -140,17 +133,6 @@ public class SettingPanel implements IPanel {
 
                 var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmakers.valueOf(n.getText())).toList();
                 var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
-                var forkLiveRatioParse = new BigDecimal(forkLiveRatioField.getText());
-
-                if (forkLiveRatioParse.compareTo(new BigDecimal("-1")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("0")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("0.5")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("1")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("1.5")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("2")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("2.5")) != 0 &&
-                    forkLiveRatioParse.compareTo(new BigDecimal("3")) != 0)
-                    throw new RuntimeException();
 
                 Context.parserParams = new Parser.ParserParams(
                     new BigDecimal(minimumField.getText()),
@@ -160,7 +142,6 @@ public class SettingPanel implements IPanel {
                     middlesParse,
                     bookmakersParse,
                     typesBetParse,
-                    forkLiveRatioParse,
                     new BigDecimal(forkLiveField.getText())
                 );
             } catch (Exception e) {

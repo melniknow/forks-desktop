@@ -3,6 +3,7 @@ package com.melniknow.fd.oddscorp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
+import com.melniknow.fd.core.Logger;
 import io.mikael.urlbuilder.UrlBuilder;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -19,8 +20,7 @@ import java.util.stream.Stream;
 public class Parser {
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmakers> bookmakers,
-                               List<BetType> types, BigDecimal forkLiveRatio,
-                               BigDecimal forkLive) { }
+                               List<BetType> types, BigDecimal forkLive) { }
 
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
@@ -31,7 +31,7 @@ public class Parser {
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-        var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
+        var uri = UrlBuilder.fromString("http://194.67.68.124/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::toString)))
@@ -40,7 +40,6 @@ public class Parser {
             .addParameter("min_fi", params.minFi.toPlainString())
             .addParameter("max_fi", params.maxFi.toPlainString())
             .addParameter("alive_sec", params.forkLive.toPlainString())
-            .addParameter("alive_prc", params.forkLiveRatio.toPlainString())
             .addParameter("token", Context.URITokenAuth)
             .toUri();
 
@@ -64,6 +63,7 @@ public class Parser {
                 var entity = response.getEntity();
                 if (entity != null) {
                     stringForks = EntityUtils.toString(entity);
+                    Logger.writeToLogSession(stringForks);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
