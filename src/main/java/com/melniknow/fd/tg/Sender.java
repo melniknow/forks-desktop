@@ -20,7 +20,6 @@ public class Sender {
             .addParameter("text", data).toUri();
 
         var request = HttpRequest.newBuilder(uri).build();
-        System.out.println(uri);
         client.sendAsync(request, (HttpResponse.BodyHandler<String>) responseInfo -> null);
     }
 

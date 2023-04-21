@@ -31,10 +31,11 @@ public class Controller {
         PolypokerCheck();
 
         var settingTab = tabConstructor("Настройки", new SettingPanel());
+        var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
         var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
         var sessionTab = tabConstructor("Сессия", new SessionPanel());
 
-        tabPane.getTabs().addAll(settingTab, bookmakersTab, sessionTab);
+        tabPane.getTabs().addAll(settingTab, currencyTab, bookmakersTab, sessionTab);
     }
 
     @FXML

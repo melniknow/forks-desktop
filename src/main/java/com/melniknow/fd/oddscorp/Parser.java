@@ -18,7 +18,8 @@ import java.util.stream.Stream;
 public class Parser {
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmakers> bookmakers,
-                               List<BetType> types) { }
+                               List<BetType> types, BigDecimal forkLiveRatio,
+                               BigDecimal forkLive) { }
 
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
                        String bkName1, String event1, BetType type1, String link1,
@@ -32,11 +33,13 @@ public class Parser {
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
-            // .addParameter("bet_types", buildArrayParams(params.types.stream().map(Enum::toString))) - Позже
-            .addParameter("min_cf", params.minCf.toString())
-            .addParameter("max_cf", params.maxCf.toString())
-            .addParameter("min_fi", params.minFi.toString())
-            .addParameter("max_fi", params.maxFi.toString())
+            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::toString)))
+            .addParameter("min_cf", params.minCf.toPlainString())
+            .addParameter("max_cf", params.maxCf.toPlainString())
+            .addParameter("min_fi", params.minFi.toPlainString())
+            .addParameter("max_fi", params.maxFi.toPlainString())
+            .addParameter("alive_sec", params.forkLive.toPlainString())
+            .addParameter("alive_prc", params.forkLiveRatio.toPlainString())
             .addParameter("token", Context.URITokenAuth)
             .toUri();
 
@@ -75,6 +78,11 @@ public class Parser {
 
     private static String buildArrayParams(Stream<String> strings) {
         var result = strings.map(String::toLowerCase).collect(Collectors.toList());
+        return String.join(",", result);
+    }
+
+    private static String buildArrayParamsWithUpperCase(Stream<String> strings) {
+        var result = strings.map(String::toUpperCase).collect(Collectors.toList());
         return String.join(",", result);
     }
 
