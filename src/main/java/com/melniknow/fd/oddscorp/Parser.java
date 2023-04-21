@@ -7,13 +7,13 @@ import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
 import com.melniknow.fd.core.Logger;
 import io.mikael.urlbuilder.UrlBuilder;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +30,6 @@ public class Parser {
                        String bkName2, String event2, BetType type2, String link2,
                        BigDecimal ratio2, String bet2) { }
 
-
     public static List<Fork> getForks(ParserParams params) {
         var uri = UrlBuilder.fromString("http://api.oddscp.com:8111/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
@@ -43,22 +42,26 @@ public class Parser {
             .addParameter("token", Context.URITokenAuth)
             .toUri();
 
-        var stringForks = FakeServer.get(uri.toString());
+        var stringForks = "";
 
-        try {
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            var br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.US_ASCII));
-            var sb = new StringBuilder();
-            String output;
-            while ((output = br.readLine()) != null) {
-                sb.append(output);
+        try (var httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(uri);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    return null;
+                }
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    stringForks = EntityUtils.toString(entity); // GetBody
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        System.out.println(stringForks);
+        System.out.println(uri);
 
         var jsonParser = JsonParser.parseString(stringForks);
 

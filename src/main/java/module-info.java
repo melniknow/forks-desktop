@@ -8,6 +8,8 @@ module com.melniknow.fd {
     requires com.google.gson;
     requires io.github.bonigarcia.webdrivermanager;
     requires org.seleniumhq.selenium.chrome_driver;
+    requires org.apache.httpcomponents.httpcore;
+    requires org.apache.httpcomponents.httpclient;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;
