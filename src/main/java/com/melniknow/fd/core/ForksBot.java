@@ -11,7 +11,7 @@ public class ForksBot implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.MILLISECONDS.sleep(500);
 
                 var forks = Parser.getForks(Context.parserParams);
                 var calculated = MathUtils.calculate(forks);
@@ -25,11 +25,11 @@ public class ForksBot implements Runnable {
 //                    ...
 //
 //                    После того как сделали ставку извещаем об этом юзера
-
+//
                     var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
 
-                    Sender.send(completed);
-                    Logger.writeToLogSession(completed.toString());
+                    Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
+//                    Sender.send(completed);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
