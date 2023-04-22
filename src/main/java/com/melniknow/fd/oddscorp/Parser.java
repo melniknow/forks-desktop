@@ -30,7 +30,7 @@ public class Parser {
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-        var uri = UrlBuilder.fromString("http://194.67.68.124/forks")
+        var uri = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(n -> n.nameInAPI)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
