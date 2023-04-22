@@ -3,7 +3,6 @@ package com.melniknow.fd.oddscorp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.core.Logger;
 import io.mikael.urlbuilder.UrlBuilder;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -63,7 +62,6 @@ public class Parser {
                 var entity = response.getEntity();
                 if (entity != null) {
                     stringForks = EntityUtils.toString(entity);
-                    Logger.writeToLogSession(stringForks);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

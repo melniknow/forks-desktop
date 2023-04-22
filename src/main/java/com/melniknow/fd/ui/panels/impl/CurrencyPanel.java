@@ -92,9 +92,10 @@ public class CurrencyPanel implements IPanel {
         GridPane.setHalignment(saveButton, HPos.CENTER);
 
         saveButton.setOnAction(event -> {
-            if (updateCurrencyValue(usdField.getText(), eurField.getText(), thbField.getText()))
+            if (updateCurrencyValue(usdField.getText(), eurField.getText(), thbField.getText())) {
                 showSuccessAlert(grid.getScene().getWindow());
-            else
+                Controller.bookmakers.setDisable(false);
+            } else
                 showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
         });
 

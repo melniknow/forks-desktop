@@ -4,6 +4,7 @@ import com.melniknow.fd.context.Context;
 import com.melniknow.fd.oddscorp.BetType;
 import com.melniknow.fd.oddscorp.Bookmakers;
 import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -150,6 +151,7 @@ public class SettingPanel implements IPanel {
             }
 
             showSuccessAlert(grid.getScene().getWindow());
+            Controller.currency.setDisable(false);
         });
 
         return grid;

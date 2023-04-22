@@ -8,11 +8,9 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public class Context {
+    public static final String URITokenAuth = "c9af132a2632cb74c1f59d524dbbb5b2";
     public static volatile Parser.ParserParams parserParams;
     public static volatile Map<Currency, BigDecimal> currencyToRubCourse;
-    public static final String URITokenAuth = "c9af132a2632cb74c1f59d524dbbb5b2";
-
-    // Для каждого букмекера отдельно?
-    public static volatile BetsUtils.BetsParams betsParams = new BetsUtils.BetsParams(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+    public static volatile BetsUtils.BetsParams betsParams;
 }
 
