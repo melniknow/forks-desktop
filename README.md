@@ -8,9 +8,6 @@ Use this token to access the HTTP API:
 6061363285:AAGhtAmbN4A37_2IS7kx2zIvpZG8rRgcoGg
 Keep your token secure and store it safely, it can be used by anyone to control your bot.
 
-### Request example
-https://api.telegram.org/bot6061363285:AAGhtAmbN4A37_2IS7kx2zIvpZG8rRgcoGg/sendMessage?chat_id=-1001704593015&text=123
-
 ## Промежуточный сервер
 Для оптимизации запросов к основному API был сделан REST API (FastAPI). См [main.py](/main.py)
 
