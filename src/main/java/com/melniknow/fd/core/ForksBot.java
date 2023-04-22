@@ -22,8 +22,10 @@ public class ForksBot implements Runnable {
                     Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
                     Sender.send(completed);
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
+            } catch (Exception e) {
+                Logger.writeToLogSession("Bad iteration...");
             }
         }
     }

@@ -31,9 +31,9 @@ public class Parser {
         if (params == null) return null;
 
         var uri = UrlBuilder.fromString("http://194.67.68.124/forks")
-            .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
+            .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(n -> n.nameInAPI)))
             .addParameter("is_middles", Integer.toString(params.middles))
-            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::toString)))
+            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
             .addParameter("min_cf", params.minCf.toPlainString())
             .addParameter("max_cf", params.maxCf.toPlainString())
             .addParameter("min_fi", params.minFi.toPlainString())
