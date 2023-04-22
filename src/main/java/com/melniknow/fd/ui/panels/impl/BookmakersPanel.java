@@ -161,6 +161,8 @@ public class BookmakersPanel implements IPanel {
                     Controller.runButton.setDisable(true);
                 }
             } catch (Exception e) {
+                Controller.session.setDisable(true);
+                Controller.runButton.setDisable(true);
                 Context.betsParams.remove(bookmaker);
                 showErrorAlert(grid.getScene().getWindow());
             }

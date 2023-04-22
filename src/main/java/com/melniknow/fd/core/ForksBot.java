@@ -17,15 +17,6 @@ public class ForksBot implements Runnable {
                 var calculated = MathUtils.calculate(forks);
 
                 if (calculated != null) {
-//                    Делаем ставку, используя Selenium, betsParams и настройки букмекера (валюта и тд)
-//
-//                    WebDriverManager.chromedriver().setup();
-//                    new ChromeDriver().get("https://selenium.dev");
-//
-//                    ...
-//
-//                    После того как сделали ставку извещаем об этом юзера
-//
                     var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
 
                     Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
