@@ -21,7 +21,7 @@ public class SessionPanel implements IPanel {
         sessionLog.setMinSize(1200, 600);
         sessionLog.setPadding(new Insets(20, 20, 20, 20));
 
-        VBox box = new VBox(sessionLog);
+        var box = new VBox(sessionLog);
         box.setStyle("-fx-padding: 20 20 20 20;");
 
         return box;

@@ -145,6 +145,10 @@ public class SettingPanel implements IPanel {
                     typesBetParse,
                     new BigDecimal(forkLiveField.getText())
                 );
+
+                Context.betsParams.clear();
+                Controller.session.setDisable(true);
+                Controller.runButton.setDisable(true);
             } catch (Exception e) {
                 showErrorAlert(grid.getScene().getWindow());
                 return;
