@@ -31,7 +31,12 @@ public class Controller {
     @FXML
     private TabPane tabPane;
     @FXML
-    private Button run;
+    public Button run;
+
+    public static Tab currency;
+    public static Tab bookmakers;
+    public static Tab session;
+    public static Button runButton;
 
     public void initialize() {
         PolypokerCheck();
@@ -40,6 +45,17 @@ public class Controller {
         var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
         var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
         var sessionTab = tabConstructor("Сессия", new SessionPanel());
+
+        currencyTab.setDisable(true);
+        bookmakersTab.setDisable(true);
+        sessionTab.setDisable(true);
+
+        currency = currencyTab;
+        bookmakers = bookmakersTab;
+        session = sessionTab;
+
+        run.setDisable(true);
+        runButton = run;
 
         tabPane.getTabs().addAll(settingTab, currencyTab, bookmakersTab, sessionTab);
     }
