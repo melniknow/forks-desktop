@@ -23,4 +23,5 @@ module com.melniknow.fd {
     exports com.melniknow.fd.oddscorp;
     exports com.melniknow.fd.context;
     opens com.melniknow.fd.context to javafx.fxml;
+    exports com.melniknow.fd.selenium;
 }

@@ -1,8 +1,11 @@
 package com.melniknow.fd.ui;
 
 import com.google.gson.JsonParser;
+import com.melniknow.fd.context.Context;
 import com.melniknow.fd.core.ForksBot;
 import com.melniknow.fd.core.Logger;
+import com.melniknow.fd.oddscorp.Bookmakers;
+import com.melniknow.fd.selenium.ScreensManager;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.ui.panels.impl.BookmakersPanel;
 import com.melniknow.fd.ui.panels.impl.CurrencyPanel;
@@ -20,6 +23,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
     public static ExecutorService botPool = Executors.newSingleThreadExecutor();
     public static ExecutorService parsingPool = Executors.newCachedThreadPool();
+    public static final ScreensManager screensManager = new ScreensManager();
 
     @FXML
     private TabPane tabPane;
@@ -54,10 +61,33 @@ public class Controller {
         bookmakers = bookmakersTab;
         session = sessionTab;
 
+        bookmakers.setOnSelectionChanged(event -> {
+            if (Context.parserParams != null && !equalsBookmakersForPanel(Context.parserParams.bookmakers(), BookmakersPanel.tabPane.getTabs())) {
+                BookmakersPanel.tabPane.getTabs().clear();
+                BookmakersPanel.tabPane.getTabs().addAll(Context.parserParams.bookmakers().stream().map(n -> {
+                    var tab = new Tab(n.nameInAPI.toUpperCase());
+                    tab.setClosable(false);
+                    tab.setContent(BookmakersPanel.getTabContent(n));
+
+                    return tab;
+                }).toList());
+            }
+        });
+
         run.setDisable(true);
         runButton = run;
 
         tabPane.getTabs().addAll(settingTab, currencyTab, bookmakersTab, sessionTab);
+    }
+    private boolean equalsBookmakersForPanel(List<Bookmakers> bookmakers, List<Tab> tabs) {
+        var data = bookmakers.stream().map(n -> n.nameInAPI.toUpperCase()).toList();
+        var data2 = new ArrayList<String>();
+
+        for (Tab tab : tabs) {
+            data2.add(tab.getText());
+        }
+
+        return new HashSet<>(data).containsAll(data2) && data2.containsAll(data);
     }
 
     @FXML
