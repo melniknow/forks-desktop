@@ -2,7 +2,7 @@ package com.melniknow.fd.ui.panels.impl;
 
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.core.Currency;
+import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.application.Platform;
@@ -26,11 +26,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CurrencyPanel implements IPanel {
     @Override
-    public Node getGrid() {
+    public Node getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -146,7 +146,7 @@ public class CurrencyPanel implements IPanel {
 
     private boolean updateCurrencyValue(String usd, String eur, String tnb) {
         try {
-            var res = new HashMap<Currency, BigDecimal>();
+            var res = new ConcurrentHashMap<Currency, BigDecimal>();
             res.put(Currency.USD, new BigDecimal(usd));
             res.put(Currency.EUR, new BigDecimal(eur));
             res.put(Currency.THB, new BigDecimal(tnb));

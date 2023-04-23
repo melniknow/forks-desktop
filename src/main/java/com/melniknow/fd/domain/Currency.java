@@ -1,4 +1,4 @@
-package com.melniknow.fd.core;
+package com.melniknow.fd.domain;
 
 public enum Currency {
     USD, EUR, THB

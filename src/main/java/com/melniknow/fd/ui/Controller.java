@@ -2,10 +2,10 @@ package com.melniknow.fd.ui;
 
 import com.google.gson.JsonParser;
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.core.ForksBot;
+import com.melniknow.fd.core.BotRunner;
 import com.melniknow.fd.core.Logger;
-import com.melniknow.fd.oddscorp.Bookmakers;
-import com.melniknow.fd.selenium.ScreensManager;
+import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.betting.ScreenManager;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.ui.panels.impl.BookmakersPanel;
 import com.melniknow.fd.ui.panels.impl.CurrencyPanel;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
     public static ExecutorService botPool = Executors.newSingleThreadExecutor();
     public static ExecutorService parsingPool = Executors.newCachedThreadPool();
-    public static final ScreensManager screensManager = new ScreensManager();
+    public static final ScreenManager screenManager = new ScreenManager();
 
     @FXML
     private TabPane tabPane;
@@ -42,7 +42,6 @@ public class Controller {
 
     public static Tab currency;
     public static Tab bookmakers;
-    public static Tab session;
     public static Button runButton;
 
     public void initialize() {
@@ -55,11 +54,9 @@ public class Controller {
 
         currencyTab.setDisable(true);
         bookmakersTab.setDisable(true);
-        sessionTab.setDisable(true);
 
         currency = currencyTab;
         bookmakers = bookmakersTab;
-        session = sessionTab;
 
         bookmakers.setOnSelectionChanged(event -> {
             if (Context.parserParams != null && !equalsBookmakersForPanel(Context.parserParams.bookmakers(), BookmakersPanel.tabPane.getTabs())) {
@@ -79,7 +76,7 @@ public class Controller {
 
         tabPane.getTabs().addAll(settingTab, currencyTab, bookmakersTab, sessionTab);
     }
-    private boolean equalsBookmakersForPanel(List<Bookmakers> bookmakers, List<Tab> tabs) {
+    private boolean equalsBookmakersForPanel(List<Bookmaker> bookmakers, List<Tab> tabs) {
         var data = bookmakers.stream().map(n -> n.nameInAPI.toUpperCase()).toList();
         var data2 = new ArrayList<String>();
 
@@ -97,7 +94,7 @@ public class Controller {
     }
 
     private void start() {
-        botPool.submit(new ForksBot());
+        botPool.submit(new BotRunner());
         Platform.runLater(() -> run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;"));
         Platform.runLater(() -> run.setText("Стоп"));
         Logger.writeToLogSession("Сессия запущена");
@@ -126,7 +123,7 @@ public class Controller {
         var tab = new Tab(label);
 
         tab.setClosable(false);
-        tab.setContent(panel.getGrid());
+        tab.setContent(panel.getNode());
 
         return tab;
     }

@@ -30,6 +30,7 @@ public class App extends Application {
     public void stop() {
         Controller.botPool.shutdownNow();
         Controller.parsingPool.shutdownNow();
+        Controller.screenManager.clear();
     }
 
     public static void main(String[] args) {

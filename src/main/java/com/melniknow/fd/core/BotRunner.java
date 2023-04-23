@@ -1,12 +1,12 @@
 package com.melniknow.fd.core;
 
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.oddscorp.Parser;
-import com.melniknow.fd.tg.Sender;
+import com.melniknow.fd.betting.BetMaker;
+import com.melniknow.fd.utils.MathUtils;
 
 import java.util.concurrent.TimeUnit;
 
-public class ForksBot implements Runnable {
+public class BotRunner implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
@@ -17,10 +17,12 @@ public class ForksBot implements Runnable {
                 var calculated = MathUtils.calculate(forks);
 
                 if (calculated != null) {
-                    var completed = new BetsUtils.CompleteBetsFork(calculated, "some info");
+                    var completed = BetMaker.make(calculated);
 
-                    Logger.writeToLogSession(completed.calculatedFork().fork().income().toPlainString());
-                    Sender.send(completed);
+                    if (completed != null) {
+                        Logger.writePrettyMessageAboutFork(completed);
+                        TelegramSender.send(completed);
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

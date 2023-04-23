@@ -1,6 +1,6 @@
-package com.melniknow.fd.tg;
+package com.melniknow.fd.core;
 
-import com.melniknow.fd.core.BetsUtils;
+import com.melniknow.fd.utils.BetsUtils;
 import io.mikael.urlbuilder.UrlBuilder;
 
 import java.net.http.HttpClient;
@@ -8,7 +8,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
-public class Sender {
+public class TelegramSender {
     public static final HttpClient client = HttpClient.newHttpClient();
 
     public static void send(BetsUtils.CompleteBetsFork fork) {

@@ -1,9 +1,9 @@
 package com.melniknow.fd.ui.panels.impl;
 
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.oddscorp.BetType;
-import com.melniknow.fd.oddscorp.Bookmakers;
-import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.domain.BetType;
+import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.geometry.HPos;
@@ -21,7 +21,7 @@ import java.util.HashSet;
 
 public class SettingPanel implements IPanel {
     @Override
-    public GridPane getGrid() {
+    public GridPane getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -133,7 +133,7 @@ public class SettingPanel implements IPanel {
                 var middlesParse = Integer.parseInt(middlesField.getText());
                 if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
-                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmakers.valueOf(n.getText())).toList();
+                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
                 var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
 
                 var noChangeBookmakers = Context.parserParams != null &&
@@ -153,7 +153,7 @@ public class SettingPanel implements IPanel {
 
                 if (!noChangeBookmakers) {
                     Context.betsParams.clear();
-                    Controller.session.setDisable(true);
+                    Controller.screenManager.clear();
                     Controller.runButton.setDisable(true);
                 }
             } catch (Exception e) {
