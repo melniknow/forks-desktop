@@ -17,6 +17,7 @@ import javafx.stage.Window;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class SettingPanel implements IPanel {
     @Override
@@ -135,6 +136,10 @@ public class SettingPanel implements IPanel {
                 var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmakers.valueOf(n.getText())).toList();
                 var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
 
+                var noChangeBookmakers = Context.parserParams != null &&
+                    new HashSet<>(Context.parserParams.bookmakers()).containsAll(bookmakersParse) &&
+                    new HashSet<>(bookmakersParse).containsAll(Context.parserParams.bookmakers());
+
                 Context.parserParams = new Parser.ParserParams(
                     new BigDecimal(minimumField.getText()),
                     new BigDecimal(maximumField.getText()),
@@ -146,9 +151,11 @@ public class SettingPanel implements IPanel {
                     new BigDecimal(forkLiveField.getText())
                 );
 
-                Context.betsParams.clear();
-                Controller.session.setDisable(true);
-                Controller.runButton.setDisable(true);
+                if (!noChangeBookmakers) {
+                    Context.betsParams.clear();
+                    Controller.session.setDisable(true);
+                    Controller.runButton.setDisable(true);
+                }
             } catch (Exception e) {
                 showErrorAlert(grid.getScene().getWindow());
                 return;
