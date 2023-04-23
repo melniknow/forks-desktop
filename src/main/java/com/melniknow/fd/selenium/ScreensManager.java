@@ -7,23 +7,24 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.HashMap;
 
 public class ScreensManager {
-//    private static final ChromeDriver driver;
-//    static {
-//        WebDriverManager.chromedriver().setup();
-//        driver = new ChromeDriver();
-//    }
+    private final HashMap<Bookmakers, ChromeDriver> screenStorage = new HashMap<>();
 
-    private final HashMap<Bookmakers, String> screenStorage = new HashMap<>();
+    public ScreensManager() {
+        WebDriverManager.chromedriver().setup();
+    }
 
     public synchronized void createScreenForBookmaker(Bookmakers bookmaker) {
-        screenStorage.put(bookmaker, "");
+        screenStorage.put(bookmaker, new ChromeDriver());
     }
 
     public synchronized void removeScreenForBookmaker(Bookmakers bookmaker) {
-        screenStorage.remove(bookmaker);
+        var driver = screenStorage.remove(bookmaker);
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
-    public synchronized String getScreenForBookmaker(Bookmakers bookmaker) {
+    public synchronized ChromeDriver getScreenForBookmaker(Bookmakers bookmaker) {
         return screenStorage.get(bookmaker);
     }
 }
