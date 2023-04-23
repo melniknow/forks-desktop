@@ -68,7 +68,7 @@ public class BookmakersPanel implements IPanel {
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
 
-        var link = new Label("Адрес сайта *");
+        var link = new Label("Адрес сайта");
         grid.add(link, 0, 0);
         var linkField = new TextField();
         linkField.setPrefHeight(40);
