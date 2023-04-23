@@ -7,11 +7,11 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.HashMap;
 
 public class ScreensManager {
-    private static final ChromeDriver driver;
-    static {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-    }
+//    private static final ChromeDriver driver;
+//    static {
+//        WebDriverManager.chromedriver().setup();
+//        driver = new ChromeDriver();
+//    }
 
     private final HashMap<Bookmakers, String> screenStorage = new HashMap<>();
 
