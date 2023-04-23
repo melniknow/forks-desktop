@@ -25,4 +25,5 @@ module com.melniknow.fd {
     exports com.melniknow.fd.betting;
     exports com.melniknow.fd.domain;
     exports com.melniknow.fd.utils;
+    exports com.melniknow.fd.betting.bookmakers;
 }

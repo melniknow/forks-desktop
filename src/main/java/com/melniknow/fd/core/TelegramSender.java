@@ -1,6 +1,6 @@
 package com.melniknow.fd.core;
 
-import com.melniknow.fd.utils.BetsUtils;
+import com.melniknow.fd.utils.BetUtils;
 import io.mikael.urlbuilder.UrlBuilder;
 
 import java.net.http.HttpClient;
@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public class TelegramSender {
     public static final HttpClient client = HttpClient.newHttpClient();
 
-    public static void send(BetsUtils.CompleteBetsFork fork) {
+    public static void send(BetUtils.CompleteBetsFork fork) {
         var data = getDataMessage(fork);
 
         var uri = UrlBuilder.fromString("https://api.telegram.org/bot6061363285:AAGhtAmbN4A37_2IS7kx2zIvpZG8rRgcoGg/sendMessage")
@@ -23,7 +23,7 @@ public class TelegramSender {
         client.sendAsync(request, (HttpResponse.BodyHandler<String>) responseInfo -> null);
     }
 
-    private static String getDataMessage(BetsUtils.CompleteBetsFork completedFork) {
+    private static String getDataMessage(BetUtils.CompleteBetsFork completedFork) {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +

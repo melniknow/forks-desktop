@@ -1,7 +1,7 @@
 package com.melniknow.fd.ui.panels.impl;
 
 import com.melniknow.fd.context.Context;
-import com.melniknow.fd.utils.BetsUtils;
+import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
@@ -145,7 +145,7 @@ public class BookmakersPanel implements IPanel {
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
 
-                Context.betsParams.put(bookmaker, new BetsUtils.BetsParams(linkField.getText(), currencyField.getValue(),
+                Context.betsParams.put(bookmaker, new BetUtils.BetsParams(linkField.getText(), currencyField.getValue(),
                     new BigDecimal(minimumField.getText()), new BigDecimal(maximumField.getText()),
                     agentField.getText(), proxyIpField.getText(), port,
                     proxyLoginField.getText(), proxyPasswordField.getText()));
