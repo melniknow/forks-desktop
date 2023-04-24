@@ -1,4 +1,5 @@
 module com.melniknow.fd {
+    requires javafx.base;
     requires javafx.controls;
     requires javafx.fxml;
     requires atlantafx.base;

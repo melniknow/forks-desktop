@@ -6,17 +6,19 @@ import com.melniknow.fd.betting.bookmakers.impl.Pinnacle;
 import com.melniknow.fd.betting.bookmakers.impl._188Bet;
 
 public enum Bookmaker {
-    PINNACLE("pinnacle", "https://www.pinnacle.com", new Pinnacle()),
-    _188BET("188bet", "https://www.188bet.com", new _188Bet()),
-    BET365("bet365", "https://www.bet365.com", new Bet365());
+    PINNACLE("pinnacle", "https://api.pinnacle.com", new Pinnacle(), true),
+    _188BET("188bet", "https://www.188bet.com", new _188Bet(), false),
+    BET365("bet365", "https://www.bet365.com", new Bet365(), false);
 
     public final String nameInAPI;
     public final String link;
     public final IBookmaker realization;
+    public final boolean isApi;
 
-    Bookmaker(String nameInAPI, String link, IBookmaker realization) {
+    Bookmaker(String nameInAPI, String link, IBookmaker realization, boolean isApi) {
         this.nameInAPI = nameInAPI;
         this.link = link;
         this.realization = realization;
+        this.isApi = isApi;
     }
 }

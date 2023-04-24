@@ -27,7 +27,7 @@ public class BotRunner implements Runnable {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (Exception e) {
-                Logger.writeToLogSession("Bad iteration...");
+                Logger.writeToLogSession(e.getMessage());
             }
         }
     }

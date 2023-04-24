@@ -54,6 +54,7 @@ public class BookmakersPanel implements IPanel {
         grid.add(link, 0, 0);
         var linkField = new TextField();
         linkField.setPrefHeight(40);
+        linkField.setEditable(!bookmaker.isApi);
         linkField.setText(bookmaker.link);
         grid.add(linkField, 1, 0);
 
