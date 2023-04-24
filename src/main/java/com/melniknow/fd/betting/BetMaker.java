@@ -1,5 +1,6 @@
 package com.melniknow.fd.betting;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 
@@ -10,6 +11,9 @@ public class BetMaker {
 
         var realization1 = bookmaker1.realization;
         var realization2 = bookmaker2.realization;
+
+        var driver1 = Context.screenManager.getScreenForBookmaker(bookmaker1);
+        var driver2 = Context.screenManager.getScreenForBookmaker(bookmaker2);
 
         realization1.stepA();
         realization2.stepA();

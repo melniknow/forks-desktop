@@ -43,6 +43,7 @@ public class SettingPanel implements IPanel {
         var minimum = new Label("Минимальный доход по вилке *");
         grid.add(minimum, 0, 1);
         var minimumField = new TextField();
+        minimumField.setText("-1");
         minimumField.setPrefHeight(40);
         minimumField.setPromptText("%");
         grid.add(minimumField, 1, 1);
@@ -50,6 +51,7 @@ public class SettingPanel implements IPanel {
         var maximum = new Label("Максимальный доход по вилке *");
         grid.add(maximum, 0, 2);
         var maximumField = new TextField();
+        maximumField.setText("100");
         maximumField.setPromptText("%");
         maximumField.setPrefHeight(40);
         grid.add(maximumField, 1, 2);
@@ -57,6 +59,7 @@ public class SettingPanel implements IPanel {
         var minimumRatio = new Label("Минимальный коэффициент в вилке *");
         grid.add(minimumRatio, 0, 3);
         var minimumRatioField = new TextField();
+        minimumRatioField.setText("1.001");
         minimumRatioField.setPromptText("Минимальный коэффициент");
         minimumRatioField.setPrefHeight(40);
         grid.add(minimumRatioField, 1, 3);
@@ -64,6 +67,7 @@ public class SettingPanel implements IPanel {
         var maximumRatio = new Label("Максимальный коэффициент в вилке *");
         grid.add(maximumRatio, 0, 4);
         var maximumRatioField = new TextField();
+        maximumRatioField.setText("100");
         maximumRatioField.setPromptText("Максимальный коэффициент");
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, 4);
@@ -71,6 +75,7 @@ public class SettingPanel implements IPanel {
         var forkLive = new Label("Минимальное время жизни вилки (сек) *");
         grid.add(forkLive, 0, 5);
         var forkLiveField = new TextField();
+        forkLiveField.setText("0");
         forkLiveField.setPromptText("Считается относительно процента -1");
         forkLiveField.setPrefHeight(40);
         grid.add(forkLiveField, 1, 5);
@@ -78,15 +83,19 @@ public class SettingPanel implements IPanel {
         var bookmakers = new Label("Букмекеры *");
         grid.add(bookmakers, 0, 6);
         var pinnacle = new CheckBox("PINNACLE");
+        pinnacle.setSelected(true);
         grid.add(pinnacle, 1, 6);
         var _188Bet = new CheckBox("_188BET");
+        _188Bet.setSelected(true);
         grid.add(_188Bet, 1, 7);
         var bet365 = new CheckBox("BET365");
+        bet365.setSelected(true);
         grid.add(bet365, 1, 8);
 
         var middles = new Label("Коридоры *");
         grid.add(middles, 0, 9);
         var middlesField = new TextField();
+        middlesField.setText("0");
         middlesField.setPromptText("-1 - без коридоров. 0 - вилки и коридоры. 1 - только коридоры");
         middlesField.setPrefHeight(40);
         grid.add(middlesField, 1, 9);
@@ -94,10 +103,13 @@ public class SettingPanel implements IPanel {
         var typesBet = new Label("Виды ставок *");
         grid.add(typesBet, 0, 10);
         var wins = new CheckBox("WIN");
+        wins.setSelected(true);
         grid.add(wins, 1, 10);
         var totals = new CheckBox("TOTALS");
+        totals.setSelected(true);
         grid.add(totals, 1, 11);
         var handicaps = new CheckBox("HANDICAP");
+        handicaps.setSelected(true);
         grid.add(handicaps, 1, 12);
 
         var saveButton = new Button("Сохранить");
