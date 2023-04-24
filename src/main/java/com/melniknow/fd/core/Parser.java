@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +66,8 @@ public class Parser {
                 if (entity != null) {
                     stringForks = EntityUtils.toString(entity);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
