@@ -1,7 +1,6 @@
 module com.melniknow.fd {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.telegram.bot.api;
     requires atlantafx.base;
     requires java.net.http;
     requires urlbuilder;
