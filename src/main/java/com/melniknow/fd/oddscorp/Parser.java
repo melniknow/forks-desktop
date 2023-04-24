@@ -41,7 +41,7 @@ public class Parser {
             .addParameter("alive_sec", params.forkLive.toPlainString())
             .addParameter("token", Context.URITokenAuth)
             .toUri();
-
+        System.out.println(uri);
         var stringForks = "";
 
         var timeout = 2;
