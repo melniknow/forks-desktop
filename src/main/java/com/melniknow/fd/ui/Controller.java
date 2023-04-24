@@ -1,7 +1,7 @@
 package com.melniknow.fd.ui;
 
 import com.google.gson.JsonParser;
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.Context;
 import com.melniknow.fd.core.BotRunner;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.domain.Bookmaker;

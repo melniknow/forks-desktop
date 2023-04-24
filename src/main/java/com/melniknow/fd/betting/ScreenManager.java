@@ -1,6 +1,6 @@
 package com.melniknow.fd.betting;
 
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.domain.Bookmaker;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -21,10 +21,11 @@ public class ScreenManager {
         var params = Context.betsParams.get(bookmaker);
         var link = params.link();
 
-        var options = new ChromeOptions();
 //        var proxy = new Proxy();
-//
 //        proxy.setHttpProxy("102.165.51.172:3128");
+
+        var options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
 //        options.setCapability("proxy", proxy);
 
         var driver = new ChromeDriver(options);

@@ -1,7 +1,7 @@
 package com.melniknow.fd.ui.panels.impl;
 
 import com.google.gson.JsonParser;
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;

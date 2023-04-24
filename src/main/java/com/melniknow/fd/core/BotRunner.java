@@ -1,6 +1,6 @@
 package com.melniknow.fd.core;
 
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.BetMaker;
 import com.melniknow.fd.utils.MathUtils;
 

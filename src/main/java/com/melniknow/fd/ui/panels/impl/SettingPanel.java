@@ -1,6 +1,6 @@
 package com.melniknow.fd.ui.panels.impl;
 
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.core.Parser;

@@ -2,7 +2,6 @@ package com.melniknow.fd.core;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.melniknow.fd.context.Config;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
 import io.mikael.urlbuilder.UrlBuilder;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Parser {
+    public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive) { }
@@ -41,7 +41,7 @@ public class Parser {
             .addParameter("min_fi", params.minFi.toPlainString())
             .addParameter("max_fi", params.maxFi.toPlainString())
             .addParameter("alive_sec", params.forkLive.toPlainString())
-            .addParameter("token", Config.oddscorpToken)
+            .addParameter("token", oddscorpToken)
             .toUri();
 
         var stringForks = "";

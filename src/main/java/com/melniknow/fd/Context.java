@@ -1,4 +1,4 @@
-package com.melniknow.fd.context;
+package com.melniknow.fd;
 
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.domain.Currency;

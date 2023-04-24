@@ -20,8 +20,6 @@ module com.melniknow.fd {
     exports com.melniknow.fd.ui.panels.impl;
     opens com.melniknow.fd.ui.panels.impl to javafx.fxml;
     exports com.melniknow.fd.core;
-    exports com.melniknow.fd.context;
-    opens com.melniknow.fd.context to javafx.fxml;
     exports com.melniknow.fd.betting;
     exports com.melniknow.fd.domain;
     exports com.melniknow.fd.utils;
