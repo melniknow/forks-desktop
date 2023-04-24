@@ -22,12 +22,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17.0.2</version>
+            <version>16</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.2</version>
+            <version>16</version>
         </dependency>
         <dependency>
             <groupId>io.mikael</groupId>
@@ -79,7 +79,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.melniknow.fd/com.melniknow.fd.App</mainClass>
+                            <mainClass>com.melniknow.fd.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -96,7 +96,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.melniknow.fd/com.melniknow.fd.App</mainClass>
+                            <mainClass>com.melniknow.fd.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
