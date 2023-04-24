@@ -1,4 +1,4 @@
-# Forks Desktop
+# [Forks Desktop](http://nepolypoker.ru)
 
 Десктопное приложение для автоматизации вилок на JavaFX (Java 17)
 
@@ -11,6 +11,10 @@
 
 Каждый раз при запуске приложения с [сервера](http://nepolypoker.ru/flag.json) парсится поле flag.
 Если оно установленно в False, то приложение не запустится
+
+## Документация
+
+Документация для использования приложения лежит на [сайте](http://nepolypoker.ru). Проект [Forks-Desktop-Web](https://github.com/melniknow/Forks-Desktop-Web)
 
 ## Гении разработчики
 
