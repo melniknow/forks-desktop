@@ -1,8 +1,9 @@
-package com.melniknow.fd.oddscorp;
+package com.melniknow.fd.core;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.melniknow.fd.context.Context;
+import com.melniknow.fd.domain.BetType;
+import com.melniknow.fd.domain.Bookmaker;
 import io.mikael.urlbuilder.UrlBuilder;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -17,8 +18,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Parser {
+    public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
-                               BigDecimal maxCf, int middles, List<Bookmakers> bookmakers,
+                               BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive) { }
 
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
@@ -30,16 +32,16 @@ public class Parser {
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-        var uri = UrlBuilder.fromString("http://194.67.68.124:80/forks")
-            .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(Enum::name)))
+        var uri = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
+            .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(n -> n.nameInAPI)))
             .addParameter("is_middles", Integer.toString(params.middles))
-            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::toString)))
+            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
             .addParameter("min_cf", params.minCf.toPlainString())
             .addParameter("max_cf", params.maxCf.toPlainString())
             .addParameter("min_fi", params.minFi.toPlainString())
             .addParameter("max_fi", params.maxFi.toPlainString())
             .addParameter("alive_sec", params.forkLive.toPlainString())
-            .addParameter("token", Context.URITokenAuth)
+            .addParameter("token", oddscorpToken)
             .toUri();
         System.out.println(uri);
         var stringForks = "";

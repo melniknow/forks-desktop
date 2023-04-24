@@ -1,26 +1,30 @@
 package com.melniknow.fd.ui.panels.impl;
 
-import com.melniknow.fd.context.Context;
-import com.melniknow.fd.oddscorp.BetType;
-import com.melniknow.fd.oddscorp.Bookmakers;
-import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.Context;
+import com.melniknow.fd.core.Parser;
+import com.melniknow.fd.domain.BetType;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.PanelUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.stage.Window;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class SettingPanel implements IPanel {
     @Override
-    public GridPane getGrid() {
+    public GridPane getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -124,7 +128,7 @@ public class SettingPanel implements IPanel {
                 typesBetData.stream().noneMatch(CheckBox::isSelected) ||
                 forkLiveField.getText().isEmpty()) {
 
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
             }
 
@@ -132,8 +136,12 @@ public class SettingPanel implements IPanel {
                 var middlesParse = Integer.parseInt(middlesField.getText());
                 if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
-                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmakers.valueOf(n.getText())).toList();
+                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
                 var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
+
+                var noChangeBookmakers = Context.parserParams != null &&
+                    new HashSet<>(Context.parserParams.bookmakers()).containsAll(bookmakersParse) &&
+                    new HashSet<>(bookmakersParse).containsAll(Context.parserParams.bookmakers());
 
                 Context.parserParams = new Parser.ParserParams(
                     new BigDecimal(minimumField.getText()),
@@ -146,36 +154,20 @@ public class SettingPanel implements IPanel {
                     new BigDecimal(forkLiveField.getText())
                 );
 
-                Context.betsParams.clear();
-                Controller.session.setDisable(true);
-                Controller.runButton.setDisable(true);
+                if (!noChangeBookmakers) {
+                    Context.betsParams.clear();
+                    Context.screenManager.clear();
+                    Controller.runButton.setDisable(true);
+                }
             } catch (Exception e) {
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
             }
 
-            showSuccessAlert(grid.getScene().getWindow());
+            PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             Controller.currency.setDisable(false);
         });
 
         return grid;
-    }
-
-    private void showErrorAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(null);
-        alert.setContentText("Корректно заполните все необходимые поля!");
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    private void showSuccessAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText("Все настройки сохранены!");
-        alert.initOwner(owner);
-        alert.show();
     }
 }

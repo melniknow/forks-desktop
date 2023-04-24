@@ -1,6 +1,6 @@
-package com.melniknow.fd.core;
+package com.melniknow.fd.utils;
 
-import com.melniknow.fd.oddscorp.Parser;
+import com.melniknow.fd.core.Parser;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

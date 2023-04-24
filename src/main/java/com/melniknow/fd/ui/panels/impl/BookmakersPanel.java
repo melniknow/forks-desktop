@@ -1,10 +1,11 @@
 package com.melniknow.fd.ui.panels.impl;
 
-import com.melniknow.fd.context.Context;
-import com.melniknow.fd.core.BetsUtils;
-import com.melniknow.fd.oddscorp.Bookmakers;
+import com.melniknow.fd.Context;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.BetUtils;
+import com.melniknow.fd.utils.PanelUtils;
 import javafx.collections.FXCollections;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -16,7 +17,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Window;
 
 import java.math.BigDecimal;
 
@@ -24,7 +24,7 @@ public class BookmakersPanel implements IPanel {
     public static TabPane tabPane;
 
     @Override
-    public Node getGrid() {
+    public Node getNode() {
         tabPane = new TabPane();
         tabPane.setSide(Side.LEFT);
 
@@ -34,25 +34,7 @@ public class BookmakersPanel implements IPanel {
         return box;
     }
 
-    private static void showErrorAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(null);
-        alert.setContentText("Корректно заполните все необходимые поля!");
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    private static void showSuccessAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText("Все настройки сохранены!");
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    public static GridPane getTabContent(Bookmakers bookmaker) {
+    public static GridPane getTabContent(Bookmaker bookmaker) {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -73,7 +55,6 @@ public class BookmakersPanel implements IPanel {
         var linkField = new TextField();
         linkField.setPrefHeight(40);
         linkField.setText(bookmaker.link);
-        linkField.setEditable(false);
         grid.add(linkField, 1, 0);
 
         var currency = new Label("Валюта *");
@@ -146,23 +127,22 @@ public class BookmakersPanel implements IPanel {
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
 
-                Context.betsParams.put(bookmaker, new BetsUtils.BetsParams(currencyField.getValue(),
+                Context.betsParams.put(bookmaker, new BetUtils.BetsParams(linkField.getText(), currencyField.getValue(),
                     new BigDecimal(minimumField.getText()), new BigDecimal(maximumField.getText()),
                     agentField.getText(), proxyIpField.getText(), port,
                     proxyLoginField.getText(), proxyPasswordField.getText()));
 
-                showSuccessAlert(grid.getScene().getWindow());
+                Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
-                if (Context.parserParams.bookmakers().size() == Context.betsParams.size()) {
-                    Controller.session.setDisable(false);
-                    Controller.runButton.setDisable(false);
-                } else {
-                    Controller.session.setDisable(true);
-                    Controller.runButton.setDisable(true);
-                }
+                Context.screenManager.removeScreenForBookmaker(bookmaker);
+                Context.screenManager.createScreenForBookmaker(bookmaker);
+
+                PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             } catch (Exception e) {
+                Context.screenManager.removeScreenForBookmaker(bookmaker);
+                Controller.runButton.setDisable(true);
                 Context.betsParams.remove(bookmaker);
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка сохранения данных букмекера");
             }
         });
 
