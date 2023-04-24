@@ -1,10 +1,11 @@
 package com.melniknow.fd.ui.panels.impl;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.BetUtils;
+import com.melniknow.fd.utils.PanelUtils;
 import javafx.collections.FXCollections;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -16,7 +17,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Window;
 
 import java.math.BigDecimal;
 
@@ -32,24 +32,6 @@ public class BookmakersPanel implements IPanel {
         box.setStyle("-fx-padding: 20 20 20 20;");
 
         return box;
-    }
-
-    private static void showErrorAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(null);
-        alert.setContentText("Ошибка сохранения данных букмекера");
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    private static void showSuccessAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText("Все настройки сохранены!");
-        alert.initOwner(owner);
-        alert.show();
     }
 
     public static GridPane getTabContent(Bookmaker bookmaker) {
@@ -152,15 +134,15 @@ public class BookmakersPanel implements IPanel {
 
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
-                Controller.screenManager.removeScreenForBookmaker(bookmaker);
-                Controller.screenManager.createScreenForBookmaker(bookmaker);
+                Context.screenManager.removeScreenForBookmaker(bookmaker);
+                Context.screenManager.createScreenForBookmaker(bookmaker);
 
-                showSuccessAlert(grid.getScene().getWindow());
+                PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             } catch (Exception e) {
-                Controller.screenManager.removeScreenForBookmaker(bookmaker);
+                Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);
                 Context.betsParams.remove(bookmaker);
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка сохранения данных букмекера");
             }
         });
 

@@ -1,11 +1,10 @@
 package com.melniknow.fd.ui;
 
-import com.google.gson.JsonParser;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.core.BotRunner;
 import com.melniknow.fd.core.Logger;
+import com.melniknow.fd.core.Security;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.betting.ScreenManager;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.ui.panels.impl.BookmakersPanel;
 import com.melniknow.fd.ui.panels.impl.CurrencyPanel;
@@ -16,25 +15,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Controller {
-    public static ExecutorService botPool = Executors.newSingleThreadExecutor();
-    public static ExecutorService parsingPool = Executors.newCachedThreadPool();
-    public static final ScreenManager screenManager = new ScreenManager();
-
     @FXML
     private TabPane tabPane;
     @FXML
@@ -45,7 +33,7 @@ public class Controller {
     public static Button runButton;
 
     public void initialize() {
-        PolypokerCheck();
+        Security.PolypokerCheck();
 
         var settingTab = tabConstructor("Настройки", new SettingPanel());
         var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
@@ -94,7 +82,7 @@ public class Controller {
     }
 
     private void start() {
-        botPool.submit(new BotRunner());
+        Context.botPool.submit(new BotRunner());
         Platform.runLater(() -> run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;"));
         Platform.runLater(() -> run.setText("Стоп"));
         Logger.writeToLogSession("Сессия запущена");
@@ -104,15 +92,15 @@ public class Controller {
         boolean isInterrupted;
 
         try {
-            botPool.shutdownNow();
-            isInterrupted = botPool.awaitTermination(10, TimeUnit.SECONDS);
+            Context.botPool.shutdownNow();
+            isInterrupted = Context.botPool.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
         if (!isInterrupted) throw new RuntimeException();
 
-        botPool = Executors.newSingleThreadExecutor();
+        Context.botPool = Executors.newSingleThreadExecutor();
 
         Platform.runLater(() -> run.setStyle("-fx-background-color: #00FF00; -fx-text-fill: #000;"));
         Platform.runLater(() -> run.setText("Старт"));
@@ -126,39 +114,5 @@ public class Controller {
         tab.setContent(panel.getNode());
 
         return tab;
-    }
-
-    private void PolypokerCheck() {
-        parsingPool.submit(() -> {
-            var uri = "http://nepolypoker.ru/flag.json";
-            var timeout = 2;
-
-            var config = RequestConfig.custom()
-                .setConnectTimeout(timeout * 1000)
-                .setConnectionRequestTimeout(timeout * 1000)
-                .setSocketTimeout(timeout * 1000).build();
-
-            try (var httpClient = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config)
-                .build()) {
-                HttpGet request = new HttpGet(uri);
-                try (CloseableHttpResponse response = httpClient.execute(request)) {
-                    if (response.getStatusLine().getStatusCode() != 200) {
-                        throw new NullPointerException();
-                    }
-                    HttpEntity entity = response.getEntity();
-                    if (entity != null) {
-                        var status = JsonParser.parseString(EntityUtils.toString(entity)).getAsJsonObject().get("flag").getAsBoolean();
-                        if (!status) {
-                            throw new NullPointerException();
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new NullPointerException();
-                }
-            } catch (Exception e) {
-                throw new NullPointerException();
-            }
-        });
     }
 }

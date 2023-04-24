@@ -5,19 +5,18 @@ import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.PanelUtils;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.stage.Window;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -93,13 +92,13 @@ public class CurrencyPanel implements IPanel {
 
         saveButton.setOnAction(event -> {
             if (updateCurrencyValue(usdField.getText(), eurField.getText(), thbField.getText())) {
-                showSuccessAlert(grid.getScene().getWindow());
+                PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
                 Controller.bookmakers.setDisable(false);
             } else
-                showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
         });
 
-        updateButton.setOnAction(event -> Controller.parsingPool.submit(() -> {
+        updateButton.setOnAction(event -> Context.parsingPool.submit(() -> {
             var uri = "https://www.cbr-xml-daily.ru/daily_json.js";
             var isGood = true;
 
@@ -138,7 +137,7 @@ public class CurrencyPanel implements IPanel {
             }
 
             if (!isGood)
-                Platform.runLater(() -> showErrorAlert(grid.getScene().getWindow(), "Ошибка получения данных с сервера!"));
+                Platform.runLater(() -> PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка получения данных с сервера!"));
         }));
 
         return grid;
@@ -157,23 +156,5 @@ public class CurrencyPanel implements IPanel {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private void showErrorAlert(Window owner, String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    private void showSuccessAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText("Все настройки сохранены!");
-        alert.initOwner(owner);
-        alert.show();
     }
 }

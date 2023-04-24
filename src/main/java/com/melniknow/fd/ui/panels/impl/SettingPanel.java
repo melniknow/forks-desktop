@@ -1,19 +1,22 @@
 package com.melniknow.fd.ui.panels.impl;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.PanelUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.stage.Window;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -125,7 +128,7 @@ public class SettingPanel implements IPanel {
                 typesBetData.stream().noneMatch(CheckBox::isSelected) ||
                 forkLiveField.getText().isEmpty()) {
 
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
             }
 
@@ -153,36 +156,18 @@ public class SettingPanel implements IPanel {
 
                 if (!noChangeBookmakers) {
                     Context.betsParams.clear();
-                    Controller.screenManager.clear();
+                    Context.screenManager.clear();
                     Controller.runButton.setDisable(true);
                 }
             } catch (Exception e) {
-                showErrorAlert(grid.getScene().getWindow());
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
             }
 
-            showSuccessAlert(grid.getScene().getWindow());
+            PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             Controller.currency.setDisable(false);
         });
 
         return grid;
-    }
-
-    private void showErrorAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(null);
-        alert.setContentText("Корректно заполните все необходимые поля!");
-        alert.initOwner(owner);
-        alert.show();
-    }
-
-    private void showSuccessAlert(Window owner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText("Все настройки сохранены!");
-        alert.initOwner(owner);
-        alert.show();
     }
 }
