@@ -15,6 +15,9 @@ public class BetMaker {
         var driver1 = Context.screenManager.getScreenForBookmaker(bookmaker1);
         var driver2 = Context.screenManager.getScreenForBookmaker(bookmaker2);
 
+        var proxy1 = Context.screenManager.getProxyForApiBookmaker(bookmaker1);
+        var proxy2 = Context.screenManager.getProxyForApiBookmaker(bookmaker2);
+
         realization1.stepA();
         realization2.stepA();
 
