@@ -10,7 +10,7 @@ public class BetUtils {
     public record BetsParams(String link, Currency currency, BigDecimal minBetSum,
                              BigDecimal maxBetSum,
                              String userAgent, String proxyIp, Integer proxyPort,
-                             String proxyLogin, String proxyPassword) { }
+                             String proxyLogin, String proxyPassword, String screenSize) { }
     public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String info) { }
     public record Proxy(String ip, String port, String username, String password) { }
 

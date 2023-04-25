@@ -44,6 +44,7 @@ public class ScreenManager {
                 var options = new ChromeOptions();
                 options.addArguments("--remote-allow-origins=*");
                 options.addArguments("ignore-certificate-errors");
+                // options.addArguments("lang=en-GB");
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
@@ -65,7 +66,16 @@ public class ScreenManager {
                     driver.findElement(By.id("manualSetProxyButton")).click();
                 }
 
-                var dimension = new Dimension(800, 800);
+                var screenX = 1600;
+                var screenY = 900;
+
+                if (params.screenSize() != null) {
+                    var screenSizes = params.screenSize().split("/");
+                    screenX = Integer.parseInt(screenSizes[0]);
+                    screenY = Integer.parseInt(screenSizes[1]);
+                }
+
+                var dimension = new Dimension(screenX, screenY);
                 driver.manage().window().setSize(dimension);
 
                 screenStorage.put(bookmaker, driver);
