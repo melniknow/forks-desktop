@@ -49,10 +49,10 @@ public class Controller {
         bookmakers.setOnSelectionChanged(event -> {
             if (Context.parserParams != null && !equalsBookmakersForPanel(Context.parserParams.bookmakers(), BookmakersPanel.tabPane.getTabs())) {
                 BookmakersPanel.tabPane.getTabs().clear();
-                BookmakersPanel.tabPane.getTabs().addAll(Context.parserParams.bookmakers().stream().map(n -> {
-                    var tab = new Tab(n.nameInAPI.toUpperCase());
+                BookmakersPanel.tabPane.getTabs().addAll(Context.parserParams.bookmakers().stream().map(bookmaker -> {
+                    var tab = new Tab(bookmaker.nameInAPI.toUpperCase());
                     tab.setClosable(false);
-                    tab.setContent(BookmakersPanel.getTabContent(n));
+                    tab.setContent(BookmakersPanel.getTabContent(bookmaker));
 
                     return tab;
                 }).toList());
