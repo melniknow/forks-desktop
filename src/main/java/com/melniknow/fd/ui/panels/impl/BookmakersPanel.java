@@ -97,7 +97,7 @@ public class BookmakersPanel implements IPanel {
         var proxyIp = new Label("Proxy IP (HTTP)");
         grid.add(proxyIp, 0, 6);
         var proxyIpField = new TextField();
-        proxyIpField.setText("51.79.217.26");
+        proxyIpField.setText("51.79.203.198");
         proxyIpField.setPrefHeight(40);
         proxyIpField.setPromptText("193.67.67.124");
         grid.add(proxyIpField, 1, 6);
@@ -105,7 +105,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPort = new Label("Proxy port");
         grid.add(proxyPort, 0, 7);
         var proxyPortField = new TextField();
-        proxyPortField.setText("10139");
+        proxyPortField.setText("10269");
         proxyPortField.setPrefHeight(40);
         proxyPortField.setPromptText("65233");
         grid.add(proxyPortField, 1, 7);
@@ -113,7 +113,7 @@ public class BookmakersPanel implements IPanel {
         var proxyLogin = new Label("Proxy login");
         grid.add(proxyLogin, 0, 8);
         var proxyLoginField = new TextField();
-        proxyLoginField.setText("1");
+        proxyLoginField.setText("smelnikovimit9227");
         proxyLoginField.setPrefHeight(40);
         proxyLoginField.setPromptText("admin");
         grid.add(proxyLoginField, 1, 8);
@@ -121,7 +121,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPassword = new Label("Proxy password");
         grid.add(proxyPassword, 0, 9);
         var proxyPasswordField = new TextField();
-        proxyPasswordField.setText("1");
+        proxyPasswordField.setText("c6399f");
         proxyPasswordField.setPrefHeight(40);
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, 9);

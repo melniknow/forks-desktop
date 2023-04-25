@@ -44,7 +44,6 @@ public class ScreenManager {
                 var options = new ChromeOptions();
                 options.addArguments("--remote-allow-origins=*");
                 options.addArguments("ignore-certificate-errors");
-                // options.addArguments("lang=en-GB");
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
