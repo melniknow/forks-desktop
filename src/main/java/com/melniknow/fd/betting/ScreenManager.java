@@ -13,6 +13,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -44,6 +46,19 @@ public class ScreenManager {
                 var options = new ChromeOptions();
                 options.addArguments("--remote-allow-origins=*");
                 options.addArguments("ignore-certificate-errors");
+                options.addArguments("--disable-blink-features=AutomationControlled");
+                options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+                options.setExperimentalOption("useAutomationExtension", false);
+
+                if (!params.userAgent().isEmpty())
+                    options.addArguments("user-agent=" + params.userAgent());
+
+                if (!params.lang().isEmpty()) {
+                    var chromePrefs = new HashMap<String, Object>();
+                    chromePrefs.put("intl.accept_languages", "en");
+
+                    options.setExperimentalOption("prefs", chromePrefs);
+                }
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
@@ -75,7 +90,9 @@ public class ScreenManager {
                 }
 
                 var dimension = new Dimension(screenX, screenY);
+
                 driver.manage().window().setSize(dimension);
+                driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 
                 screenStorage.put(bookmaker, driver);
 
