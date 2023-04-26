@@ -41,45 +41,45 @@ public class ScreenManager {
                     return;
                 }
 
-                var options = new ChromeOptions();
-                options.addArguments("--remote-allow-origins=*");
-                options.addArguments("ignore-certificate-errors");
+//                var options = new ChromeOptions();
+//                options.addArguments("--remote-allow-origins=*");
+//                options.addArguments("ignore-certificate-errors");
+//
+//                if (!params.proxyIp().isEmpty()) {
+//                    try {
+//                        options.addExtensions(new File(Objects.requireNonNull(App.class.getResource("proxy.crx")).toURI()));
+//                    } catch (URISyntaxException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
 
-                if (!params.proxyIp().isEmpty()) {
-                    try {
-                        options.addExtensions(new File(Objects.requireNonNull(App.class.getResource("proxy.crx")).toURI()));
-                    } catch (URISyntaxException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                var driver = new ChromeDriver();
 
-                var driver = new ChromeDriver(options);
-
-                if (!params.proxyIp().isEmpty()) {
-                    driver.get("chrome-extension://hjocpjdeacglfchomobaagbmipeggnjg/options.html");
-
-                    driver.findElement(By.id("proxyEntry")).sendKeys(params.proxyIp());
-                    driver.findElement(By.id("portEntry")).sendKeys(String.valueOf(params.proxyPort()));
-                    driver.findElement(By.id("loginEntry")).sendKeys(params.proxyLogin());
-                    driver.findElement(By.id("passwordEntry")).sendKeys(params.proxyPassword());
-                    driver.findElement(By.id("manualSetProxyButton")).click();
-                }
+//                if (!params.proxyIp().isEmpty()) {
+//                    driver.get("chrome-extension://hjocpjdeacglfchomobaagbmipeggnjg/options.html");
+//
+//                    driver.findElement(By.id("proxyEntry")).sendKeys("params.proxyIp()");
+//                    driver.findElement(By.id("portEntry")).sendKeys(String.valueOf(params.proxyPort()));
+//                    driver.findElement(By.id("loginEntry")).sendKeys(params.proxyLogin());
+//                    driver.findElement(By.id("passwordEntry")).sendKeys(params.proxyPassword());
+//                    driver.findElement(By.id("manualSetProxyButton")).click();
+//                }
 
                 var screenX = 1600;
                 var screenY = 900;
 
-                if (params.screenSize() != null) {
-                    var screenSizes = params.screenSize().split("/");
-                    screenX = Integer.parseInt(screenSizes[0]);
-                    screenY = Integer.parseInt(screenSizes[1]);
-                }
+//                if (params.screenSize() != null) {
+//                    var screenSizes = params.screenSize().split("/");
+//                    screenX = Integer.parseInt(screenSizes[0]);
+//                    screenY = Integer.parseInt(screenSizes[1]);
+//                }
 
                 var dimension = new Dimension(screenX, screenY);
                 driver.manage().window().setSize(dimension);
 
                 screenStorage.put(bookmaker, driver);
 
-                driver.get(link);
+//                driver.get(link);
             } catch (Exception e) {
                 Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
             }

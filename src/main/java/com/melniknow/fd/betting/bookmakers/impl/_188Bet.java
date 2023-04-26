@@ -4,10 +4,12 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.utils.MathUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import com.melniknow.fd.utils.BetUtils.Proxy;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +17,11 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void openLink(ChromeDriver driver, Proxy proxy, MathUtils.CalculatedFork calculated) {
-        driver.get(calculated.fork().link1());
+        driver.get("https://sports.188sbk.com/en-gb/sports/all-market/6989377/Molotpro-vs-Eaglespro");
+
+        List<WebElement> button = driver.findElements(By.xpath("//div[contains(text(),'r')]"));
+
+        System.out.println("\n\n\nSIZE= " + button.size());
     }
 
     @Override
