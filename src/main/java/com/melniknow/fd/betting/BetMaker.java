@@ -6,8 +6,8 @@ import com.melniknow.fd.utils.MathUtils;
 
 public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) {
-        var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().bkName1());
-        var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().bkName2());
+        var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
+        var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
 
         var realization1 = bookmaker1.realization;
         var realization2 = bookmaker2.realization;
@@ -18,11 +18,11 @@ public class BetMaker {
         var proxy1 = Context.screenManager.getProxyForApiBookmaker(bookmaker1);
         var proxy2 = Context.screenManager.getProxyForApiBookmaker(bookmaker2);
 
-        realization1.openLink(driver1, proxy1, calculated);
-        realization2.openLink(driver2, proxy2, calculated);
+        realization1.openLink(driver1, proxy1, calculated.fork().betInfo1().BK_href());
+        realization2.openLink(driver2, proxy2, calculated.fork().betInfo2().BK_href());
 
-        realization1.clickOnBetType();
-        realization2.clickOnBetType();
+        realization1.clickOnBetType(driver1, proxy1, calculated.fork().betInfo1(), calculated.fork().sport());
+        realization2.clickOnBetType(driver2, proxy2, calculated.fork().betInfo2(), calculated.fork().sport());
 
         return new BetUtils.CompleteBetsFork(calculated, "some info");
     }

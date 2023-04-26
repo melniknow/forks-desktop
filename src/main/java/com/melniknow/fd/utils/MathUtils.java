@@ -19,13 +19,13 @@ public class MathUtils {
         var mode = RoundingMode.DOWN;
         var scale = 8;
 
-        var income1 = BigDecimal.ONE.divide(fork.ratio1(), scale, mode);
-        var income2 = BigDecimal.ONE.divide(fork.ratio2(), scale, mode);
+        var income1 = BigDecimal.ONE.divide(fork.betInfo1().BK_cf(), scale, mode);
+        var income2 = BigDecimal.ONE.divide(fork.betInfo2().BK_cf(), scale, mode);
 
         var income = income1.add(income2);
 
-        var c1 = BigDecimal.ONE.divide(fork.ratio1(), scale, mode).divide(income, scale, mode);
-        var c2 = BigDecimal.ONE.divide(fork.ratio2(), scale, mode).divide(income, scale, mode);
+        var c1 = BigDecimal.ONE.divide(fork.betInfo1().BK_cf(), scale, mode).divide(income, scale, mode);
+        var c2 = BigDecimal.ONE.divide(fork.betInfo2().BK_cf(), scale, mode).divide(income, scale, mode);
 
         return new CalculatedFork(fork, c1, c2);
     }

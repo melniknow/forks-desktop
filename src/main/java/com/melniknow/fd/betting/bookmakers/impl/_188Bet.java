@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers.impl;
 
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
+import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.utils.MathUtils;
 import org.openqa.selenium.By;
@@ -16,58 +17,24 @@ import java.util.regex.Pattern;
 public class _188Bet implements IBookmaker {
 
     @Override
-    public void openLink(ChromeDriver driver, Proxy proxy, MathUtils.CalculatedFork calculated) {
-        driver.get("https://sports.188sbk.com/en-gb/sports/all-market/6989377/Molotpro-vs-Eaglespro");
-
-        List<WebElement> button = driver.findElements(By.xpath("//div[contains(text(),'r')]"));
-
-        System.out.println("\n\n\nSIZE= " + button.size());
+    public void openLink(ChromeDriver driver, Proxy proxy, String link) {
+        driver.get(link);
     }
 
     @Override
-    public void clickOnBetType() {
-        //        if (calculated.fork().betType().equals(BetType.WIN)) {
-//            var winTable = driver.findElement(By.className("data-btn=\"Winner\""));
-//
-//            var winnerName = calculated.fork().bet1();
-//            if (winnerName.equals("WIN__P1")) {
-//
-//            } else if (winnerName.equals("WIN__P2")) {
-//
-//            } else {
-//                throw new RuntimeException("not support betType"); // TODO
-//            }
-//        }
-//
-//        if (calculated.fork().betType().equals(BetType.TOTALS)) {
-//            var totals = getTotalsByStr(calculated.fork().bet1());
-//            if (calculated.fork().bet1().contains("TOTALS__OVER")) {
-//                var curtTotal = driver.findElement(By.className("sc-ftTHYK eRWnrS"));
-//                var value = BigDecimal.valueOf(Double.parseDouble(curtTotal.getText()));
-//                if (value.equals(totals)) {
-//                    curtTotal.click();
-//                }
-//            } else if (calculated.fork().bet2().contains("TOTALS__UNDER")) {
-//
-//            } else {
-//
-//            }
-//        }
-//
-//        if (calculated.fork().betType().equals(BetType.HANDICAP)) {
-//
-//        }
+    public void clickOnBetType(ChromeDriver driver, Proxy proxy, Parser.BetInfo info, String sport) {
     }
-
 
     @Override
-    public void enterSumAndCheckCf() {
+    public void enterSumAndCheckCf(ChromeDriver driver, Proxy proxy, Parser.BetInfo info) {
 
     }
+
     @Override
-    public void placeBet() {
+    public void placeBet(ChromeDriver driver, Proxy proxy, Parser.BetInfo info) {
 
     }
+
     private static BigDecimal getTotalsByStr(String str) {
         Pattern p = Pattern.compile("(\\d+(?:\\.\\d+))");
         Matcher m = p.matcher(str);

@@ -24,11 +24,12 @@ public class Parser {
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive) { }
 
+    public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet, String BK_href,
+                          BigDecimal BK_cf, String BK_game, String BK_league, JsonObject BK_market_meta, JsonObject BK_event_meta,
+                          String BK_event_native_id) { }
+
     public record Fork(BigDecimal income, String sport, int isMiddles, BetType betType,
-                       String bkName1, String event1, BetType type1, String link1,
-                       BigDecimal ratio1, String bet1,
-                       String bkName2, String event2, BetType type2, String link2,
-                       BigDecimal ratio2, String bet2) { }
+                       BetInfo betInfo1, BetInfo betInfo2) { }
 
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
@@ -101,18 +102,20 @@ public class Parser {
             forkObject.get("sport").getAsString(),
             Integer.parseInt(forkObject.get("is_middles").getAsString()),
             BetType.valueOf(forkObject.get("bet_type").getAsString()),
-            forkObject.get("BK1_name").getAsString(),
-            forkObject.get("BK1_event_id").getAsString(),
-            BetType.valueOf(forkObject.get("BK1_bet_type").getAsString()),
-            forkObject.get("BK1_href").getAsString(),
-            forkObject.get("BK1_cf").getAsBigDecimal(),
-            forkObject.get("BK1_bet").getAsString(),
-            forkObject.get("BK2_name").getAsString(),
-            forkObject.get("BK2_event_id").getAsString(),
-            BetType.valueOf(forkObject.get("BK2_bet_type").getAsString()),
-            forkObject.get("BK2_href").getAsString(),
-            forkObject.get("BK2_cf").getAsBigDecimal(),
-            forkObject.get("BK2_bet").getAsString()
+            new BetInfo(forkObject.get("BK1_name").getAsString(), forkObject.get("BK1_event_id").getAsString(),
+                BetType.valueOf(forkObject.get("BK1_bet_type").getAsString()), forkObject.get("BK1_bet").getAsString(), forkObject.get("BK1_href").getAsString(),
+                forkObject.get("BK1_cf").getAsBigDecimal(), forkObject.get("BK1_game").getAsString(),
+                forkObject.get("BK1_league").getAsString(), JsonParser.parseString(forkObject.get("BK1_market_meta").getAsString()).getAsJsonObject(),
+                JsonParser.parseString(forkObject.get("BK1_event_meta").getAsString()).getAsJsonObject(),
+                forkObject.get("BK1_event_native_id").getAsString()
+                ),
+            new BetInfo(forkObject.get("BK2_name").getAsString(), forkObject.get("BK2_event_id").getAsString(),
+                BetType.valueOf(forkObject.get("BK2_bet_type").getAsString()), forkObject.get("BK2_bet").getAsString(), forkObject.get("BK2_href").getAsString(),
+                forkObject.get("BK2_cf").getAsBigDecimal(), forkObject.get("BK2_game").getAsString(),
+                forkObject.get("BK2_league").getAsString(), JsonParser.parseString(forkObject.get("BK2_market_meta").getAsString()).getAsJsonObject(),
+                JsonParser.parseString(forkObject.get("BK2_event_meta").getAsString()).getAsJsonObject(),
+                forkObject.get("BK2_event_native_id").getAsString()
+            )
         );
     }
 }
