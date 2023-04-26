@@ -5,7 +5,6 @@ import com.melniknow.fd.utils.BetUtils;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class SoccerWin {
-
     static public void click(ChromeDriver driver, BetUtils.Proxy proxy, Parser.BetInfo info) {
 
     }
