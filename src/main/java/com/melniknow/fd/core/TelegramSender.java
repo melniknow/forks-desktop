@@ -31,20 +31,20 @@ public class TelegramSender {
                 "<i>Тип ставки:</i> <b>" + fork.betType() + "</b>" + "\n\n" +
 
                 "Букмекер 1\n" +
-                "<i>Имя:</i> <b>" + fork.bkName1() + "</b>" + "\n" +
-                "<i>Событие:</i> <b>" + fork.event1() + "</b>" + "\n" +
-                "<i>Тип ставки:</i> <b>" + fork.bet1() + "</b>" + "\n" +
-                "<i>Ссылка:</i> <b>" + fork.link1() + "</b>" + "\n" +
-                "<i>Коэффициент:</i> <b>" + fork.ratio1() + "</b>" + "\n" +
-                "<i>Тип ставки:</i> <b>" + fork.type1() + "</b>" + "\n\n" +
+                "<i>Имя:</i> <b>" + fork.betInfo1().BK_name() + "</b>" + "\n" +
+                "<i>Событие:</i> <b>" + fork.betInfo1().BK_event_id() + "</b>" + "\n" +
+                "<i>Тип ставки:</i> <b>" + fork.betInfo1().BK_bet() + "</b>" + "\n" +
+                "<i>Ссылка:</i> <b>" + fork.betInfo1().BK_href() + "</b>" + "\n" +
+                "<i>Коэффициент:</i> <b>" + fork.betInfo1().BK_cf() + "</b>" + "\n" +
+                "<i>Тип ставки:</i> <b>" + fork.betInfo1().BK_bet_type() + "</b>" + "\n\n" +
 
                 "Букмекер 2\n" +
-                "<i>Имя:</i> <b>" + fork.bkName2() + "</b>" + "\n" +
-                "<i>Событие:</i> <b>" + fork.event2() + "</b>" + "\n" +
-                "<i>Тип ставки:</i> <b>" + fork.bet2() + "</b>" + "\n" +
-                "<i>Ссылка:</i> <b>" + fork.link2() + "</b>" + "\n" +
-                "<i>Коэффициент:</i> <b>" + fork.ratio2() + "</b>" + "\n" +
-                "<i>Тип ставки:</i> <b>" + fork.type2() + "</b>" + "\n\n" +
+                "<i>Имя:</i> <b>" + fork.betInfo2().BK_name() + "</b>" + "\n" +
+                "<i>Событие:</i> <b>" + fork.betInfo2().BK_event_id() + "</b>" + "\n" +
+                "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet() + "</b>" + "\n" +
+                "<i>Ссылка:</i> <b>" + fork.betInfo2().BK_href() + "</b>" + "\n" +
+                "<i>Коэффициент:</i> <b>" + fork.betInfo2().BK_cf() + "</b>" + "\n" +
+                "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet_type() + "</b>" + "\n\n" +
 
                 "<i>Информация по вилке:</i> <b>" + completedFork.info() + "</b>" + "\n",
             StandardCharsets.UTF_8
