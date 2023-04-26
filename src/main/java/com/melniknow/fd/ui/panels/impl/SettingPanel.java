@@ -4,6 +4,7 @@ import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.domain.Sports;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.utils.PanelUtils;
@@ -112,11 +113,23 @@ public class SettingPanel implements IPanel {
         handicaps.setSelected(true);
         grid.add(handicaps, 1, 12);
 
+        var sports = new Label("Виды спорта *");
+        grid.add(sports, 0, 13);
+        var soccer = new CheckBox("Soccer");
+        soccer.setSelected(true);
+        grid.add(soccer, 1, 13);
+        var tennis = new CheckBox("Tennis");
+        tennis.setSelected(true);
+        grid.add(tennis, 1, 14);
+        var basketball = new CheckBox("Basketball");
+        basketball.setSelected(true);
+        grid.add(basketball, 1, 15);
+
         var saveButton = new Button("Сохранить");
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(150);
-        grid.add(saveButton, 0, 14, 2, 1);
+        grid.add(saveButton, 0, 17, 2, 1);
         GridPane.setHalignment(saveButton, HPos.CENTER);
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
@@ -133,12 +146,18 @@ public class SettingPanel implements IPanel {
                 add(handicaps);
             }};
 
+            var sportsData = new ArrayList<CheckBox>() {{
+                add(soccer);
+                add(tennis);
+                add(basketball);
+            }};
+
             if (maximumField.getText().isEmpty() || minimumField.getText().isEmpty() ||
                 minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() ||
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 typesBetData.stream().noneMatch(CheckBox::isSelected) ||
-                forkLiveField.getText().isEmpty()) {
+                forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected)) {
 
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
@@ -150,6 +169,7 @@ public class SettingPanel implements IPanel {
 
                 var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
                 var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
+                var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sports.valueOf(n.getText().toUpperCase())).toList();
 
                 var noChangeBookmakers = Context.parserParams != null &&
                     new HashSet<>(Context.parserParams.bookmakers()).containsAll(bookmakersParse) &&
@@ -163,7 +183,8 @@ public class SettingPanel implements IPanel {
                     middlesParse,
                     bookmakersParse,
                     typesBetParse,
-                    new BigDecimal(forkLiveField.getText())
+                    new BigDecimal(forkLiveField.getText()),
+                    sportsType
                 );
 
                 if (!noChangeBookmakers) {
