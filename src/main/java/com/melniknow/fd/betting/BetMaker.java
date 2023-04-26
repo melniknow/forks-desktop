@@ -18,8 +18,8 @@ public class BetMaker {
         var proxy1 = Context.screenManager.getProxyForApiBookmaker(bookmaker1);
         var proxy2 = Context.screenManager.getProxyForApiBookmaker(bookmaker2);
 
-        realization1.openLink(driver1, proxy1, calculated.fork().betInfo1().BK_href());
-        realization2.openLink(driver2, proxy2, calculated.fork().betInfo2().BK_href());
+//        realization1.openLink(driver1, proxy1, calculated.fork().betInfo1().BK_href());
+//        realization2.openLink(driver2, proxy2, calculated.fork().betInfo2().BK_href());
 
         realization1.clickOnBetType(driver1, proxy1, calculated.fork().betInfo1(), calculated.fork().sport());
         realization2.clickOnBetType(driver2, proxy2, calculated.fork().betInfo2(), calculated.fork().sport());
