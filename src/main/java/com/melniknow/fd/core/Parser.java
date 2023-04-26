@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.domain.Sports;
 import io.mikael.urlbuilder.UrlBuilder;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,7 +23,7 @@ public class Parser {
     public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
-                               List<BetType> types, BigDecimal forkLive) { }
+                               List<BetType> types, BigDecimal forkLive, List<Sports> sports) { }
 
     public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet, String BK_href,
                           BigDecimal BK_cf, String BK_game, String BK_league, JsonObject BK_market_meta, JsonObject BK_event_meta,
@@ -36,6 +37,7 @@ public class Parser {
 
         var uri = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
             .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(n -> n.nameInAPI)))
+            .addParameter("sport", buildArrayParams(params.sports.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
             .addParameter("min_cf", params.minCf.toPlainString())
