@@ -47,8 +47,6 @@ public class Parser {
             .addParameter("token", oddscorpToken)
             .toUri();
 
-        System.out.println(uri);
-
         var stringForks = "";
 
         var timeout = 2;
