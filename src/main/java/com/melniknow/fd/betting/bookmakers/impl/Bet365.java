@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers.impl;
 
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
+import com.melniknow.fd.domain.Sports;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,7 +13,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public void clickOnBetType(ChromeDriver driver, BetUtils.Proxy proxy, Parser.BetInfo info, String sport) {
+    public void clickOnBetType(ChromeDriver driver, BetUtils.Proxy proxy, Parser.BetInfo info, Sports sport) {
 
     }
     @Override
