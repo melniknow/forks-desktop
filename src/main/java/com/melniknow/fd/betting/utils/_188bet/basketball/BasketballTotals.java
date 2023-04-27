@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class BasketballTotals {
 
-    static public void click(ChromeDriver driver, BetUtils.Proxy proxy, Parser.BetInfo info) {
+    static public void click(ChromeDriver driver, Parser.BetInfo info) {
 
     }
 }

@@ -1,14 +1,7 @@
 package com.melniknow.fd.betting.utils._188bet.soccer;
 
-import com.google.gson.JsonParser;
 import com.melniknow.fd.core.Parser;
-import com.melniknow.fd.utils.BetUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class SoccerTotals {
     // "{\"marketName\":\"Goals: Over \\/ Under\",
@@ -17,7 +10,7 @@ public class SoccerTotals {
     // \"outcomeId\":9616351025,
     // \"original_cf\":\"0.83\",
     // \"line\":\"2.5\"}"
-    static public void click(ChromeDriver driver, BetUtils.Proxy proxy, Parser.BetInfo info) {
+    static public void click(ChromeDriver driver, Parser.BetInfo info) {
 //        String data = """
 //                {\"marketName\":\"Goals: Over \\/ Under\",
 //                \"selectionName\":\"Over\",
