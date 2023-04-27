@@ -1,5 +1,6 @@
 package com.melniknow.fd.betting.bookmakers.impl;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.utils._188bet.basketball.BasketballHandicap;
 import com.melniknow.fd.betting.utils._188bet.basketball.BasketballTotals;
@@ -11,40 +12,39 @@ import com.melniknow.fd.betting.utils._188bet.tennis.TennisHandicap;
 import com.melniknow.fd.betting.utils._188bet.tennis.TennisTotals;
 import com.melniknow.fd.betting.utils._188bet.tennis.TennisWin;
 import com.melniknow.fd.core.Parser;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
-import com.melniknow.fd.utils.BetUtils.Proxy;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 public class _188Bet implements IBookmaker {
 
     @Override
-    public void openLink(ChromeDriver driver, Proxy proxy, String link) {
-        driver.get(link);
+    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
+        Context.screenManager.getScreenForBookmaker(bookmaker).get(info.BK_href());
     }
 
     @Override
-    public void clickOnBetType(ChromeDriver driver, Proxy proxy, Parser.BetInfo info, Sports sport) {
+    public void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
         switch (sport) {
             case SOCCER -> {
                 switch (info.BK_bet_type()) {
-                    case WIN -> SoccerWin.click(driver, proxy, info);
-                    case TOTALS -> SoccerTotals.click(driver, proxy, info);
-                    case HANDICAP -> SoccerHandicap.click(driver, proxy, info);
+                    case WIN -> SoccerWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case TOTALS -> SoccerTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case HANDICAP -> SoccerHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     default -> throw new RuntimeException("BetType`s not supported");
                 }
             } case TENNIS -> {
                 switch (info.BK_bet_type()) {
-                    case WIN -> TennisWin.click(driver, proxy, info);
-                    case TOTALS -> TennisTotals.click(driver, proxy, info);
-                    case HANDICAP -> TennisHandicap.click(driver, proxy, info);
+                    case WIN -> TennisWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case TOTALS -> TennisTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case HANDICAP -> TennisHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     default -> throw new RuntimeException("BetType`s not supported");
                 }
 
             } case BASKETBALL -> {
                 switch (info.BK_bet_type()) {
-                    case WIN -> BasketballWin.click(driver, proxy, info);
-                    case TOTALS -> BasketballTotals.click(driver, proxy, info);
-                    case HANDICAP -> BasketballHandicap.click(driver, proxy, info);
+                    case WIN -> BasketballWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case TOTALS -> BasketballTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case HANDICAP -> BasketballHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     default -> throw new RuntimeException("BetType`s not supported");
                 }
             }
@@ -53,12 +53,12 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf(ChromeDriver driver, Proxy proxy, Parser.BetInfo info) {
+    public void enterSumAndCheckCf() {
 
     }
 
     @Override
-    public void placeBet(ChromeDriver driver, Proxy proxy, Parser.BetInfo info) {
+    public void placeBet() {
 
     }
 }
