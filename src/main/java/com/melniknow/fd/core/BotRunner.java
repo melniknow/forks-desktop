@@ -14,15 +14,17 @@ public class BotRunner implements Runnable {
                 TimeUnit.MILLISECONDS.sleep(1000);
 
                 var forks = Parser.getForks(Context.parserParams);
-                var calculated = MathUtils.calculate(forks);
 
-                if (calculated != null) {
+                if (forks == null) {
+                    Logger.writeToLogSession("Ошибка при получении вилок с сервера");
+                } else if (forks.isEmpty()) {
+                    Logger.writeToLogSession("Вилки не найдены");
+                } else {
+                    var calculated = MathUtils.calculate(forks);
                     var completed = BetMaker.make(calculated);
 
-                    if (completed != null) {
-                        Logger.writePrettyMessageAboutFork(completed);
-                        TelegramSender.send(completed);
-                    }
+                    Logger.writePrettyMessageAboutFork(completed);
+                    TelegramSender.send(completed);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

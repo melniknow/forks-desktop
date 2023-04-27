@@ -41,95 +41,97 @@ public class SettingPanel implements IPanel {
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
 
+        var y = 0;
+
         var minimum = new Label("Минимальный доход по вилке *");
-        grid.add(minimum, 0, 1);
+        grid.add(minimum, 0, y);
         var minimumField = new TextField();
         minimumField.setText("-1");
         minimumField.setPrefHeight(40);
         minimumField.setPromptText("%");
-        grid.add(minimumField, 1, 1);
+        grid.add(minimumField, 1, y++);
 
         var maximum = new Label("Максимальный доход по вилке *");
-        grid.add(maximum, 0, 2);
+        grid.add(maximum, 0, y);
         var maximumField = new TextField();
         maximumField.setText("100");
         maximumField.setPromptText("%");
         maximumField.setPrefHeight(40);
-        grid.add(maximumField, 1, 2);
+        grid.add(maximumField, 1, y++);
 
         var minimumRatio = new Label("Минимальный коэффициент в вилке *");
-        grid.add(minimumRatio, 0, 3);
+        grid.add(minimumRatio, 0, y);
         var minimumRatioField = new TextField();
         minimumRatioField.setText("1.001");
         minimumRatioField.setPromptText("Минимальный коэффициент");
         minimumRatioField.setPrefHeight(40);
-        grid.add(minimumRatioField, 1, 3);
+        grid.add(minimumRatioField, 1, y++);
 
         var maximumRatio = new Label("Максимальный коэффициент в вилке *");
-        grid.add(maximumRatio, 0, 4);
+        grid.add(maximumRatio, 0, y);
         var maximumRatioField = new TextField();
         maximumRatioField.setText("100");
         maximumRatioField.setPromptText("Максимальный коэффициент");
         maximumRatioField.setPrefHeight(40);
-        grid.add(maximumRatioField, 1, 4);
+        grid.add(maximumRatioField, 1, y++);
 
         var forkLive = new Label("Минимальное время жизни вилки (сек) *");
-        grid.add(forkLive, 0, 5);
+        grid.add(forkLive, 0, y);
         var forkLiveField = new TextField();
         forkLiveField.setText("0");
         forkLiveField.setPromptText("Считается относительно процента -1");
         forkLiveField.setPrefHeight(40);
-        grid.add(forkLiveField, 1, 5);
+        grid.add(forkLiveField, 1, y++);
 
         var bookmakers = new Label("Букмекеры *");
-        grid.add(bookmakers, 0, 6);
+        grid.add(bookmakers, 0, y);
         var pinnacle = new CheckBox("PINNACLE");
         pinnacle.setSelected(true);
-        grid.add(pinnacle, 1, 6);
+        grid.add(pinnacle, 1, y++);
         var _188Bet = new CheckBox("_188BET");
         _188Bet.setSelected(true);
-        grid.add(_188Bet, 1, 7);
+        grid.add(_188Bet, 1, y++);
         var bet365 = new CheckBox("BET365");
         bet365.setSelected(true);
-        grid.add(bet365, 1, 8);
+        grid.add(bet365, 1, y++);
 
         var middles = new Label("Коридоры *");
-        grid.add(middles, 0, 9);
+        grid.add(middles, 0, y);
         var middlesField = new TextField();
         middlesField.setText("0");
         middlesField.setPromptText("-1 - без коридоров. 0 - вилки и коридоры. 1 - только коридоры");
         middlesField.setPrefHeight(40);
-        grid.add(middlesField, 1, 9);
+        grid.add(middlesField, 1, y++);
 
         var typesBet = new Label("Виды ставок *");
-        grid.add(typesBet, 0, 10);
+        grid.add(typesBet, 0, y);
         var wins = new CheckBox("WIN");
         wins.setSelected(true);
-        grid.add(wins, 1, 10);
+        grid.add(wins, 1, y++);
         var totals = new CheckBox("TOTALS");
         totals.setSelected(true);
-        grid.add(totals, 1, 11);
+        grid.add(totals, 1, y++);
         var handicaps = new CheckBox("HANDICAP");
         handicaps.setSelected(true);
-        grid.add(handicaps, 1, 12);
+        grid.add(handicaps, 1, y++);
 
         var sports = new Label("Виды спорта *");
-        grid.add(sports, 0, 13);
+        grid.add(sports, 0, y);
         var soccer = new CheckBox("Soccer");
         soccer.setSelected(true);
-        grid.add(soccer, 1, 13);
+        grid.add(soccer, 1, y++);
         var tennis = new CheckBox("Tennis");
         tennis.setSelected(true);
-        grid.add(tennis, 1, 14);
+        grid.add(tennis, 1, y++);
         var basketball = new CheckBox("Basketball");
         basketball.setSelected(true);
-        grid.add(basketball, 1, 15);
+        grid.add(basketball, 1, y++);
 
         var saveButton = new Button("Сохранить");
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(150);
-        grid.add(saveButton, 0, 17, 2, 1);
+        grid.add(saveButton, 0, ++y, 2, 1);
         GridPane.setHalignment(saveButton, HPos.CENTER);
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 

@@ -35,8 +35,6 @@ public class Security {
                             throw new NullPointerException();
                         }
                     }
-                } catch (Exception e) {
-                    throw new NullPointerException();
                 }
             } catch (Exception e) {
                 throw new NullPointerException();

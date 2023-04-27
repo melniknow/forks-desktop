@@ -14,12 +14,12 @@ public class TelegramSender {
     public static void send(BetUtils.CompleteBetsFork fork) {
         var data = getDataMessage(fork);
 
-        var uri = UrlBuilder.fromString("https://api.telegram.org/bot6061363285:AAGhtAmbN4A37_2IS7kx2zIvpZG8rRgcoGg/sendMessage")
+        var url = UrlBuilder.fromString("https://api.telegram.org/bot6061363285:AAGhtAmbN4A37_2IS7kx2zIvpZG8rRgcoGg/sendMessage")
             .addParameter("chat_id", "-1001704593015")
             .addParameter("parse_mode", "HTML")
             .addParameter("text", data).toUri();
 
-        var request = HttpRequest.newBuilder(uri).build();
+        var request = HttpRequest.newBuilder(url).build();
         client.sendAsync(request, (HttpResponse.BodyHandler<String>) responseInfo -> null);
     }
 

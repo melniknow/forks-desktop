@@ -45,41 +45,43 @@ public class CurrencyPanel implements IPanel {
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
 
+        var y = 0;
+
         var rub = new Label("Рубль");
-        grid.add(rub, 0, 1);
+        grid.add(rub, 0, y);
         var rubField = new TextField();
         rubField.setPrefHeight(40);
         rubField.setText("1");
         rubField.setEditable(false);
-        grid.add(rubField, 1, 1);
+        grid.add(rubField, 1, y++);
 
         var usd = new Label("Доллар *");
-        grid.add(usd, 0, 2);
+        grid.add(usd, 0, y);
         var usdField = new TextField();
         usdField.setPrefHeight(40);
         usdField.setPromptText("USD");
-        grid.add(usdField, 1, 2);
+        grid.add(usdField, 1, y++);
 
         var eur = new Label("Евро *");
-        grid.add(eur, 0, 3);
+        grid.add(eur, 0, y);
         var eurField = new TextField();
         eurField.setPrefHeight(40);
         eurField.setPromptText("EUR");
-        grid.add(eurField, 1, 3);
+        grid.add(eurField, 1, y++);
 
         var thb = new Label("Таиландский бат *");
-        grid.add(thb, 0, 4);
+        grid.add(thb, 0, y);
         var thbField = new TextField();
         thbField.setPrefHeight(40);
         thbField.setPromptText("TNB");
-        grid.add(thbField, 1, 4);
+        grid.add(thbField, 1, y++);
 
         var updateButton = new Button("Получить данные с сервера ЦБ РФ");
         updateButton.setPrefHeight(40);
         updateButton.setStyle("-fx-background-color: #A600A6;");
         updateButton.setDefaultButton(true);
         updateButton.setPrefWidth(400);
-        grid.add(updateButton, 0, 6, 2, 1);
+        grid.add(updateButton, 0, ++y, 2, 1);
         GridPane.setHalignment(updateButton, HPos.CENTER);
         GridPane.setMargin(updateButton, new Insets(20, 0, 20, 0));
 
@@ -87,7 +89,7 @@ public class CurrencyPanel implements IPanel {
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(150);
-        grid.add(saveButton, 0, 7, 2, 1);
+        grid.add(saveButton, 0, ++y, 2, 1);
         GridPane.setHalignment(saveButton, HPos.CENTER);
 
         saveButton.setOnAction(event -> {

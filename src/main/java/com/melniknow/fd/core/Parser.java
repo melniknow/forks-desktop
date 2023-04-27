@@ -25,8 +25,10 @@ public class Parser {
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive, List<Sports> sports) { }
 
-    public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet, String BK_href,
-                          BigDecimal BK_cf, String BK_game, String BK_league, JsonObject BK_market_meta, JsonObject BK_event_meta,
+    public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet,
+                          String BK_href,
+                          BigDecimal BK_cf, String BK_game, String BK_league,
+                          JsonObject BK_market_meta, JsonObject BK_event_meta,
                           String BK_event_native_id) { }
 
     public record Fork(BigDecimal income, Sports sport, int isMiddles, BetType betType,
@@ -35,9 +37,9 @@ public class Parser {
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-        var uri = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
-            .addParameter("bk2_name", buildArrayParams(params.bookmakers.stream().map(n -> n.nameInAPI)))
-            .addParameter("sport", buildArrayParams(params.sports.stream().map(Enum::name)))
+        var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
+            .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
+            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
             .addParameter("min_cf", params.minCf.toPlainString())
@@ -47,7 +49,7 @@ public class Parser {
             .addParameter("alive_sec", params.forkLive.toPlainString())
             .addParameter("token", oddscorpToken)
             .toUri();
-        System.out.println(uri);
+
         var stringForks = "";
 
         var timeout = 2;
@@ -60,7 +62,7 @@ public class Parser {
         try (var httpClient = HttpClientBuilder.create()
             .setDefaultRequestConfig(config)
             .build()) {
-            var request = new HttpGet(uri);
+            var request = new HttpGet(url);
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 if (response.getStatusLine().getStatusCode() != 200) {
                     return null;
@@ -81,21 +83,18 @@ public class Parser {
 
         for (var fork : jsonParser.getAsJsonArray()) {
             if (!fork.isJsonObject()) return null;
-            var f = buildForkByJson(fork.getAsJsonObject());
-            forks.add(f);
+            forks.add(buildForkByJson(fork.getAsJsonObject()));
         }
 
         return forks;
     }
 
-    private static String buildArrayParams(Stream<String> strings) {
-        var result = strings.map(String::toLowerCase).collect(Collectors.toList());
-        return String.join(",", result);
+    private static String buildArrayParamsWithLowerCase(Stream<String> strings) {
+        return strings.map(String::toLowerCase).collect(Collectors.joining(","));
     }
 
     private static String buildArrayParamsWithUpperCase(Stream<String> strings) {
-        var result = strings.map(String::toUpperCase).collect(Collectors.toList());
-        return String.join(",", result);
+        return strings.map(String::toUpperCase).collect(Collectors.joining(","));
     }
 
     private static Fork buildForkByJson(JsonObject forkObject) {
@@ -110,7 +109,7 @@ public class Parser {
                 forkObject.get("BK1_league").getAsString(), JsonParser.parseString(forkObject.get("BK1_market_meta").getAsString()).getAsJsonObject(),
                 JsonParser.parseString(forkObject.get("BK1_event_meta").getAsString()).getAsJsonObject(),
                 forkObject.get("BK1_event_native_id").getAsString()
-                ),
+            ),
             new BetInfo(forkObject.get("BK2_name").getAsString(), forkObject.get("BK2_event_id").getAsString(),
                 BetType.valueOf(forkObject.get("BK2_bet_type").getAsString()), forkObject.get("BK2_bet").getAsString(), forkObject.get("BK2_href").getAsString(),
                 forkObject.get("BK2_cf").getAsBigDecimal(), forkObject.get("BK2_game").getAsString(),
