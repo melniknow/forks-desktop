@@ -5,10 +5,9 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.utils._188bet.basketball.BasketballHandicap;
 import com.melniknow.fd.betting.utils._188bet.basketball.BasketballTotals;
 import com.melniknow.fd.betting.utils._188bet.basketball.BasketballWin;
-import com.melniknow.fd.betting.utils._188bet.soccer.SoccerHandicap;
-import com.melniknow.fd.betting.utils._188bet.soccer.SoccerTotals;
-import com.melniknow.fd.betting.utils._188bet.soccer.SoccerWin;
-import com.melniknow.fd.betting.utils._188bet.tennis.TennisHandicap;
+import com.melniknow.fd.betting.utils._188bet.TotalSportHandicap;
+import com.melniknow.fd.betting.utils._188bet.TotalSportsTotals;
+import com.melniknow.fd.betting.utils._188bet.TotalsSportsWin;
 import com.melniknow.fd.betting.utils._188bet.tennis.TennisTotals;
 import com.melniknow.fd.betting.utils._188bet.tennis.TennisWin;
 import com.melniknow.fd.core.Parser;
@@ -27,16 +26,16 @@ public class _188Bet implements IBookmaker {
         switch (sport) {
             case SOCCER -> {
                 switch (info.BK_bet_type()) {
-                    case WIN -> SoccerWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
-                    case TOTALS -> SoccerTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
-                    case HANDICAP -> SoccerHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case WIN -> TotalsSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case TOTALS -> TotalSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case HANDICAP -> TotalSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     default -> throw new RuntimeException("BetType`s not supported");
                 }
             } case TENNIS -> {
                 switch (info.BK_bet_type()) {
                     case WIN -> TennisWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     case TOTALS -> TennisTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
-                    case HANDICAP -> TennisHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    case HANDICAP -> TotalSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                     default -> throw new RuntimeException("BetType`s not supported");
                 }
 
