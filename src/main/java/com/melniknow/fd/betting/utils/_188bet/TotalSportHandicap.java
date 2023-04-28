@@ -18,6 +18,7 @@ public class TotalSportHandicap {
             soccer: Handicap
             basketball: Handicap
          */
+
         var market = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> driver_.findElement(By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']")));
 

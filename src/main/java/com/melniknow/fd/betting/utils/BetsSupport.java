@@ -13,10 +13,16 @@ public class BetsSupport {
     }
 
     public static String getTeamFirstNameByTitle(String title) {
-        return title.substring(0, title.indexOf("vs") - 1);
+        if (title.split("vs", -1).length - 1 == 1) {
+            return title.substring(0, title.indexOf("vs") - 1);
+        }
+        return null;
     }
 
     public static String getTeamSecondNameByTitle(String title) {
-        return title.substring(title.indexOf("vs") + 3);
+        if (title.split("vs", -1).length - 1 == 1) {
+            return title.substring(title.indexOf("vs") + 3);
+        }
+        return null;
     }
 }
