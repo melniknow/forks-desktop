@@ -1,6 +1,5 @@
 package com.melniknow.fd.betting.utils._188bet;
 
-import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.utils.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.utils.BetUtils;
@@ -12,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 
 public class EnterSumAndCheckCf {
-    public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal betCoef, BetUtils.BetsParams betsParams) {
+    public static BigDecimal enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal betCoef, BetUtils.BetsParams betsParams) {
         // find 'Enter Stake' -> parent up 7 -> find '@'
         var mainWindow = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> BetsSupport.getParentByDeep(
@@ -31,7 +30,9 @@ public class EnterSumAndCheckCf {
 
         var enterSnake = mainWindow.findElement(By.cssSelector("[placeholder='Enter Stake']"));
 
-        enterSnake.sendKeys(betsParams.maxBetSum().toString());
+        enterSnake.sendKeys(betsParams.maxBetSum().toString()); // TODO
+
+        return currentCf;
     }
 }
 

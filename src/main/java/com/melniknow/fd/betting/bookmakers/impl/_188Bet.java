@@ -9,7 +9,7 @@ import com.melniknow.fd.betting.utils._188bet.EnterSumAndCheckCf;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
-import com.melniknow.fd.utils.MathUtils;
+import org.openqa.selenium.Dimension;
 
 import java.math.BigDecimal;
 
@@ -17,7 +17,9 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-        Context.screenManager.getScreenForBookmaker(bookmaker).get(info.BK_href());
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        driver.manage().window().setSize(new Dimension(1000, 1400)); // Need for scrolling
+        driver.get(info.BK_href());
     }
 
     @Override
@@ -25,18 +27,18 @@ public class _188Bet implements IBookmaker {
         if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
             switch (info.BK_bet_type()) {
                 case WIN ->
-                    ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
                 case TOTALS ->
-                    ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
                 case HANDICAP ->
-                    ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
                 default -> throw new RuntimeException("BetType`s not supported");
             }
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
-        EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker),
+    public BigDecimal enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
+        return EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker),
             info, betCoef, Context.betsParams.get(bookmaker));
     }
 

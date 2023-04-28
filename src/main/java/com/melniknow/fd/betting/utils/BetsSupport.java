@@ -1,9 +1,9 @@
 package com.melniknow.fd.betting.utils;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
+import com.melniknow.fd.domain.Sports;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -33,17 +33,27 @@ public class BetsSupport {
     }
 
     private static final String firstHalf = "1st Half";
-    private static final String secondHalf = "2nd Half";
+    private static final String firstSet = "1st Set";
 
-    public static WebElement marketsFilter(List<WebElement> markets) {
+    private static final String secondHalf = "2nd Half";
+    private static final String secondSet = "2nd Set";
+
+    public static WebElement marketsFilter(List<WebElement> markets, Sports sport) {
         WebElement result = null;
         for (var market : markets) {
             try {
-                market.findElement(By.xpath(".//span[text()='" + firstHalf + "']"));
+                switch (sport) {
+                    case TENNIS -> market.findElement(By.xpath(".//span[text()='" + firstSet + "']"));
+                    case SOCCER -> market.findElement(By.xpath(".//span[text()='" + firstHalf + "']"));
+                }
             } catch (NoSuchElementException e) {
                 try {
-                    market.findElement(By.xpath(".//span[text()='" + secondHalf + "']"));
+                    switch (sport) {
+                        case TENNIS -> market.findElement(By.xpath(".//span[text()='" + secondSet + "']"));
+                        case SOCCER -> market.findElement(By.xpath(".//span[text()='" + secondHalf + "']"));
+                    }
                 } catch (NoSuchElementException e1) {
+                    // Сюда дойдёт только "чистый" marketName, который везде кинул исключение
                     result = market;
                 }
             }
@@ -51,20 +61,46 @@ public class BetsSupport {
         return result;
     }
 
-    public static void waitLoadingOfPage(ChromeDriver driver, String searchMarketName) {
-        new WebDriverWait(driver, Duration.ofSeconds(200))
-            .until(driver_ -> driver_.findElement(By.xpath(searchMarketName)));
+    public static void waitLoadingOfPage(ChromeDriver driver, String searchMarketName, Sports sport) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+
+        // Wait loading the page
+        switch (sport) {
+            case TENNIS, BASKETBALL -> wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='All Markets']")));
+            case SOCCER -> wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
+        }
+
+        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 50;
+
+        var totalHeight = 0;
+        while (true) {
+            try {
+                if (totalHeight > 6000) {
+                    break;
+                }
+                driver.findElement(By.xpath(searchMarketName));
+                JavascriptExecutor jse = (JavascriptExecutor)driver;
+                jse.executeScript("window.scrollBy(0," + scroll +")");
+                break;
+            } catch (NoSuchElementException e) {
+                JavascriptExecutor jse = (JavascriptExecutor)driver;
+                jse.executeScript("window.scrollBy(0," + scroll +")");
+                totalHeight += scroll;
+            }
+        }
+        System.out.println(totalHeight);
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName) {
-        // TODO Scroll problem
-        BetsSupport.waitLoadingOfPage(driver, marketName);
+    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, Sports sport) {
+        BetsSupport.waitLoadingOfPage(driver, marketName, sport);
 
         var markets = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> driver_.findElements(By.xpath(marketName)));
 
+        System.out.println(markets.size());
+
         markets = markets.stream().map(m -> BetsSupport.getParentByDeep(m, 5)).toList();
 
-        return BetsSupport.marketsFilter(markets); // delete 1st and 2nd half
+        return BetsSupport.marketsFilter(markets, sport); // delete 1st and 2nd half
     }
 }

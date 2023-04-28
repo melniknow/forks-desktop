@@ -10,6 +10,6 @@ import java.math.BigDecimal;
 public interface IBookmaker {
     void openLink(Bookmaker bookmaker, Parser.BetInfo info);
     void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport);
-    void enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info);
+    BigDecimal enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info);
     void placeBet();
 }
