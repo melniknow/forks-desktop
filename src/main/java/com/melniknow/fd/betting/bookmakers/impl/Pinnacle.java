@@ -17,7 +17,7 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf() {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
 
     }
     @Override

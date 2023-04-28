@@ -15,7 +15,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public void enterSumAndCheckCf() {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
 
     }
     @Override
