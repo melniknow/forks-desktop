@@ -32,6 +32,4 @@ public class ClickSportHandicap {
 
         Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
     }
-
-
 }

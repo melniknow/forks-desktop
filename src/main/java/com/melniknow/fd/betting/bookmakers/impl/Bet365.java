@@ -4,6 +4,9 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.utils.MathUtils;
+
+import java.math.BigDecimal;
 
 public class Bet365 implements IBookmaker {
     @Override
@@ -15,7 +18,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
 
     }
     @Override

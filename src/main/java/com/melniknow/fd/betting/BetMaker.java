@@ -17,6 +17,9 @@ public class BetMaker {
         realization1.clickOnBetType(bookmaker1, calculated.fork().betInfo1(), calculated.fork().sport());
         realization2.clickOnBetType(bookmaker2, calculated.fork().betInfo2(), calculated.fork().sport());
 
+        realization1.enterSumAndCheckCf(bookmaker1, calculated.betCoef1(), calculated.fork().betInfo1());
+        realization1.enterSumAndCheckCf(bookmaker2, calculated.betCoef2(), calculated.fork().betInfo2());
+
         return new BetUtils.CompleteBetsFork(calculated, "some info");
     }
 }

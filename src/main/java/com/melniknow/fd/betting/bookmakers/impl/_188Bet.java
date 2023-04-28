@@ -9,6 +9,9 @@ import com.melniknow.fd.betting.utils._188bet.EnterSumAndCheckCf;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.utils.MathUtils;
+
+import java.math.BigDecimal;
 
 public class _188Bet implements IBookmaker {
 
@@ -32,10 +35,9 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
-        if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS)) {
-            EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info);
-        }
+    public void enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
+        EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker),
+            info, betCoef, Context.betsParams.get(bookmaker));
     }
 
     @Override
