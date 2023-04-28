@@ -54,7 +54,6 @@ public class BetsSupport {
                     }
                 } catch (NoSuchElementException e1) {
                     // Сюда дойдёт только глобальный marketName, который везде кинул исключение
-                    System.out.println("YYESSS!");
                     result = market;
                 }
             }
@@ -79,16 +78,13 @@ public class BetsSupport {
                     break;
                 }
                 driver.findElement(By.xpath(searchMarketName));
-                JavascriptExecutor jse = (JavascriptExecutor)driver;
-                jse.executeScript("window.scrollBy(0," + scroll +")");
+                ((JavascriptExecutor)driver).executeScript("window.scrollBy(0," + scroll +")");
                 break;
             } catch (NoSuchElementException e) {
-                JavascriptExecutor jse = (JavascriptExecutor)driver;
-                jse.executeScript("window.scrollBy(0," + scroll +")");
+                ((JavascriptExecutor)driver).executeScript("window.scrollBy(0," + scroll +")");
                 totalHeight += scroll;
             }
         }
-        System.out.println("H = " + totalHeight);
     }
 
     public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, Sports sport) {
@@ -96,8 +92,6 @@ public class BetsSupport {
 
         var markets = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> driver_.findElements(By.xpath(marketName)));
-
-        System.out.println(markets.size());
 
         markets = markets.stream().map(m -> BetsSupport.getParentByDeep(m, 5)).toList();
 
