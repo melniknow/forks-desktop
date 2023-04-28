@@ -22,7 +22,7 @@ public class EnterSumAndCheckCf {
         var currentCf = new BigDecimal(title.substring(title.indexOf("@") + 1));
         System.out.println(currentCf);
 
-        var finalButton = driver.findElement(By.xpath("//h4[text()='Please Log In']")); // click on here
+        var finalButton = driver.findElement(By.xpath("//h4[text()='Please Log In']")); // click on here to place bet
 
         var enterSnake = BetsSupport.getParentByDeep(finalButton, 3).findElement(By.cssSelector("[placeholder='Enter Stake']"));
 
