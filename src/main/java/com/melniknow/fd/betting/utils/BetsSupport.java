@@ -53,7 +53,8 @@ public class BetsSupport {
                         case SOCCER -> market.findElement(By.xpath(".//span[text()='" + secondHalf + "']"));
                     }
                 } catch (NoSuchElementException e1) {
-                    // Сюда дойдёт только "чистый" marketName, который везде кинул исключение
+                    // Сюда дойдёт только глобальный marketName, который везде кинул исключение
+                    System.out.println("YYESSS!");
                     result = market;
                 }
             }
@@ -64,7 +65,6 @@ public class BetsSupport {
     public static void waitLoadingOfPage(ChromeDriver driver, String searchMarketName, Sports sport) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
 
-        // Wait loading the page
         switch (sport) {
             case TENNIS, BASKETBALL -> wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='All Markets']")));
             case SOCCER -> wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
@@ -88,7 +88,7 @@ public class BetsSupport {
                 totalHeight += scroll;
             }
         }
-        System.out.println(totalHeight);
+        System.out.println("H = " + totalHeight);
     }
 
     public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, Sports sport) {
@@ -101,6 +101,8 @@ public class BetsSupport {
 
         markets = markets.stream().map(m -> BetsSupport.getParentByDeep(m, 5)).toList();
 
-        return BetsSupport.marketsFilter(markets, sport); // delete 1st and 2nd half
+        var res = BetsSupport.marketsFilter(markets, sport); // delete 1st and 2nd half
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", res);
+        return res;
     }
 }
