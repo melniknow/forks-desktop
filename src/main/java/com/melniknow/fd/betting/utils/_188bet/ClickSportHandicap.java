@@ -9,28 +9,37 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.Objects;
 
-public class TotalSportsTotals {
+public class ClickSportHandicap {
     static public void click(ChromeDriver driver, Parser.BetInfo info) {
         /*
-        check:
+        check json:
           marketName:
-            basketball: TOTAL POINTS: OVER \\/ UNDER
-            soccer: GOALS: OVER \\/ UNDER
-            tennis: TOTAL GAMES: OVER \\/ UNDER
+            tennis: Game Handicap
+            soccer: Handicap
+            basketball: Handicap
          */
 
-        // TODO ignore 1st and 2st half's
         var market = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> driver_.findElement(By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']")));
 
         market = BetsSupport.getParentByDeep(market, 5);
+        var line = info.BK_market_meta().get("line").getAsString();
+        var selectionName = "";
+        if (info.BK_bet().startsWith("HANDICAP__P1")) {
+            selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
+        } else if (info.BK_bet().startsWith("HANDICAP__P2")) {
+            selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
+        } else {
+            // TODO support others
+            throw new RuntimeException("Not supported Handicap");
+        }
 
         var buttons = market.findElements(By.xpath(
-                ".//div[text()='" + info.BK_market_meta().get("selectionName").getAsString() + "']"))
+                ".//div[text()='" + selectionName + "']"))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
-        Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(info.BK_market_meta().get("line").getAsString())).findAny().orElse(null)).click();
+        Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
     }
 }

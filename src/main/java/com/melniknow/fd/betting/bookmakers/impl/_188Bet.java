@@ -2,9 +2,10 @@ package com.melniknow.fd.betting.bookmakers.impl;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.betting.utils._188bet.TotalSportHandicap;
-import com.melniknow.fd.betting.utils._188bet.TotalSportsTotals;
-import com.melniknow.fd.betting.utils._188bet.TotalsSportsWin;
+import com.melniknow.fd.betting.utils._188bet.ClickSportHandicap;
+import com.melniknow.fd.betting.utils._188bet.ClickSportsTotals;
+import com.melniknow.fd.betting.utils._188bet.ClickSportsWin;
+import com.melniknow.fd.betting.utils._188bet.EnterSumAndCheckCf;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -21,19 +22,20 @@ public class _188Bet implements IBookmaker {
         if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
             switch (info.BK_bet_type()) {
                 case WIN ->
-                    TotalsSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                 case TOTALS ->
-                    TotalSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                 case HANDICAP ->
-                    TotalSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                    ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
                 default -> throw new RuntimeException("BetType`s not supported");
             }
-
     }
 
     @Override
-    public void enterSumAndCheckCf() {
-
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
+        if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS)) {
+            EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+        }
     }
 
     @Override
