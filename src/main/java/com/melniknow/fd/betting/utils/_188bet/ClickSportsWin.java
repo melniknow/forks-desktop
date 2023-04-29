@@ -16,12 +16,12 @@ public class ClickSportsWin {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
         } else if (info.BK_bet().startsWith("WIN__P2")) {
             selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
-        } else { // WIN__PX, WIN__1X, WIN__12, WIN__X2
+        } else { // WIN__PX, WIN__1X, WIN__12, WIN__X2 -
             // TODO support others
-            throw new RuntimeException("Not supported Handicap");
+            throw new RuntimeException("Not supported Win");
         }
 
-        market.findElement(By.xpath(
-                ".//div[text()='" + selectionName + "']")).click();
+        BetsSupport.findElementWithClicking(market, By.xpath(
+            ".//div[text()='" + selectionName + "']")).click();
     }
 }
