@@ -10,7 +10,6 @@ import java.util.Objects;
 
 public class ClickSportHandicap {
     static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
-
         var market = BetsSupport.getMarketByMarketName(driver,
             "//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']", sport);
 
@@ -24,7 +23,7 @@ public class ClickSportHandicap {
             throw new RuntimeException("Not supported Handicap");
         }
 
-        var buttons = market.findElements(By.xpath(
+        var buttons = BetsSupport.findElementsWithClicking(market, By.xpath(
                 ".//div[text()='" + selectionName + "']"))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))

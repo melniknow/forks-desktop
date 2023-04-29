@@ -13,11 +13,10 @@ public class ClickSportsTotals {
         var market = BetsSupport.getMarketByMarketName(driver,
             "//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']", sport);
 
-            market = BetsSupport.getParentByDeep(market, 5);
+        market = BetsSupport.getParentByDeep(market, 5);
 
-        var buttons = market.findElements(By.xpath(
-                ".//div[text()='" + info.BK_market_meta().get("selectionName").getAsString() + "']"))
-            .stream()
+        var buttons = BetsSupport.findElementsWithClicking(market, By.xpath(
+                ".//div[text()='" + info.BK_market_meta().get("selectionName").getAsString() + "']")).stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 

@@ -59,8 +59,21 @@ public class BetsSupport {
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            try { Thread.sleep(300);} catch (InterruptedException e1) {} // TODO
+            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
             return element.findElement(by);
+        }
+    }
+
+    public static List<WebElement> findElementsWithClicking(WebElement element, By by) {
+        List<WebElement> res;
+        try {
+            res = element.findElements(by);
+            return res;
+        } catch (NoSuchElementException e) {
+            // Here we try to click on market
+            element.click();
+            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
+            return element.findElements(by);
         }
     }
 
@@ -130,9 +143,9 @@ public class BetsSupport {
         switch (sport) {
             case TENNIS, BASKETBALL ->
                 wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='All Markets']")));
-            case SOCCER -> wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
+            case SOCCER ->
+                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
         }
-
 
 
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 50;
@@ -149,7 +162,7 @@ public class BetsSupport {
                 driver.findElement(By.xpath(searchMarketName));
                 break;
             } catch (NoSuchElementException e) {
-                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + scroll + ")");
+                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + scroll / 2 + ")");
                 totalHeight += scroll;
             }
         }
