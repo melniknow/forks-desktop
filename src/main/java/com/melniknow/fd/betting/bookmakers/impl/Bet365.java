@@ -24,7 +24,7 @@ public class Bet365 implements IBookmaker {
     }
 
     @Override
-    public void placeBet() {
+    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) {
 
     }
 }

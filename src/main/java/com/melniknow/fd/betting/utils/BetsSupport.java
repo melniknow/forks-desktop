@@ -10,6 +10,18 @@ import java.time.Duration;
 import java.util.List;
 
 public class BetsSupport {
+
+    private static final String firstQuarter = "1st Quarter";
+    private static final String secondQuarter = "2nd Quarter";
+    private static final String thirdQuarter = "3rd Quarter";
+    private static final String fourthQuarter = "4th Quarter";
+
+    private static final String firstHalf = "1st Half";
+    private static final String firstSet = "1st Set";
+
+    private static final String secondHalf = "2nd Half";
+    private static final String secondSet = "2nd Set";
+
     public static String getTotalsByStr(String str) {
         return str.split("\n")[1];
     }
@@ -32,17 +44,6 @@ public class BetsSupport {
         }
         return null;
     }
-
-    private static final String firstQuarter = "1st Quarter";
-    private static final String secondQuarter = "2nd Quarter";
-    private static final String thirdQuarter = "3rd Quarter";
-    private static final String fourthQuarter = "4th Quarter";
-
-    private static final String firstHalf = "1st Half";
-    private static final String firstSet = "1st Set";
-
-    private static final String secondHalf = "2nd Half";
-    private static final String secondSet = "2nd Set";
 
     public static String buildSpanByText(String text) {
         return ".//span[text()='" + text + "']";

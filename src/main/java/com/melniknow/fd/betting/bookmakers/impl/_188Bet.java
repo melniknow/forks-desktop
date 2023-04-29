@@ -2,10 +2,7 @@ package com.melniknow.fd.betting.bookmakers.impl;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.betting.utils._188bet.ClickSportHandicap;
-import com.melniknow.fd.betting.utils._188bet.ClickSportsTotals;
-import com.melniknow.fd.betting.utils._188bet.ClickSportsWin;
-import com.melniknow.fd.betting.utils._188bet.EnterSumAndCheckCf;
+import com.melniknow.fd.betting.utils._188bet.*;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -43,7 +40,7 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void placeBet() {
-
+    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) {
+        PlaceBet.PlaceBet(Context.screenManager.getScreenForBookmaker(bookmaker), betCoef, curCf, info);
     }
 }
