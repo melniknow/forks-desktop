@@ -10,9 +10,6 @@ import java.util.Objects;
 
 public class ClickSportHandicap {
     static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
-        var market = BetsSupport.getMarketByMarketName(driver,
-            "//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']", sport);
-
         var line = info.BK_market_meta().get("line").getAsString();
         var selectionName = "";
         if (info.BK_bet().startsWith("HANDICAP__P1")) {
@@ -23,12 +20,15 @@ public class ClickSportHandicap {
             throw new RuntimeException("Not supported Handicap");
         }
 
-        var buttons = BetsSupport.findElementsWithClicking(market, By.xpath(
-                ".//div[text()='" + selectionName + "']"))
+        var market = BetsSupport.getMarketByMarketName(driver,
+            By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']"), sport);
+
+        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
+                By.xpath(".//div[text()='" + selectionName + "']"))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
-        Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
+        Objects.requireNonNull(buttons.stream().filter(b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null)).click();
     }
 }

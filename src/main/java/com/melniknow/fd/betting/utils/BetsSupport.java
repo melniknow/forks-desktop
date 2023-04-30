@@ -1,8 +1,8 @@
 package com.melniknow.fd.betting.utils;
 
+import com.melniknow.fd.betting.utils._188bet.MarketProxy;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -53,6 +53,13 @@ public class BetsSupport {
         return ".//div[text()='" + text + "']";
     }
 
+    public static void sleep(Long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e1) {
+        }
+    }
+
     public static WebElement findElementWithClicking(WebElement element, By by) {
         WebElement res;
         try {
@@ -60,7 +67,7 @@ public class BetsSupport {
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
+            sleep(300L);
             return element.findElement(by);
         }
     }
@@ -71,118 +78,99 @@ public class BetsSupport {
             res = element.findElements(by);
             return res;
         } catch (NoSuchElementException e) {
-            // Here we try to click on market
             element.click();
-            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
+            sleep(300L);
             return element.findElements(by);
         }
     }
 
-    public static WebElement filterBasketQuarters(List<WebElement> markets) {
-        WebElement result = null;
-        for (var market : markets) {
+    public static boolean checkBasketQuarters(WebElement market) {
+        try {
+            market.findElement(By.xpath(buildSpanByText(firstQuarter)));
+        } catch (NoSuchElementException e) {
             try {
-                market.findElement(By.xpath(buildSpanByText(firstQuarter)));
-            } catch (NoSuchElementException e) {
+                market.findElement(By.xpath(buildSpanByText(secondQuarter)));
+            } catch (NoSuchElementException e1) {
                 try {
-                    market.findElement(By.xpath(buildSpanByText(secondQuarter)));
-                } catch (NoSuchElementException e1) {
+                    market.findElement(By.xpath(buildSpanByText(thirdQuarter)));
+                } catch (NoSuchElementException e2) {
                     try {
-                        market.findElement(By.xpath(buildSpanByText(thirdQuarter)));
-                    } catch (NoSuchElementException e2) {
+                        market.findElement(By.xpath(buildSpanByText(fourthQuarter)));
+                    } catch (NoSuchElementException e3) {
                         try {
-                            market.findElement(By.xpath(buildSpanByText(fourthQuarter)));
-                        } catch (NoSuchElementException e3) {
+                            market.findElement(By.xpath(buildSpanByText(firstHalf)));
+                        } catch (NoSuchElementException e4) {
                             try {
-                                market.findElement(By.xpath(buildSpanByText(firstHalf)));
-                            } catch (NoSuchElementException e4) {
-                                try {
-                                    market.findElement(By.xpath(buildSpanByText(secondHalf)));
-                                } catch (NoSuchElementException e5) {
-                                    // fucking basket =(
-                                    // Сюда дойдёт только глобальный marketName, который везде кинул исключение
-                                    result = market;
-                                }
+                                market.findElement(By.xpath(buildSpanByText(secondHalf)));
+                            } catch (NoSuchElementException e5) {
+                                // fucking basket =(
+                                // Сюда дойдёт только глобальный marketName, который везде кинул исключение
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
-        return result;
+        return false;
     }
 
-    public static WebElement marketsFilter(ChromeDriver driver, List<WebElement> markets, Sports sport) {
+    public static boolean isPureMarket(WebElement elem, Sports sport) {
         if (sport.equals(Sports.BASKETBALL)) {
-            return filterBasketQuarters(markets);
+            return checkBasketQuarters(elem);
         }
-
-        WebElement result = null;
-        for (var market : markets) {
+        try {
+            switch (sport) {
+                case TENNIS -> elem.findElement(By.xpath(buildSpanByText(firstSet)));
+                case SOCCER -> elem.findElement(By.xpath(buildSpanByText(firstHalf)));
+            }
+        } catch (NoSuchElementException e) {
             try {
                 switch (sport) {
-                    case TENNIS -> market.findElement(By.xpath(buildSpanByText(firstSet)));
-                    case SOCCER -> market.findElement(By.xpath(buildSpanByText(firstHalf)));
+                    case TENNIS -> elem.findElement(By.xpath(buildSpanByText(secondSet)));
+                    case SOCCER -> elem.findElement(By.xpath(buildSpanByText(secondHalf)));
                 }
-            } catch (NoSuchElementException e) {
-                try {
-                    switch (sport) {
-                        case TENNIS -> market.findElement(By.xpath(buildSpanByText(secondSet)));
-                        case SOCCER -> market.findElement(By.xpath(buildSpanByText(secondHalf)));
-                    }
-                } catch (NoSuchElementException e1) {
-                    result = market;
-                }
+            } catch (NoSuchElementException e1) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
-    public static void waitLoadingOfPage(ChromeDriver driver, String searchMarketName, Sports sport) {
+    public static void waitLoadingOfPage(WebDriver driver, Sports sport) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         // wait the main button
         switch (sport) {
-            case TENNIS, BASKETBALL ->
-                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='All Markets']")));
-            case SOCCER ->
-                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
-        }
-
-
-        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 50;
-        var totalHeight = 0;
-        while (true) {
-            try {
-                if (totalHeight > 6000) {
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                } // TODO
-                driver.findElement(By.xpath(searchMarketName));
-                break;
-            } catch (NoSuchElementException e) {
-                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + scroll / 2 + ")");
-                totalHeight += scroll;
-            }
+            case BASKETBALL, TENNIS, SOCCER -> wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
         }
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, Sports sport) {
-        waitLoadingOfPage(driver, marketName, sport);
+    public static MarketProxy getMarketByMarketName(WebDriver driver, By byMarketName, Sports sport) {
+        waitLoadingOfPage(driver, sport);
+        return getMarketImpl(driver, byMarketName, sport);
+    }
 
-        var markets = new WebDriverWait(driver, Duration.ofSeconds(200))
-            .until(driver_ -> driver_.findElements(By.xpath(marketName)));
 
-        markets = markets.stream().map(m -> BetsSupport.getParentByDeep(m, 5)).toList();
+    public static MarketProxy getMarketImpl(WebDriver driver, By byName, Sports sport) {
+        int scrollPosition = 0;
+        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
+        while (scrollPosition < 7000) {
+            try {
+                List<WebElement> visibleMarkets = driver.findElements(byName);
+                for (var market : visibleMarkets) {
+                    if (isPureMarket(market, sport)) {
+                        var res = getParentByDeep(market, 5);
+                        return new MarketProxy(driver, res, res.getLocation().y, byName);
+                    }
+                }
+            } catch (NoSuchElementException e) {
 
-        var res = BetsSupport.marketsFilter(driver, markets, sport); // return only 'pure' market
-
-        if (res == null) {
-            throw new RuntimeException("Market not found in sport: " + sport);
+            }
+            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll + ")");
+            sleep(300L); // Wait for the page to finish scrolling
+            scrollPosition += scroll;
         }
-
-        return res;
+        throw new RuntimeException("Market not found in sport: " + sport);
     }
 }
+
