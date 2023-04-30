@@ -1,4 +1,4 @@
-package com.melniknow.fd.betting.utils;
+package com.melniknow.fd.betting.bookmakers.impl;
 
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
