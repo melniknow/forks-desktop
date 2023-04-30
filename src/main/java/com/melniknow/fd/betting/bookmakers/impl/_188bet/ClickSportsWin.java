@@ -3,10 +3,7 @@ package com.melniknow.fd.betting.bookmakers.impl._188bet;
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Sports;
-import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
-
-import java.util.Objects;
 
 public class ClickSportsWin {
     static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
@@ -21,9 +18,9 @@ public class ClickSportsWin {
         }
 
         var market = BetsSupport.getMarketByMarketName(driver,
-            By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']"), sport);
+            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport);
 
-        BetsSupport.findElementWithClicking(market.getCorrectWebElement(), By.xpath(
-            ".//div[text()='" + selectionName + "']")).click();
+        BetsSupport.findElementWithClicking(market.getCorrectWebElement(),
+            BetsSupport.buildDivByText(selectionName)).click();
     }
 }

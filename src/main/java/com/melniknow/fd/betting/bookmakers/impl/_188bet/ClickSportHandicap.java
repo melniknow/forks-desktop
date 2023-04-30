@@ -21,10 +21,10 @@ public class ClickSportHandicap {
         }
 
         var market = BetsSupport.getMarketByMarketName(driver,
-            By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']"), sport);
+            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport);
 
         var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
-                By.xpath(".//div[text()='" + selectionName + "']"))
+                BetsSupport.buildDivByText(selectionName))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();

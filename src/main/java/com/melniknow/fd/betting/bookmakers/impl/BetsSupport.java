@@ -45,12 +45,16 @@ public class BetsSupport {
         return null;
     }
 
-    public static String buildSpanByText(String text) {
-        return ".//span[text()='" + text + "']";
+    public static By buildSpanByText(String text) {
+        return By.xpath(".//span[text()='" + text + "']");
     }
 
-    public static String buildDivByText(String text) {
-        return ".//div[text()='" + text + "']";
+    public static By buildDivByText(String text) {
+        return By.xpath(".//div[text()='" + text + "']");
+    }
+
+    public static By buildH4ByText(String text) {
+        return By.xpath(".//h4[text()='" + text + "']");
     }
 
     public static void sleep(Long milliseconds) {
@@ -86,22 +90,22 @@ public class BetsSupport {
 
     public static boolean checkBasketQuarters(WebElement market) {
         try {
-            market.findElement(By.xpath(buildSpanByText(firstQuarter)));
+            market.findElement(buildSpanByText(firstQuarter));
         } catch (NoSuchElementException e) {
             try {
-                market.findElement(By.xpath(buildSpanByText(secondQuarter)));
+                market.findElement(buildSpanByText(secondQuarter));
             } catch (NoSuchElementException e1) {
                 try {
-                    market.findElement(By.xpath(buildSpanByText(thirdQuarter)));
+                    market.findElement(buildSpanByText(thirdQuarter));
                 } catch (NoSuchElementException e2) {
                     try {
-                        market.findElement(By.xpath(buildSpanByText(fourthQuarter)));
+                        market.findElement(buildSpanByText(fourthQuarter));
                     } catch (NoSuchElementException e3) {
                         try {
-                            market.findElement(By.xpath(buildSpanByText(firstHalf)));
+                            market.findElement(buildSpanByText(firstHalf));
                         } catch (NoSuchElementException e4) {
                             try {
-                                market.findElement(By.xpath(buildSpanByText(secondHalf)));
+                                market.findElement(buildSpanByText(secondHalf));
                             } catch (NoSuchElementException e5) {
                                 // fucking basket =(
                                 // Сюда дойдёт только глобальный marketName, который везде кинул исключение
@@ -121,14 +125,14 @@ public class BetsSupport {
         }
         try {
             switch (sport) {
-                case TENNIS -> elem.findElement(By.xpath(buildSpanByText(firstSet)));
-                case SOCCER -> elem.findElement(By.xpath(buildSpanByText(firstHalf)));
+                case TENNIS -> elem.findElement(buildSpanByText(firstSet));
+                case SOCCER -> elem.findElement(buildSpanByText(firstHalf));
             }
         } catch (NoSuchElementException e) {
             try {
                 switch (sport) {
-                    case TENNIS -> elem.findElement(By.xpath(buildSpanByText(secondSet)));
-                    case SOCCER -> elem.findElement(By.xpath(buildSpanByText(secondHalf)));
+                    case TENNIS -> elem.findElement(buildSpanByText(secondSet));
+                    case SOCCER -> elem.findElement(buildSpanByText(secondHalf));
                 }
             } catch (NoSuchElementException e1) {
                 return true;

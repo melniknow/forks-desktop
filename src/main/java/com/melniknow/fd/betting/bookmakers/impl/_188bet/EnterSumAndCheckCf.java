@@ -18,7 +18,7 @@ public class EnterSumAndCheckCf {
                 driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
                 7)); // find main block
 
-        var tmpButton = mainWindow.findElement(By.xpath(".//span[text()='@']"));
+        var tmpButton = mainWindow.findElement(BetsSupport.buildSpanByText("@"));
 
         var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
         var currentCf = new BigDecimal(title.substring(title.indexOf("@") + 1));

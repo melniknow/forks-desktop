@@ -11,10 +11,11 @@ import java.util.Objects;
 public class ClickSportsTotals {
     static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
         var market = BetsSupport.getMarketByMarketName(driver,
-            By.xpath("//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']"), sport);
+            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
+            sport);
 
-        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(), By.xpath(
-                ".//div[text()='" + info.BK_market_meta().get("selectionName").getAsString() + "']")).stream()
+        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
+                BetsSupport.buildDivByText(info.BK_market_meta().get("selectionName").getAsString())).stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
