@@ -3,6 +3,7 @@ package com.melniknow.fd.betting.bookmakers.impl;
 import com.melniknow.fd.betting.bookmakers.impl._188bet.MarketProxy;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -141,21 +142,22 @@ public class BetsSupport {
         return false;
     }
 
-    public static void waitLoadingOfPage(WebDriver driver, Sports sport) {
+    public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         // wait the main button
         switch (sport) {
-            case BASKETBALL, TENNIS, SOCCER -> wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
+            case BASKETBALL, TENNIS, SOCCER ->
+                wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
         }
     }
 
-    public static MarketProxy getMarketByMarketName(WebDriver driver, By byMarketName, Sports sport) {
+    public static MarketProxy getMarketByMarketName(ChromeDriver driver, By byMarketName, Sports sport) {
         waitLoadingOfPage(driver, sport);
         return getMarketImpl(driver, byMarketName, sport);
     }
 
 
-    public static MarketProxy getMarketImpl(WebDriver driver, By byName, Sports sport) {
+    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport) {
         int scrollPosition = 0;
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
         while (scrollPosition < 7000) {

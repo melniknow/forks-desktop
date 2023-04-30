@@ -3,16 +3,16 @@ package com.melniknow.fd.betting.bookmakers.impl._188bet;
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class MarketProxy {
-    private final WebDriver driver;
+    private final ChromeDriver driver;
     private WebElement webElement;
     private final int y;
     private final By by;
 
-    public MarketProxy(WebDriver driver, WebElement element, int y, By by) {
+    public MarketProxy(ChromeDriver driver, WebElement element, int y, By by) {
         this.driver = driver;
         this.webElement = element;
         this.y = y;

@@ -15,7 +15,7 @@ public class _188Bet implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        driver.manage().window().setSize(new Dimension(1000, 1400)); // Need for scrolling
+        driver.manage().window().setSize(new Dimension(1000, 1400));
         driver.get(info.BK_href());
     }
 
