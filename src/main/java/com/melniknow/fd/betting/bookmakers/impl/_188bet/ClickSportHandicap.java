@@ -9,8 +9,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.Objects;
 
 public class ClickSportHandicap {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
-        var line = info.BK_market_meta().get("line").getAsString();
+    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().startsWith("HANDICAP__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -29,6 +28,12 @@ public class ClickSportHandicap {
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
-        Objects.requireNonNull(buttons.stream().filter(b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null)).click();
+        // Build correct line
+        var line = info.BK_market_meta().get("line").getAsString();
+        if (!line.startsWith("-") && !line.startsWith("+") && !line.equals("0")) {
+            line = "+" + line;
+        }
+        String finalLine = line;
+        Objects.requireNonNull(buttons.stream().filter(b -> BetsSupport.getTotalsByStr(b.getText()).equals(finalLine)).findAny().orElse(null)).click();
     }
 }

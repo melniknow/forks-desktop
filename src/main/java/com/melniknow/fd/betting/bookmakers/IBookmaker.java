@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public interface IBookmaker {
     void openLink(Bookmaker bookmaker, Parser.BetInfo info);
-    void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport);
+    void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException;
     BigDecimal enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info);
-    void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info);
+    void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) throws InterruptedException;
 }

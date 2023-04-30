@@ -58,14 +58,11 @@ public class BetsSupport {
         return By.xpath(".//h4[text()='" + text + "']");
     }
 
-    public static void sleep(Long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e1) {
-        }
+    public static void sleep(Long milliseconds) throws InterruptedException {
+        Thread.sleep(milliseconds);
     }
 
-    public static WebElement findElementWithClicking(WebElement element, By by) {
+    public static WebElement findElementWithClicking(WebElement element, By by) throws InterruptedException {
         WebElement res;
         try {
             res = element.findElement(by);
@@ -77,7 +74,7 @@ public class BetsSupport {
         }
     }
 
-    public static List<WebElement> findElementsWithClicking(WebElement element, By by) {
+    public static List<WebElement> findElementsWithClicking(WebElement element, By by) throws InterruptedException {
         List<WebElement> res;
         try {
             res = element.findElements(by);
@@ -151,13 +148,13 @@ public class BetsSupport {
         }
     }
 
-    public static MarketProxy getMarketByMarketName(ChromeDriver driver, By byMarketName, Sports sport) {
+    public static MarketProxy getMarketByMarketName(ChromeDriver driver, By byMarketName, Sports sport) throws InterruptedException {
         waitLoadingOfPage(driver, sport);
         return getMarketImpl(driver, byMarketName, sport);
     }
 
 
-    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport) {
+    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport) throws InterruptedException {
         int scrollPosition = 0;
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
         while (scrollPosition < 7000) {

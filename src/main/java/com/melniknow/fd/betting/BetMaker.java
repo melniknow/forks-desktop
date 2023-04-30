@@ -4,7 +4,7 @@ import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 
 public class BetMaker {
-    public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) {
+    public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
         var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
         var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
 

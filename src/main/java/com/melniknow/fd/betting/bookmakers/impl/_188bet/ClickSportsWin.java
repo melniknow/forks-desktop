@@ -6,7 +6,7 @@ import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ClickSportsWin {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
+    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().startsWith("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());

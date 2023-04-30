@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers.impl._188bet;
 
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
+import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.utils.BetUtils;
 import org.openqa.selenium.By;
@@ -13,26 +14,30 @@ import java.time.Duration;
 public class EnterSumAndCheckCf {
     public static BigDecimal enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal betCoef, BetUtils.BetsParams betsParams) {
         // find 'Enter Stake' -> parent up 7 -> find '@'
-        var mainWindow = new WebDriverWait(driver, Duration.ofSeconds(200))
-            .until(driver_ -> BetsSupport.getParentByDeep(
-                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
-                7)); // find main block
+        try {
+            var mainWindow = new WebDriverWait(driver, Duration.ofSeconds(200))
+                .until(driver_ -> BetsSupport.getParentByDeep(
+                    driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
+                    7)); // find main block
 
-        var tmpButton = mainWindow.findElement(BetsSupport.buildSpanByText("@"));
+            var tmpButton = mainWindow.findElement(BetsSupport.buildSpanByText("@"));
 
-        var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
-        var currentCf = new BigDecimal(title.substring(title.indexOf("@") + 1));
-        System.out.println(currentCf);
+            var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
+            var currentCf = new BigDecimal(title.substring(title.indexOf("@") + 1));
+            System.out.println(currentCf);
 
-        if (currentCf.compareTo(betCoef) < 0) {
-            throw new RuntimeException("betCoef is too low");
+            if (currentCf.compareTo(betCoef) < 0) {
+                throw new RuntimeException("betCoef is too low");
+            }
+
+            var enterSnake = mainWindow.findElement(By.cssSelector("[placeholder='Enter Stake']"));
+
+            enterSnake.sendKeys(betsParams.maxBetSum().toString()); // TODO
+
+            return currentCf;
+        } catch (Exception e) {
+            throw new RuntimeException("Don`t enter Stake!");
         }
-
-        var enterSnake = mainWindow.findElement(By.cssSelector("[placeholder='Enter Stake']"));
-
-        enterSnake.sendKeys(betsParams.maxBetSum().toString()); // TODO
-
-        return currentCf;
     }
 }
 

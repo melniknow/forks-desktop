@@ -3,6 +3,7 @@ package com.melniknow.fd.betting.bookmakers.impl._188bet;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.impl._188bet.*;
+import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -17,10 +18,11 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         driver.manage().window().setSize(new Dimension(1000, 1400));
         driver.get(info.BK_href());
+        Logger.writeToLogSession(info.toString());
     }
 
     @Override
-    public void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
+    public void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
         if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
             switch (info.BK_bet_type()) {
                 case WIN ->
@@ -40,7 +42,7 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) {
+    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) throws InterruptedException {
         PlaceBet.PlaceBet(Context.screenManager.getScreenForBookmaker(bookmaker), betCoef, curCf, info);
     }
 }

@@ -9,7 +9,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.Objects;
 
 public class ClickSportsTotals {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
+    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var market = BetsSupport.getMarketByMarketName(driver,
             BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
             sport);

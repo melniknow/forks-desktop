@@ -19,7 +19,7 @@ public class MarketProxy {
         this.by = by;
     }
 
-    public WebElement getCorrectWebElement() {
+    public WebElement getCorrectWebElement() throws InterruptedException {
         // scroll to top of page -> scroll to element -> find a new element -> getParent
         ((JavascriptExecutor) driver)
             .executeScript("window.scrollTo(0, -document.body.scrollHeight)");
