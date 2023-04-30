@@ -1,4 +1,4 @@
-package com.melniknow.fd.betting.bookmakers.impl;
+package com.melniknow.fd.betting.bookmakers.impl.bet365;
 
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
@@ -7,7 +7,7 @@ import com.melniknow.fd.domain.Sports;
 
 import java.math.BigDecimal;
 
-public class Pinnacle implements IBookmaker {
+public class Bet365 implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
 
