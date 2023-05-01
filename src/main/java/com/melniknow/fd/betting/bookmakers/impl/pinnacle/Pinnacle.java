@@ -33,13 +33,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Pinnacle implements IBookmaker {
-    private BigDecimal sumBet = null;
     private static Long since = 0L;
+    private BigDecimal sumBet = null;
 
     @Override
-    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-
-    }
+    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) { }
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
@@ -57,7 +55,6 @@ public class Pinnacle implements IBookmaker {
         var bookmakerData = Context.betsParams.get(bookmaker);
         var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 
-
         return getCf(auth, info, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
     }
@@ -67,14 +64,14 @@ public class Pinnacle implements IBookmaker {
         var bookmakerData = Context.betsParams.get(bookmaker);
         var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 
-        var betId = placeBet(auth, bookmakerData.proxyIp(),
-            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info, sumBet);
+        var betId = realPlaceBet(auth, bookmakerData.proxyIp(),
+            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
 
         checkBet(betId, auth, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
     }
 
-    public static BigDecimal getBalanceAsRub(String base64Auth, String proxyHost, int proxyPort, String proxyLogin, String proxyPasswd) {
+    private static BigDecimal getBalanceAsRub(String base64Auth, String proxyHost, int proxyPort, String proxyLogin, String proxyPasswd) {
         var credsProvider = new BasicCredentialsProvider();
 
         credsProvider.setCredentials(
@@ -110,8 +107,8 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    void checkBet(String betId, String auth, String proxyIp, Integer proxyPort,
-                  String proxyLogin, String proxyPassword) throws InterruptedException {
+    private void checkBet(String betId, String auth, String proxyIp, Integer proxyPort,
+                          String proxyLogin, String proxyPassword) throws InterruptedException {
         while (true) {
             var provider = new BasicCredentialsProvider();
 
@@ -155,8 +152,8 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    String placeBet(String auth, String proxyIp, Integer proxyPort,
-                    String proxyLogin, String proxyPassword, Parser.BetInfo info, BigDecimal sumBet) {
+    private String realPlaceBet(String auth, String proxyIp, Integer proxyPort,
+                                String proxyLogin, String proxyPassword, Parser.BetInfo info) {
         var betId = UUID.randomUUID().toString().toUpperCase();
 
         var event = info.BK_event_meta();
@@ -250,7 +247,7 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    public BigDecimal getCf(String auth, Parser.BetInfo info, String proxyIp, Integer proxyPort, String proxyLogin, String proxyPassword) {
+    private BigDecimal getCf(String auth, Parser.BetInfo info, String proxyIp, Integer proxyPort, String proxyLogin, String proxyPassword) {
         var event = info.BK_event_meta();
         var market = info.BK_market_meta();
 
