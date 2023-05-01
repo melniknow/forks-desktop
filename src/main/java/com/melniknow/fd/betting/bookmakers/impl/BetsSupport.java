@@ -60,7 +60,7 @@ public class BetsSupport {
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
+            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO маму ебал паиздец
             return element.findElement(by);
         }
     }

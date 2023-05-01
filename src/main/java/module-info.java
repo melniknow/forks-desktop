@@ -11,6 +11,7 @@ module com.melniknow.fd {
     requires org.seleniumhq.selenium.support;
     requires org.apache.httpcomponents.httpcore;
     requires org.apache.httpcomponents.httpclient;
+    requires org.apache.commons.codec;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;
