@@ -86,65 +86,56 @@ public class BetsSupport {
         }
     }
 
-    public static boolean checkBasketQuarters(WebElement market) {
+    public static boolean notContainsItem(WebElement market, String item) {
         try {
-            market.findElement(buildSpanByText(firstQuarter));
+            market.findElement(buildSpanByText(item));
+            return false;
         } catch (NoSuchElementException e) {
-            try {
-                market.findElement(buildSpanByText(secondQuarter));
-            } catch (NoSuchElementException e1) {
-                try {
-                    market.findElement(buildSpanByText(thirdQuarter));
-                } catch (NoSuchElementException e2) {
-                    try {
-                        market.findElement(buildSpanByText(fourthQuarter));
-                    } catch (NoSuchElementException e3) {
-                        try {
-                            market.findElement(buildSpanByText(firstHalf));
-                        } catch (NoSuchElementException e4) {
-                            try {
-                                market.findElement(buildSpanByText(secondHalf));
-                            } catch (NoSuchElementException e5) {
-                                // fucking basket =(
-                                // Сюда дойдёт только глобальный marketName, который везде кинул исключение
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
+            return true;
         }
-        return false;
     }
 
     public static boolean isPureMarket(WebElement elem, Sports sport) {
-        if (sport.equals(Sports.BASKETBALL)) {
-            return checkBasketQuarters(elem);
-        }
-        try {
-            switch (sport) {
-                case TENNIS -> elem.findElement(buildSpanByText(firstSet));
-                case SOCCER -> elem.findElement(buildSpanByText(firstHalf));
+        switch (sport) {
+            case BASKETBALL -> {
+                return notContainsItem(elem, firstQuarter) &&
+                    notContainsItem(elem, secondQuarter) &&
+                    notContainsItem(elem, thirdQuarter) &&
+                    notContainsItem(elem, fourthQuarter) &&
+                    notContainsItem(elem, firstHalf) &&
+                    notContainsItem(elem, secondHalf);
             }
-        } catch (NoSuchElementException e) {
-            try {
-                switch (sport) {
-                    case TENNIS -> elem.findElement(buildSpanByText(secondSet));
-                    case SOCCER -> elem.findElement(buildSpanByText(secondHalf));
-                }
-            } catch (NoSuchElementException e1) {
-                return true;
+            case TENNIS -> {
+                return notContainsItem(elem, firstSet) &&
+                    notContainsItem(elem, secondSet);
+            }
+            case SOCCER -> {
+                return notContainsItem(elem, firstHalf) &&
+                    notContainsItem(elem, secondHalf);
             }
         }
         return false;
     }
 
     public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         // wait the main button
         switch (sport) {
-            case BASKETBALL, TENNIS, SOCCER ->
-                wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
+            case BASKETBALL, TENNIS, SOCCER -> {
+                try {
+                    // есть страницы, где этот элемент отсутствует, тогда подождём другой
+                    wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
+                } catch (TimeoutException e) {
+                    System.out.println("TamBt expired!");
+                    switch (sport) {
+                        case TENNIS, BASKETBALL ->
+                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='All Markets']")));
+                        case SOCCER ->
+                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
+                    }
+                }
+
+            }
         }
     }
 
@@ -156,12 +147,13 @@ public class BetsSupport {
 
     public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport) throws InterruptedException {
         int scrollPosition = 0;
-        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
+        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 100;
         while (scrollPosition < 7000) {
             try {
                 List<WebElement> visibleMarkets = driver.findElements(byName);
                 for (var market : visibleMarkets) {
                     if (isPureMarket(market, sport)) {
+                        System.out.println("YES!");
                         var res = getParentByDeep(market, 5);
                         return new MarketProxy(driver, res, res.getLocation().y, byName);
                     }
@@ -176,4 +168,5 @@ public class BetsSupport {
         throw new RuntimeException("Market not found in sport: " + sport);
     }
 }
+
 

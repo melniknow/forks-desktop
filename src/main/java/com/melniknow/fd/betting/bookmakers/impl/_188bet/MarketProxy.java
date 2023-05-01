@@ -24,7 +24,7 @@ public class MarketProxy {
         ((JavascriptExecutor) driver)
             .executeScript("window.scrollTo(0, -document.body.scrollHeight)");
         BetsSupport.sleep(200L);
-        int s = this.y - 100;
+        int s = this.y - 50;
         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + s + ")");
         BetsSupport.sleep(300L);
         return BetsSupport.getParentByDeep(driver.findElement(by), 5);
