@@ -1,8 +1,8 @@
 package com.melniknow.fd.domain;
 
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.betting.bookmakers.impl.pinnacle.Pinnacle;
-import com.melniknow.fd.betting.bookmakers.impl._188bet._188Bet;
+import com.melniknow.fd.betting.bookmakers.pinnacle.Pinnacle;
+import com.melniknow.fd.betting.bookmakers._188bet._188Bet;
 
 public enum Bookmaker {
     PINNACLE("pinnacle", "https://api.pinnacle.com", new Pinnacle(), true),

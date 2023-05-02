@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers.impl._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
+import com.melniknow.fd.betting.bookmakers._188bet.*;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;

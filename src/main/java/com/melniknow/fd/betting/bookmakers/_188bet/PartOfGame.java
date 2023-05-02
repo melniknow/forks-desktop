@@ -1,4 +1,4 @@
-package com.melniknow.fd.betting.bookmakers.impl._188bet;
+package com.melniknow.fd.betting.bookmakers._188bet;
 
 public enum PartOfGame {
     totalGame(""),
