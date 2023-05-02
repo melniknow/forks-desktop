@@ -35,7 +35,7 @@ public class _188Bet implements IBookmaker {
 //                default -> throw new RuntimeException("BetType`s not supported");
 //            }
 //        throw new RuntimeException("Sport`s not supported");
-        return BigDecimal.TEN;
+        return new BigDecimal("100000");
     }
 
     @Override

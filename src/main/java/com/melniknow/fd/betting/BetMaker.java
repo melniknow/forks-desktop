@@ -48,8 +48,18 @@ public class BetMaker {
                 calculated.betCoef2()
             );
 
-            var bet1 = bets.get(0);
-            var bet2 = bets.get(1);
+            var bet1 = BigDecimal.valueOf(bets.get(0));
+            var bet2 = BigDecimal.valueOf(bets.get(1));
+
+            System.out.println("CF1 = " + calculated.fork().betInfo1().BK_cf());
+            System.out.println("CF2 = " + calculated.fork().betInfo2().BK_cf());
+            System.out.println("Currency1 = " + Context.currencyToRubCourse.get(bkParams1.currency()));
+            System.out.println("Currency2 = " + Context.currencyToRubCourse.get(bkParams2.currency()));
+            System.out.println("Bet1 = " + bet1);
+            System.out.println("Bet2 = " + bet2);
+            System.out.println(calculated.fork().betInfo1().BK_cf().multiply(Context.currencyToRubCourse.get(bkParams1.currency())).multiply(bet1));
+            System.out.println(calculated.fork().betInfo2().BK_cf().multiply(Context.currencyToRubCourse.get(bkParams2.currency())).multiply(bet2));
+            System.out.println("-------------------");
 
             realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1);
             realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2);
@@ -84,9 +94,11 @@ public class BetMaker {
 
                 income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
                     .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub)));
+
+                return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
             }
 
-            return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN));
+            return new BetUtils.CompleteBetsFork(calculated, "Одно из плечей не было поставлено");
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (Exception e) {
@@ -94,34 +106,52 @@ public class BetMaker {
         }
     }
 
-    private static List<BigDecimal> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
-                                                      BigDecimal balanceRub2, BigDecimal minSt1Rub, BigDecimal minSt2Rub,
-                                                      BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
-                                                      BigDecimal calcCf2) {
-        var data = new ArrayList<BigDecimal>(2);
+    private static List<Integer> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
+                                                   BigDecimal balanceRub2, BigDecimal minSt1Rub, BigDecimal minSt2Rub,
+                                                   BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
+                                                   BigDecimal calcCf2) {
+        if (minSt1Rub.compareTo(balanceRub1) > 0 || minSt2Rub.compareTo(balanceRub2) > 0)
+            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
 
-        data.add(BigDecimal.ONE);
-        data.add(BigDecimal.ONE);
+        var data = new ArrayList<Integer>(2);
+
+        Integer rubValue1 = null;
+        Integer rubValue2 = null;
+
+        if (calcCf1.compareTo(calcCf2) > 0) {
+            for (int s1 = maxSt1Rub.intValue(); s1 >= minSt1Rub.intValue(); s1--) {
+                var tempRubValue2 = calcCf2.multiply(BigDecimal.valueOf(s1)).divide(calcCf1, 0, RoundingMode.DOWN).intValue();
+                if (s1 <= balanceRub1.intValue() && tempRubValue2 <= balanceRub2.intValue()
+                    && tempRubValue2 >= minSt2Rub.intValue() && tempRubValue2 <= maxSt2Rub.intValue()) {
+                    rubValue1 = s1;
+                    rubValue2 = tempRubValue2;
+                    break;
+                }
+            }
+        } else {
+            for (int s2 = maxSt2Rub.intValue(); s2 >= minSt2Rub.intValue(); s2--) {
+                var tempRubValue1 = calcCf1.multiply(BigDecimal.valueOf(s2)).divide(calcCf2, 0, RoundingMode.DOWN).intValue();
+                if (s2 <= balanceRub2.intValue() && tempRubValue1 <= balanceRub1.intValue()
+                    && tempRubValue1 >= minSt1Rub.intValue() && tempRubValue1 <= maxSt1Rub.intValue()) {
+                    rubValue1 = tempRubValue1;
+                    rubValue2 = s2;
+                    break;
+                }
+            }
+        }
+
+        if (rubValue1 == null)
+            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
+
+        var value1 = BigDecimal.valueOf(rubValue1).divide(Context.currencyToRubCourse.get(currency1), 0, RoundingMode.DOWN).intValue();
+        var value2 = BigDecimal.valueOf(rubValue2).divide(Context.currencyToRubCourse.get(currency2), 0, RoundingMode.DOWN).intValue();
+
+        if (value1 < 1 || value2 < 1)
+            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
+
+        data.add(value1);
+        data.add(value2);
 
         return data;
-    }
-
-    public static void main(String[] args) {
-//         cf1 = 11
-//         cf2 = 1.114
-        System.out.println(
-            calculateBetsSize(
-                Currency.USD,
-                Currency.USD,
-                new BigDecimal("10000"),
-                new BigDecimal("10000"),
-                new BigDecimal("100"),
-                new BigDecimal("100"),
-                new BigDecimal("1000"),
-                new BigDecimal("1000"),
-                new BigDecimal("0.09195971"),
-                new BigDecimal("0.90804028")
-            )
-        );
     }
 }
