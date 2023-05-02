@@ -1,22 +1,26 @@
 package com.melniknow.fd.betting.bookmakers.impl._188bet;
 
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
+import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class MarketProxy {
-    private final ChromeDriver driver;
+    private final WebDriver driver;
     private WebElement webElement;
     private final int y;
     private final By by;
+    private Sports sport;
 
-    public MarketProxy(ChromeDriver driver, WebElement element, int y, By by) {
+    public MarketProxy(WebDriver driver, WebElement element, int y, By by, Sports sport) {
         this.driver = driver;
         this.webElement = element;
         this.y = y;
         this.by = by;
+        this.sport = sport;
     }
 
     public WebElement getCorrectWebElement() throws InterruptedException {
@@ -27,7 +31,16 @@ public class MarketProxy {
         int s = this.y - 50;
         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + s + ")");
         BetsSupport.sleep(300L);
-        return BetsSupport.getParentByDeep(driver.findElement(by), 5);
+
+        for (var market : driver.findElements(by)) {
+            var parent = BetsSupport.getParentByDeep(market, 5);
+            if (BetsSupport.isPureMarket(parent, sport)) {
+                System.out.println("YES IN PROXY! Y = " + parent.getLocation().y);
+                return parent;
+            }
+            System.out.println("SKIIP IN PROXY! Y = " + parent.getLocation().y);
+        }
+        return null;
     }
 
     public void setWebElement(WebElement elem) {

@@ -12,19 +12,16 @@ public class Bet365 implements IBookmaker {
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
 
     }
-
     @Override
-    public void clickOnBetType(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
-
-    }
-
-    @Override
-    public BigDecimal enterSumAndCheckCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
         return null;
     }
-
     @Override
-    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
 
+    }
+    @Override
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
+        return null;
     }
 }

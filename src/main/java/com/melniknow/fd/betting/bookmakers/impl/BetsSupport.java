@@ -1,12 +1,16 @@
 package com.melniknow.fd.betting.bookmakers.impl;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.impl._188bet.MarketProxy;
+import com.melniknow.fd.betting.bookmakers.impl._188bet.PartOfGame;
+import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 
@@ -58,6 +62,13 @@ public class BetsSupport {
         return By.xpath(".//h4[text()='" + text + "']");
     }
 
+    public static String buildLine(String line) {
+        if (!line.startsWith("-") && !line.startsWith("+") && !line.equals("0")) {
+            line = "+" + line;
+        }
+        return line;
+    }
+
     public static void sleep(Long milliseconds) throws InterruptedException {
         Thread.sleep(milliseconds);
     }
@@ -95,6 +106,22 @@ public class BetsSupport {
         }
     }
 
+    public static boolean containsItem(WebElement market, PartOfGame partOfGame) {
+        try {
+            market.findElement(buildSpanByText(partOfGame.toString()));
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    public static boolean containsItem(WebElement market, PartOfGame partOfGame, Sports sport) {
+        if (partOfGame == PartOfGame.totalGame) {
+            return isPureMarket(market, sport);
+        }
+        return containsItem(market, partOfGame);
+    }
+
     public static boolean isPureMarket(WebElement elem, Sports sport) {
         switch (sport) {
             case BASKETBALL -> {
@@ -118,7 +145,7 @@ public class BetsSupport {
     }
 
     public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         // wait the main button
         switch (sport) {
             case BASKETBALL, TENNIS, SOCCER -> {
@@ -134,29 +161,31 @@ public class BetsSupport {
                             wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
                     }
                 }
-
             }
         }
     }
 
-    public static MarketProxy getMarketByMarketName(ChromeDriver driver, By byMarketName, Sports sport) throws InterruptedException {
+    public static MarketProxy getMarketByMarketName(ChromeDriver driver,
+                                                    By byMarketName, Sports sport,
+                                                    PartOfGame partOfGame) throws InterruptedException {
         waitLoadingOfPage(driver, sport);
-        return getMarketImpl(driver, byMarketName, sport);
+        return getMarketImpl(driver, byMarketName, sport, partOfGame);
     }
 
 
-    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport) throws InterruptedException {
+    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport, PartOfGame partOfGame) throws InterruptedException {
         int scrollPosition = 0;
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 100;
         while (scrollPosition < 7000) {
             try {
                 List<WebElement> visibleMarkets = driver.findElements(byName);
                 for (var market : visibleMarkets) {
-                    if (isPureMarket(market, sport)) {
-                        System.out.println("YES!");
-                        var res = getParentByDeep(market, 5);
-                        return new MarketProxy(driver, res, res.getLocation().y, byName);
+                    var parent = getParentByDeep(market, 5);
+                    if (containsItem(parent, partOfGame, sport)) {
+                        System.out.println("YES! Y = " + parent.getLocation().y);
+                        return new MarketProxy(driver, parent, parent.getLocation().y, byName, sport);
                     }
+                    System.out.println("SKIIP! Y = " + parent.getLocation().y);
                 }
             } catch (NoSuchElementException e) {
 
@@ -167,6 +196,67 @@ public class BetsSupport {
         }
         throw new RuntimeException("Market not found in sport: " + sport);
     }
-}
 
+    public static void closeBetWindow(ChromeDriver driver) {
+        try {
+            BetsSupport.getParentByDeep(driver.findElement(BetsSupport.buildSpanByText("@")), 1)
+                .findElement(By.xpath(".//following::div[1]")).click();
+        } catch (NoSuchElementException e) {
+            System.out.println("Don`t close mini window!");
+        }
+    }
+
+    public static BigDecimal getBalance(ChromeDriver driver) {
+        try {
+            // Header
+            try {
+                var balanceButton = driver.findElement(By.className("print:text-black/80")).getText();
+                balanceButton = balanceButton.substring(4, balanceButton.length() - 3);
+                balanceButton = balanceButton.replace(',', '.');
+                var balance = new BigDecimal(balanceButton);
+                System.out.println("Balance from header THB: " + balance);
+                return balance.multiply(Context.currencyToRubCourse.get(Currency.THB));
+            } catch (NoSuchElementException e) {
+                //
+            }
+
+            // BetWindow
+            // TODO test
+            WebElement balanceBlock = new WebDriverWait(driver, Duration.ofSeconds(200))
+                .until(driver_ -> BetsSupport.getParentByDeep(
+                    driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
+                    6))
+                .findElement(By.xpath(".//following::div[0]"))
+                .findElement(By.xpath(".//h4[contains(text(), 'THB']"));
+
+            System.out.println("TEXT balance = " + balanceBlock.getText());
+
+            return null;
+        } catch (NoSuchElementException e) {
+            System.out.println("Balance in header not found");
+            throw new RuntimeException("Balance not found [188bet]");
+        }
+    }
+
+    public static BigDecimal getCurrentCf(ChromeDriver driver) {
+        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
+            .until(driver_ -> BetsSupport.getParentByDeep(
+                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
+                7))
+            .findElement(BetsSupport.buildSpanByText("@"));
+
+        var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
+
+        return new BigDecimal(title.substring(title.indexOf("@") + 1));
+    }
+
+    public static void closeWithOk(ChromeDriver driver) {
+        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
+            .until(driver_ -> BetsSupport.getParentByDeep(
+                driver_.findElement(BetsSupport.buildSpanByText("@")),
+                4));
+
+        tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();
+    }
+}
 
