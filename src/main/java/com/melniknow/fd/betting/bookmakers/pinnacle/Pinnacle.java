@@ -1,4 +1,4 @@
-package com.melniknow.fd.betting.bookmakers.impl.pinnacle;
+package com.melniknow.fd.betting.bookmakers.pinnacle;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;

@@ -1,10 +1,8 @@
-package com.melniknow.fd.betting.bookmakers.impl._188bet;
+package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
+import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.core.Parser;
-import com.melniknow.fd.utils.BetUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;

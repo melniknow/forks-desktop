@@ -44,8 +44,8 @@ public class BetMaker {
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
                 Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
-                calculated.fork().betInfo1().BK_cf(),
-                calculated.fork().betInfo2().BK_cf()
+                calculated.betCoef1(),
+                calculated.betCoef2()
             );
 
             var bet1 = bets.get(0);
@@ -96,13 +96,32 @@ public class BetMaker {
 
     private static List<BigDecimal> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
                                                       BigDecimal balanceRub2, BigDecimal minSt1Rub, BigDecimal minSt2Rub,
-                                                      BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal cf1,
-                                                      BigDecimal cf2) {
+                                                      BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
+                                                      BigDecimal calcCf2) {
         var data = new ArrayList<BigDecimal>(2);
 
         data.add(BigDecimal.ONE);
         data.add(BigDecimal.ONE);
 
         return data;
+    }
+
+    public static void main(String[] args) {
+//         cf1 = 11
+//         cf2 = 1.114
+        System.out.println(
+            calculateBetsSize(
+                Currency.USD,
+                Currency.USD,
+                new BigDecimal("10000"),
+                new BigDecimal("10000"),
+                new BigDecimal("100"),
+                new BigDecimal("100"),
+                new BigDecimal("1000"),
+                new BigDecimal("1000"),
+                new BigDecimal("0.09195971"),
+                new BigDecimal("0.90804028")
+            )
+        );
     }
 }

@@ -1,12 +1,11 @@
-package com.melniknow.fd.betting.bookmakers.impl._188bet;
+package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
+import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 public class MarketProxy {
     private final WebDriver driver;
