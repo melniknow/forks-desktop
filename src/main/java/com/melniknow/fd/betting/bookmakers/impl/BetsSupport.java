@@ -1,11 +1,16 @@
 package com.melniknow.fd.betting.bookmakers.impl;
 
+import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.impl._188bet.MarketProxy;
+import com.melniknow.fd.betting.bookmakers.impl._188bet.PartOfGame;
+import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 
@@ -45,144 +50,213 @@ public class BetsSupport {
         return null;
     }
 
-    public static String buildSpanByText(String text) {
-        return ".//span[text()='" + text + "']";
+    public static By buildSpanByText(String text) {
+        return By.xpath(".//span[text()='" + text + "']");
     }
 
-    public static String buildDivByText(String text) {
-        return ".//div[text()='" + text + "']";
+    public static By buildDivByText(String text) {
+        return By.xpath(".//div[text()='" + text + "']");
     }
 
-    public static WebElement findElementWithClicking(WebElement element, By by) {
+    public static By buildH4ByText(String text) {
+        return By.xpath(".//h4[text()='" + text + "']");
+    }
+
+    public static String buildLine(String line) {
+        if (!line.startsWith("-") && !line.startsWith("+") && !line.equals("0")) {
+            line = "+" + line;
+        }
+        return line;
+    }
+
+    public static void sleep(Long milliseconds) throws InterruptedException {
+        Thread.sleep(milliseconds);
+    }
+
+    public static WebElement findElementWithClicking(WebElement element, By by) throws InterruptedException {
         WebElement res;
         try {
             res = element.findElement(by);
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO маму ебал паиздец
+            sleep(300L);
             return element.findElement(by);
         }
     }
 
-    public static List<WebElement> findElementsWithClicking(WebElement element, By by) {
+    public static List<WebElement> findElementsWithClicking(WebElement element, By by) throws InterruptedException {
         List<WebElement> res;
         try {
             res = element.findElements(by);
             return res;
         } catch (NoSuchElementException e) {
-            // Here we try to click on market
             element.click();
-            try { Thread.sleep(300); } catch (InterruptedException e1) { } // TODO
+            sleep(300L);
             return element.findElements(by);
         }
     }
 
-    public static WebElement filterBasketQuarters(List<WebElement> markets) {
-        WebElement result = null;
-        for (var market : markets) {
-            try {
-                market.findElement(By.xpath(buildSpanByText(firstQuarter)));
-            } catch (NoSuchElementException e) {
-                try {
-                    market.findElement(By.xpath(buildSpanByText(secondQuarter)));
-                } catch (NoSuchElementException e1) {
-                    try {
-                        market.findElement(By.xpath(buildSpanByText(thirdQuarter)));
-                    } catch (NoSuchElementException e2) {
-                        try {
-                            market.findElement(By.xpath(buildSpanByText(fourthQuarter)));
-                        } catch (NoSuchElementException e3) {
-                            try {
-                                market.findElement(By.xpath(buildSpanByText(firstHalf)));
-                            } catch (NoSuchElementException e4) {
-                                try {
-                                    market.findElement(By.xpath(buildSpanByText(secondHalf)));
-                                } catch (NoSuchElementException e5) {
-                                    // fucking basket =(
-                                    // Сюда дойдёт только глобальный marketName, который везде кинул исключение
-                                    result = market;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    public static boolean notContainsItem(WebElement market, String item) {
+        try {
+            market.findElement(buildSpanByText(item));
+            return false;
+        } catch (NoSuchElementException e) {
+            return true;
         }
-        return result;
     }
 
-    public static WebElement marketsFilter(ChromeDriver driver, List<WebElement> markets, Sports sport) {
-        if (sport.equals(Sports.BASKETBALL)) {
-            return filterBasketQuarters(markets);
+    public static boolean containsItem(WebElement market, PartOfGame partOfGame) {
+        try {
+            market.findElement(buildSpanByText(partOfGame.toString()));
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
         }
-
-        WebElement result = null;
-        for (var market : markets) {
-            try {
-                switch (sport) {
-                    case TENNIS -> market.findElement(By.xpath(buildSpanByText(firstSet)));
-                    case SOCCER -> market.findElement(By.xpath(buildSpanByText(firstHalf)));
-                }
-            } catch (NoSuchElementException e) {
-                try {
-                    switch (sport) {
-                        case TENNIS -> market.findElement(By.xpath(buildSpanByText(secondSet)));
-                        case SOCCER -> market.findElement(By.xpath(buildSpanByText(secondHalf)));
-                    }
-                } catch (NoSuchElementException e1) {
-                    result = market;
-                }
-            }
-        }
-        return result;
     }
 
-    public static void waitLoadingOfPage(ChromeDriver driver, String searchMarketName, Sports sport) {
+    public static boolean containsItem(WebElement market, PartOfGame partOfGame, Sports sport) {
+        if (partOfGame == PartOfGame.totalGame) {
+            return isPureMarket(market, sport);
+        }
+        return containsItem(market, partOfGame);
+    }
+
+    public static boolean isPureMarket(WebElement elem, Sports sport) {
+        switch (sport) {
+            case BASKETBALL -> {
+                return notContainsItem(elem, firstQuarter) &&
+                    notContainsItem(elem, secondQuarter) &&
+                    notContainsItem(elem, thirdQuarter) &&
+                    notContainsItem(elem, fourthQuarter) &&
+                    notContainsItem(elem, firstHalf) &&
+                    notContainsItem(elem, secondHalf);
+            }
+            case TENNIS -> {
+                return notContainsItem(elem, firstSet) &&
+                    notContainsItem(elem, secondSet);
+            }
+            case SOCCER -> {
+                return notContainsItem(elem, firstHalf) &&
+                    notContainsItem(elem, secondHalf);
+            }
+        }
+        return false;
+    }
+
+    public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         // wait the main button
         switch (sport) {
-            case TENNIS, BASKETBALL ->
-                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='All Markets']")));
-            case SOCCER ->
-                wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn='Popular']")));
-        }
-
-
-        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 50;
-        var totalHeight = 0;
-        while (true) {
-            try {
-                if (totalHeight > 6000) {
-                    break;
-                }
+            case BASKETBALL, TENNIS, SOCCER -> {
                 try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                } // TODO
-                driver.findElement(By.xpath(searchMarketName));
-                break;
-            } catch (NoSuchElementException e) {
-                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0," + scroll / 2 + ")");
-                totalHeight += scroll;
+                    // есть страницы, где этот элемент отсутствует, тогда подождём другой
+                    wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
+                } catch (TimeoutException e) {
+                    System.out.println("TamBt expired!");
+                    switch (sport) {
+                        case TENNIS, BASKETBALL ->
+                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='All Markets']")));
+                        case SOCCER ->
+                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
+                    }
+                }
             }
         }
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, Sports sport) {
-        waitLoadingOfPage(driver, marketName, sport);
+    public static MarketProxy getMarketByMarketName(ChromeDriver driver,
+                                                    By byMarketName, Sports sport,
+                                                    PartOfGame partOfGame) throws InterruptedException {
+        waitLoadingOfPage(driver, sport);
+        return getMarketImpl(driver, byMarketName, sport, partOfGame);
+    }
 
-        var markets = new WebDriverWait(driver, Duration.ofSeconds(200))
-            .until(driver_ -> driver_.findElements(By.xpath(marketName)));
 
-        markets = markets.stream().map(m -> BetsSupport.getParentByDeep(m, 5)).toList();
+    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport, PartOfGame partOfGame) throws InterruptedException {
+        int scrollPosition = 0;
+        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 100;
+        while (scrollPosition < 7000) {
+            try {
+                List<WebElement> visibleMarkets = driver.findElements(byName);
+                for (var market : visibleMarkets) {
+                    var parent = getParentByDeep(market, 5);
+                    if (containsItem(parent, partOfGame, sport)) {
+                        System.out.println("YES! Y = " + parent.getLocation().y);
+                        return new MarketProxy(driver, parent, parent.getLocation().y, byName, sport);
+                    }
+                    System.out.println("SKIIP! Y = " + parent.getLocation().y);
+                }
+            } catch (NoSuchElementException e) {
 
-        var res = BetsSupport.marketsFilter(driver, markets, sport); // return only 'pure' market
-
-        if (res == null) {
-            throw new RuntimeException("Market not found in sport: " + sport);
+            }
+            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll + ")");
+            sleep(300L); // Wait for the page to finish scrolling
+            scrollPosition += scroll;
         }
+        throw new RuntimeException("Market not found in sport: " + sport);
+    }
 
-        return res;
+    public static void closeBetWindow(ChromeDriver driver) {
+        try {
+            BetsSupport.getParentByDeep(driver.findElement(BetsSupport.buildSpanByText("@")), 1)
+                .findElement(By.xpath(".//following::div[1]")).click();
+        } catch (NoSuchElementException e) {
+            System.out.println("Don`t close mini window!");
+        }
+    }
+
+    public static BigDecimal getBalance(ChromeDriver driver) {
+        try {
+            // Header
+            try {
+                var balanceButton = driver.findElement(By.className("print:text-black/80")).getText();
+                balanceButton = balanceButton.substring(4, balanceButton.length() - 3);
+                balanceButton = balanceButton.replace(',', '.');
+                var balance = new BigDecimal(balanceButton);
+                System.out.println("Balance from header THB: " + balance);
+                return balance.multiply(Context.currencyToRubCourse.get(Currency.THB));
+            } catch (NoSuchElementException e) {
+                //
+            }
+
+            // BetWindow
+            // TODO test
+            WebElement balanceBlock = new WebDriverWait(driver, Duration.ofSeconds(200))
+                .until(driver_ -> BetsSupport.getParentByDeep(
+                    driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
+                    6))
+                .findElement(By.xpath(".//following::div[0]"))
+                .findElement(By.xpath(".//h4[contains(text(), 'THB']"));
+
+            System.out.println("TEXT balance = " + balanceBlock.getText());
+
+            return null;
+        } catch (NoSuchElementException e) {
+            System.out.println("Balance in header not found");
+            throw new RuntimeException("Balance not found [188bet]");
+        }
+    }
+
+    public static BigDecimal getCurrentCf(ChromeDriver driver) {
+        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
+            .until(driver_ -> BetsSupport.getParentByDeep(
+                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
+                7))
+            .findElement(BetsSupport.buildSpanByText("@"));
+
+        var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
+
+        return new BigDecimal(title.substring(title.indexOf("@") + 1));
+    }
+
+    public static void closeAfterSuccessfulBet(ChromeDriver driver) {
+        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
+            .until(driver_ -> BetsSupport.getParentByDeep(
+                driver_.findElement(BetsSupport.buildSpanByText("@")),
+                4));
+
+        tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();
     }
 }
+

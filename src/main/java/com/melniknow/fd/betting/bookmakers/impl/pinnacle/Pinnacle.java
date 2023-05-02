@@ -48,7 +48,6 @@ public class Pinnacle implements IBookmaker {
         return getBalanceAsRub(auth, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
     }
-
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         sumBet = sum;

@@ -3,25 +3,30 @@ package com.melniknow.fd.betting.bookmakers.impl._188bet;
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Sports;
-import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import java.util.Objects;
+import java.math.BigDecimal;
 
 public class ClickSportsWin {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, Sports sport) {
+    static public BigDecimal clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
+        var selectionName = "";
+        if (info.BK_bet().contains("WIN__P1")) {
+            selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
+        } else if (info.BK_bet().contains("WIN__P2")) {
+            selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
+        } else { // WIN__PX, WIN__1X, WIN__12, WIN__X2
+            // TODO support others
+            throw new RuntimeException("Not supported Win [188Bet]");
+        }
+
+        var partOfGame = PartOfGame.fromString(info.BK_bet());
+
         var market = BetsSupport.getMarketByMarketName(driver,
-            "//h4[text()='" + info.BK_market_meta().get("marketName").getAsString() + "']", sport);
+            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport, partOfGame);
 
-        market = BetsSupport.getParentByDeep(market, 5);
+        BetsSupport.findElementWithClicking(market.getCorrectWebElement(),
+            BetsSupport.buildDivByText(selectionName)).click();
 
-        var buttons = BetsSupport.findElementsWithClicking(market, By.xpath(
-                ".//div[text()='" + info.BK_market_meta().get("selectionName").getAsString() + "']")).stream()
-            .map(e -> e.findElement(By.xpath("./..")))
-            .toList();
-
-        Objects.requireNonNull(buttons.stream().filter(n
-            -> BetsSupport.getTotalsByStr(n.getText()).equals(
-            info.BK_market_meta().get("line").getAsString())).findAny().orElse(null)).click();
+        return BetsSupport.getBalance(driver);
     }
 }
