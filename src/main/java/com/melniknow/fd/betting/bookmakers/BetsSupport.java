@@ -1,7 +1,6 @@
 package com.melniknow.fd.betting.bookmakers;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers._188bet.MarketProxy;
 import com.melniknow.fd.betting.bookmakers._188bet.PartOfGame;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sports;
@@ -26,6 +25,7 @@ public class BetsSupport {
 
     private static final String secondHalf = "2nd Half";
     private static final String secondSet = "2nd Set";
+    private static final String thirdSet = "2rd Set";
 
     public static String getTotalsByStr(String str) {
         return str.split("\n")[1];
@@ -140,59 +140,79 @@ public class BetsSupport {
                 return notContainsItem(elem, firstHalf) &&
                     notContainsItem(elem, secondHalf);
             }
+            case HOCKEY, VOLLEYBALL -> {
+                return notContainsItem(elem, firstSet) &&
+                    notContainsItem(elem, secondSet) &&
+                    notContainsItem(elem, thirdSet);
+            }
         }
         return false;
     }
 
     public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
-        // wait the main button
-        switch (sport) {
-            case BASKETBALL, TENNIS, SOCCER -> {
-                try {
-                    // есть страницы, где этот элемент отсутствует, тогда подождём другой
-                    wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
-                } catch (TimeoutException e) {
-                    System.out.println("TamBt expired!");
-                    switch (sport) {
-                        case TENNIS, BASKETBALL ->
-                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='All Markets']")));
-                        case SOCCER ->
-                            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
-                    }
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        for (int i = 0; i < 60; ++i) {
+            try {
+                // main button
+                wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
+                break;
+            } catch (TimeoutException e) {
+            }
+            try {
+                switch (sport) {
+                    case SOCCER ->
+                        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Popular']")));
+                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL ->
+                        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
                 }
+                break;
+            } catch (TimeoutException e) {
             }
         }
     }
 
-    public static MarketProxy getMarketByMarketName(ChromeDriver driver,
-                                                    By byMarketName, Sports sport,
-                                                    PartOfGame partOfGame) throws InterruptedException {
+    public static WebElement getMarketByMarketName(ChromeDriver driver,
+                                                   By byMarketName, Sports sport,
+                                                   PartOfGame partOfGame) throws InterruptedException {
         waitLoadingOfPage(driver, sport);
+        clearPreviousBets(driver);
         return getMarketImpl(driver, byMarketName, sport, partOfGame);
     }
 
+    public static void clearPreviousBets(ChromeDriver driver) throws InterruptedException {
+        WebDriverWait wait_ = new WebDriverWait(driver, Duration.ofSeconds(10));
+        var button = wait_.until(driver1 -> driver1.findElement(By.xpath("//h4[text()='Bet Slip']")));
+        button = BetsSupport.getParentByDeep(button, 1);
+        try {
+            var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()='1']"));
+            countOfPreviousBets.click();
+            sleep(1000L);
+            wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
+            wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
+        } catch (NoSuchElementException e) {
+        }
+    }
 
-    public static MarketProxy getMarketImpl(ChromeDriver driver, By byName, Sports sport, PartOfGame partOfGame) throws InterruptedException {
+
+    public static WebElement getMarketImpl(ChromeDriver driver, By byName, Sports sport, PartOfGame partOfGame) throws InterruptedException {
         int scrollPosition = 0;
-        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue() - 100;
-        while (scrollPosition < 7000) {
+        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
+        int curScroll = scroll / 4;
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        while (scrollPosition < 10000) {
             try {
-                List<WebElement> visibleMarkets = driver.findElements(byName);
+                List<WebElement> visibleMarkets = wait.until(driver1 -> driver1.findElements(byName));
                 for (var market : visibleMarkets) {
                     var parent = getParentByDeep(market, 5);
                     if (containsItem(parent, partOfGame, sport)) {
-                        System.out.println("YES! Y = " + parent.getLocation().y);
-                        return new MarketProxy(driver, parent, parent.getLocation().y, byName, sport);
+                        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 2 + ")");
+                        return parent;
                     }
-                    System.out.println("SKIIP! Y = " + parent.getLocation().y);
                 }
-            } catch (NoSuchElementException e) {
-
-            }
-            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll + ")");
-            sleep(300L); // Wait for the page to finish scrolling
-            scrollPosition += scroll;
+            } catch (NoSuchElementException e) { }
+            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + curScroll + ")");
+            sleep(500L); // Wait for the page to finish scrolling
+            scrollPosition += curScroll;
         }
         throw new RuntimeException("Market not found in sport: " + sport);
     }
@@ -200,15 +220,10 @@ public class BetsSupport {
     public static void closeBetWindow(ChromeDriver driver) throws InterruptedException {
         try {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(15)).until(
-              driver_ ->  driver_.findElement(By.xpath("//span[text()='@']"))
-            );
-
+                driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
             var tmp = BetsSupport.getParentByDeep(wait, 1);
-
             sleep(200L);
-
             tmp.findElement(By.xpath(".//following::div[1]")).click();
-
         } catch (NoSuchElementException | TimeoutException e) {
             System.out.println("Don`t close mini window!");
         }
@@ -223,10 +238,8 @@ public class BetsSupport {
                 balanceButton = balanceButton.replace(',', '.');
                 var balance = new BigDecimal(balanceButton);
                 System.out.println("Balance from header THB: " + balance);
-                return balance.multiply(Context.currencyToRubCourse.get(Currency.THB));
-            } catch (NoSuchElementException e) {
-                //
-            }
+                return balance.multiply(Context.currencyToRubCourse.get(Currency.THB)); // TODO
+            } catch (NoSuchElementException e) { }
 
             // BetWindow
             // TODO test
@@ -246,12 +259,14 @@ public class BetsSupport {
         }
     }
 
-    public static BigDecimal getCurrentCf(ChromeDriver driver) {
+    public static BigDecimal getCurrentCf(ChromeDriver driver) throws InterruptedException {
         WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
             .until(driver_ -> BetsSupport.getParentByDeep(
                 driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
-                7)).findElement(BetsSupport.buildSpanByText("@"));
-        var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
+                7));
+        sleep(200L);
+        var tmpTitle = tmpButton.findElement(BetsSupport.buildSpanByText("@"));
+        var title = BetsSupport.getParentByDeep(tmpTitle, 1).getText();
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 

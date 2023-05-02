@@ -45,6 +45,7 @@ public class PlaceBet {
 
             var realCf = BetsSupport.getCurrentCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
+            BetsSupport.closeBetWindow(driver);
             return realCf;
         } catch (NoSuchElementException e) {
             BetsSupport.closeBetWindow(driver);

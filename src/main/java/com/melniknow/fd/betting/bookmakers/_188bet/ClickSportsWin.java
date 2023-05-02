@@ -19,12 +19,12 @@ public class ClickSportsWin {
             throw new RuntimeException("Not supported Win [188Bet]");
         }
 
-        var partOfGame = PartOfGame.fromString(info.BK_bet());
+        var partOfGame = PartOfGame.fromString(info.BK_bet(), sport);
 
         var market = BetsSupport.getMarketByMarketName(driver,
             BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport, partOfGame);
 
-        BetsSupport.findElementWithClicking(market.getCorrectWebElement(),
+        BetsSupport.findElementWithClicking(market,
             BetsSupport.buildDivByText(selectionName)).click();
 
         return BetsSupport.getBalance(driver);

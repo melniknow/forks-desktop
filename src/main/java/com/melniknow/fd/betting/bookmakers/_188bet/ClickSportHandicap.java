@@ -20,13 +20,13 @@ public class ClickSportHandicap {
             throw new RuntimeException("Not supported Handicap [188Bet]");
         }
 
-        var partOfGame = PartOfGame.fromString(info.BK_bet());
+        var partOfGame = PartOfGame.fromString(info.BK_bet(), sport);
 
         var market = BetsSupport.getMarketByMarketName(driver,
             BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
             sport, partOfGame);
 
-        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
+        var buttons = BetsSupport.findElementsWithClicking(market,
                 BetsSupport.buildDivByText(selectionName))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))

@@ -13,9 +13,9 @@ public class ClickSportsTotals {
     static public BigDecimal clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var market = BetsSupport.getMarketByMarketName(driver,
             BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
-            sport, PartOfGame.fromString(info.BK_bet()));
+            sport, PartOfGame.fromString(info.BK_bet(), sport));
 
-        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
+        var buttons = BetsSupport.findElementsWithClicking(market,
                 BetsSupport.buildDivByText(info.BK_market_meta().get("selectionName").getAsString())).stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();

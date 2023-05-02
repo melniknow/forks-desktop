@@ -14,39 +14,39 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-//        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-//        driver.manage().window().setSize(new Dimension(1000, 1400));
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        driver.manage().window().setSize(new Dimension(1000, 1400));
 //        driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
+        driver.get(info.BK_href());
+        Logger.writePrettyJson(info);
     }
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
-//        if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
-//            switch (info.BK_bet_type()) {
-//                case WIN -> {
-//                    return ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-//                }
-//                case TOTALS -> {
-//                    return ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-//                }
-//                case HANDICAP -> {
-//                    return ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-//                }
-//                default -> throw new RuntimeException("BetType`s not supported");
-//            }
-//        throw new RuntimeException("Sport`s not supported");
-        return BigDecimal.TEN;
+        if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
+            switch (info.BK_bet_type()) {
+                case WIN -> {
+                    return ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                }
+                case TOTALS -> {
+                    return ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                }
+                case HANDICAP -> {
+                    return ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                }
+                default -> throw new RuntimeException("BetType`s not supported");
+            }
+        throw new RuntimeException("Sport`s not supported");
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
-//        EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info, sum);
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
+        EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info, sum);
     }
 
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
-//        return PlaceBet.placeBet(Context.screenManager.getScreenForBookmaker(bookmaker), info);
-        return BigDecimal.TEN;
+        return PlaceBet.placeBet(Context.screenManager.getScreenForBookmaker(bookmaker), info);
     }
 }
