@@ -250,7 +250,7 @@ public class BetsSupport {
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 
-    public static void closeWithOk(ChromeDriver driver) {
+    public static void closeAfterSuccessfulBet(ChromeDriver driver) {
         WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> BetsSupport.getParentByDeep(
                 driver_.findElement(BetsSupport.buildSpanByText("@")),

@@ -1,7 +1,6 @@
 package com.melniknow.fd.betting.bookmakers.impl._188bet;
 
 import com.melniknow.fd.betting.bookmakers.impl.BetsSupport;
-import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,7 +12,6 @@ import java.time.Duration;
 
 public class PlaceBet {
     public static BigDecimal placeBet(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
-
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             try {
@@ -36,11 +34,11 @@ public class PlaceBet {
             new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
                 visibilityOfElementLocated(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
 
-            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
-                visibilityOfElementLocated(By.xpath("//h4[text()='Confirmed']")));
+//            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
+//                visibilityOfElementLocated(By.xpath("//h4[text()='Confirmed']")));
 
             var realCf = BetsSupport.getCurrentCf(driver);
-            BetsSupport.closeWithOk(driver);
+            BetsSupport.closeAfterSuccessfulBet(driver);
             return realCf;
         } catch (NoSuchElementException e) {
             BetsSupport.closeBetWindow(driver);

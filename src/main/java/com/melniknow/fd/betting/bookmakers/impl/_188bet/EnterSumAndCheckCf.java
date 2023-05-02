@@ -15,19 +15,19 @@ import java.time.Duration;
 public class EnterSumAndCheckCf {
     public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) {
         try {
-            // Get Cf
             var currentCf = BetsSupport.getCurrentCf(driver);
             if (currentCf.compareTo(info.BK_cf()) < 0) {
                 throw new RuntimeException("betCoef is too low");
             }
 
-            // Enter sum
             if (sum.compareTo(new BigDecimal("50")) < 0) {
-
-                throw new RuntimeException("Very small min Bet");
+                sum = new BigDecimal("50");
+//                throw new RuntimeException("Very small min Bet");
             }
-            // TODO check MAX
-            WebElement enterSnake = driver.findElement(By.cssSelector("[placeholder='Enter Stake']"));
+            // TODO: check MAX bet
+            WebElement enterSnake = new WebDriverWait(driver, Duration.ofSeconds(200))
+                .until(driver_ ->
+                        driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
 
             enterSnake.sendKeys(sum.toString());
 
