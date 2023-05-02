@@ -197,11 +197,19 @@ public class BetsSupport {
         throw new RuntimeException("Market not found in sport: " + sport);
     }
 
-    public static void closeBetWindow(ChromeDriver driver) {
+    public static void closeBetWindow(ChromeDriver driver) throws InterruptedException {
         try {
-            BetsSupport.getParentByDeep(driver.findElement(BetsSupport.buildSpanByText("@")), 1)
-                .findElement(By.xpath(".//following::div[1]")).click();
-        } catch (NoSuchElementException e) {
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(15)).until(
+              driver_ ->  driver_.findElement(By.xpath("//span[text()='@']"))
+            );
+
+            var tmp = BetsSupport.getParentByDeep(wait, 1);
+
+            sleep(200L);
+
+            tmp.findElement(By.xpath(".//following::div[1]")).click();
+
+        } catch (NoSuchElementException | TimeoutException e) {
             System.out.println("Don`t close mini window!");
         }
     }
@@ -229,7 +237,7 @@ public class BetsSupport {
                 .findElement(By.xpath(".//following::div[0]"))
                 .findElement(By.xpath(".//h4[contains(text(), 'THB']"));
 
-            System.out.println("TEXT balance = " + balanceBlock.getText());
+            System.out.println("START TEXT balance = " + balanceBlock.getText() + "--- END OF TEXT");
 
             return null;
         } catch (NoSuchElementException e) {
@@ -239,21 +247,18 @@ public class BetsSupport {
     }
 
     public static BigDecimal getCurrentCf(ChromeDriver driver) {
-        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
+        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
             .until(driver_ -> BetsSupport.getParentByDeep(
                 driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
-                7))
-            .findElement(BetsSupport.buildSpanByText("@"));
-
+                7)).findElement(BetsSupport.buildSpanByText("@"));
         var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
-
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 
     public static void closeAfterSuccessfulBet(ChromeDriver driver) {
         WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
             .until(driver_ -> BetsSupport.getParentByDeep(
-                driver_.findElement(BetsSupport.buildSpanByText("@")),
+                driver_.findElement(By.xpath("//span[text()='@']")),
                 4));
 
         tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();

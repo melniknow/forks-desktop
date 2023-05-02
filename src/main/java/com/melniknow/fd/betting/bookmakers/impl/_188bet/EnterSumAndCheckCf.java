@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 
 public class EnterSumAndCheckCf {
-    public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) {
+    public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
             if (currentCf.compareTo(info.BK_cf()) < 0) {
@@ -30,8 +30,6 @@ public class EnterSumAndCheckCf {
                     driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
 
             enterSnake.sendKeys(sum.toString());
-
-
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("Don`t enter Stake!");

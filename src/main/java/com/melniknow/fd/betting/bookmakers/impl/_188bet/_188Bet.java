@@ -39,7 +39,7 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
         EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info, sum);
     }
 
