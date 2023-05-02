@@ -256,12 +256,16 @@ public class BetsSupport {
     }
 
     public static void closeAfterSuccessfulBet(ChromeDriver driver) {
-        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(200))
-            .until(driver_ -> BetsSupport.getParentByDeep(
-                driver_.findElement(By.xpath("//span[text()='@']")),
-                4));
+        try {
+            WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
+                .until(driver_ -> BetsSupport.getParentByDeep(
+                    driver_.findElement(By.xpath("//span[text()='@']")),
+                    4));
 
-        tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();
+            tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();
+        } catch (TimeoutException | NoSuchElementException e) {
+            System.out.println("Not Close mini-window after success betting!");
+        }
     }
 }
 
