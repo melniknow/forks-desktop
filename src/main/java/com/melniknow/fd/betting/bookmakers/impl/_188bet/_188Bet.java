@@ -39,7 +39,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
-        return null;
+        return BigDecimal.TEN;
 //        PlaceBet.PlaceBet(Context.screenManager.getScreenForBookmaker(bookmaker), betCoef, curCf, info);
     }
 }

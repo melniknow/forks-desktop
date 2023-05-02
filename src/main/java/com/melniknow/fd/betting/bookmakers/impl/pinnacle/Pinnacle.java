@@ -60,11 +60,7 @@ public class Pinnacle implements IBookmaker {
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
 
         if (cf.compareTo(info.BK_cf()) < 0)
-            throw new RuntimeException("""
-                Коэфициент изменился в худшую сторону [Pinnacle]:
-                Было - %s
-                Стало - %s
-                """.formatted(info.BK_cf(), cf));
+            throw new RuntimeException("Коэффициент изменился в худшую сторону [Pinnacle]: было - %s, стало - %s".formatted(info.BK_cf(), cf));
     }
 
     @Override

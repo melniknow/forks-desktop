@@ -22,7 +22,6 @@ public class EnterSumAndCheckCf {
 
         var title = BetsSupport.getParentByDeep(tmpButton, 1).getText();
         var currentCf = new BigDecimal(title.substring(title.indexOf("@") + 1));
-        System.out.println(currentCf);
 
         if (currentCf.compareTo(betCoef) < 0) {
             throw new RuntimeException("betCoef is too low");
