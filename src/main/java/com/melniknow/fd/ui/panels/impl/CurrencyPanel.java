@@ -148,6 +148,7 @@ public class CurrencyPanel implements IPanel {
     private boolean updateCurrencyValue(String usd, String eur, String tnb) {
         try {
             var res = new ConcurrentHashMap<Currency, BigDecimal>();
+            res.put(Currency.RUB, BigDecimal.ONE);
             res.put(Currency.USD, new BigDecimal(usd));
             res.put(Currency.EUR, new BigDecimal(eur));
             res.put(Currency.THB, new BigDecimal(tnb));

@@ -339,9 +339,9 @@ public class Pinnacle implements IBookmaker {
                 default ->
                     throw new RuntimeException("Не поддерживаемый marketName [Pinnacle] - " + marketName);
             }
-            throw new RuntimeException("Ошибка в получении котировок");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка в получении коэффициентов [Pinnacle] - " + e.getMessage());
         }
     }
 }

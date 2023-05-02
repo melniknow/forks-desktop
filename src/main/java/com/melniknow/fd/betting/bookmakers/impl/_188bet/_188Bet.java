@@ -28,7 +28,7 @@ public class _188Bet implements IBookmaker {
 //                    ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
 //                default -> throw new RuntimeException("BetType`s not supported");
 //            }
-        return null;
+        return new BigDecimal("10000");
     }
 
     @Override
