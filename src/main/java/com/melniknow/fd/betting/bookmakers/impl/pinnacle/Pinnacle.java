@@ -29,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -49,25 +50,32 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BigDecimal enterSumAndGetCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
-        sumBet = new BigDecimal("1");
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
+        sumBet = sum;
 
         var bookmakerData = Context.betsParams.get(bookmaker);
         var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 
-        return getCf(auth, info, bookmakerData.proxyIp(),
+        var cf = getCf(auth, info, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
+
+        if (cf.compareTo(info.BK_cf()) < 0)
+            throw new RuntimeException("""
+                Коэфициент изменился в худшую сторону [Pinnacle]:
+                Было - %s
+                Стало - %s
+                """.formatted(info.BK_cf(), cf));
     }
 
     @Override
-    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) throws InterruptedException {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
         var bookmakerData = Context.betsParams.get(bookmaker);
         var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 
         var betId = realPlaceBet(auth, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
 
-        checkBet(betId, auth, bookmakerData.proxyIp(),
+        return checkBetAndGetCf(betId, auth, bookmakerData.proxyIp(),
             bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
     }
 
@@ -107,9 +115,11 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    private void checkBet(String betId, String auth, String proxyIp, Integer proxyPort,
-                          String proxyLogin, String proxyPassword) throws InterruptedException {
+    private BigDecimal checkBetAndGetCf(String betId, String auth, String proxyIp, Integer proxyPort,
+                                        String proxyLogin, String proxyPassword) throws InterruptedException {
         while (true) {
+            TimeUnit.SECONDS.sleep(1);
+
             var provider = new BasicCredentialsProvider();
 
             provider.setCredentials(
@@ -117,8 +127,6 @@ public class Pinnacle implements IBookmaker {
                 new UsernamePasswordCredentials(proxyLogin, proxyPassword));
 
             var proxy = new HttpHost(proxyIp, proxyPort, "http");
-
-            TimeUnit.SECONDS.sleep(1);
 
             try (var httpclient = HttpClients.custom()
                 .setProxy(proxy)
@@ -140,7 +148,10 @@ public class Pinnacle implements IBookmaker {
 
                 if (betObj.getAsJsonPrimitive("uniqueRequestId").getAsString().equalsIgnoreCase(betId)
                     && betObj.getAsJsonPrimitive("betStatus").getAsString().equals("ACCEPTED")) {
-                    return;
+                    var risk = betObj.getAsJsonPrimitive("risk").getAsBigDecimal();
+                    var sum = betObj.getAsJsonPrimitive("win").getAsBigDecimal().add(risk);
+
+                    return sum.divide(risk, 3, RoundingMode.DOWN);
                 } else if (betObj.getAsJsonPrimitive("uniqueRequestId").getAsString().equalsIgnoreCase(betId)
                     && betObj.getAsJsonPrimitive("betStatus").getAsString().equals("PENDING_ACCEPTANCE"))
                     Logger.writeToLogSession("Ставка обрабатывается [Pinnacle]");

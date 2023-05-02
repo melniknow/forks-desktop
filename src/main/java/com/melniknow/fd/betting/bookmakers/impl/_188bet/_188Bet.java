@@ -1,12 +1,9 @@
 package com.melniknow.fd.betting.bookmakers.impl._188bet;
 
-import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.betting.bookmakers.impl._188bet.*;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
-import org.openqa.selenium.Dimension;
 
 import java.math.BigDecimal;
 
@@ -35,14 +32,14 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public BigDecimal enterSumAndGetCf(Bookmaker bookmaker, BigDecimal betCoef, Parser.BetInfo info) {
-        return null;
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
 //        return EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker),
 //            info, betCoef, Context.betsParams.get(bookmaker));
     }
 
     @Override
-    public void placeBet(Bookmaker bookmaker, BigDecimal betCoef, BigDecimal curCf, Parser.BetInfo info) {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
+        return null;
 //        PlaceBet.PlaceBet(Context.screenManager.getScreenForBookmaker(bookmaker), betCoef, curCf, info);
     }
 }
