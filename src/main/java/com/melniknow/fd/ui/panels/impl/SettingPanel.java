@@ -91,9 +91,6 @@ public class SettingPanel implements IPanel {
         var _188Bet = new CheckBox("_188BET");
         _188Bet.setSelected(true);
         grid.add(_188Bet, 1, y++);
-        var bet365 = new CheckBox("BET365");
-        bet365.setSelected(true);
-        grid.add(bet365, 1, y++);
 
         var middles = new Label("Коридоры *");
         grid.add(middles, 0, y);
@@ -139,7 +136,6 @@ public class SettingPanel implements IPanel {
             var bookmakersData = new ArrayList<CheckBox>() {{
                 add(pinnacle);
                 add(_188Bet);
-                add(bet365);
             }};
 
             var typesBetData = new ArrayList<CheckBox>() {{

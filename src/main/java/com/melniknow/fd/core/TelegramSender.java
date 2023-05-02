@@ -46,7 +46,7 @@ public class TelegramSender {
                 "<i>Коэффициент:</i> <b>" + fork.betInfo2().BK_cf() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet_type() + "</b>" + "\n\n" +
 
-                "<i>Информация по вилке:</i> <b>" + completedFork.info() + "</b>" + "\n",
+                "<i>Доход ₽:</i> <b>" + completedFork.income() + "</b>" + "\n",
             StandardCharsets.UTF_8
         );
     }

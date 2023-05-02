@@ -3,7 +3,6 @@ package com.melniknow.fd.betting.bookmakers;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
-import com.melniknow.fd.utils.MathUtils;
 
 import java.math.BigDecimal;
 

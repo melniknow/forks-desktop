@@ -43,6 +43,7 @@ public class _188Bet implements IBookmaker {
         EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info, sum);
     }
 
+
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
         return PlaceBet.placeBet(Context.screenManager.getScreenForBookmaker(bookmaker), info);

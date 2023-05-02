@@ -27,9 +27,10 @@ public class EnterSumAndCheckCf {
             // TODO: check MAX bet
             WebElement enterSnake = new WebDriverWait(driver, Duration.ofSeconds(200))
                 .until(driver_ ->
-                        driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
+                    driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
 
             enterSnake.sendKeys(sum.toString());
+
 
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);

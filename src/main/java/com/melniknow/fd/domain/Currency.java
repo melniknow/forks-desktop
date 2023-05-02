@@ -1,5 +1,5 @@
 package com.melniknow.fd.domain;
 
 public enum Currency {
-    USD, EUR, THB
+    RUB, USD, EUR, THB
 }

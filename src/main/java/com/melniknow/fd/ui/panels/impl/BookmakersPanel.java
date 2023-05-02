@@ -63,6 +63,7 @@ public class BookmakersPanel implements IPanel {
         var login = new Label("Логин");
         grid.add(login, 0, y);
         var loginField = new TextField();
+        loginField.setText("IT1323513");
         loginField.setPrefHeight(40);
         loginField.setPromptText("login");
         grid.add(loginField, 1, y++);
@@ -71,6 +72,7 @@ public class BookmakersPanel implements IPanel {
         grid.add(password, 0, y);
         var passwordField = new TextField();
         passwordField.setPrefHeight(40);
+        passwordField.setText("33527qA!");
         passwordField.setPromptText("password");
         grid.add(passwordField, 1, y++);
 
@@ -121,7 +123,7 @@ public class BookmakersPanel implements IPanel {
         var proxyIp = new Label("Proxy IP (HTTP)");
         grid.add(proxyIp, 0, y);
         var proxyIpField = new TextField();
-        proxyIpField.setText("51.79.203.198");
+        proxyIpField.setText("62.113.105.132");
         proxyIpField.setPrefHeight(40);
         proxyIpField.setPromptText("193.67.67.124");
         grid.add(proxyIpField, 1, y++);
@@ -129,7 +131,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPort = new Label("Proxy port");
         grid.add(proxyPort, 0, y);
         var proxyPortField = new TextField();
-        proxyPortField.setText("10269");
+        proxyPortField.setText("39229");
         proxyPortField.setPrefHeight(40);
         proxyPortField.setPromptText("65233");
         grid.add(proxyPortField, 1, y++);
@@ -137,7 +139,7 @@ public class BookmakersPanel implements IPanel {
         var proxyLogin = new Label("Proxy login");
         grid.add(proxyLogin, 0, y);
         var proxyLoginField = new TextField();
-        proxyLoginField.setText("smelnikovimit9227");
+        proxyLoginField.setText("5lfnqi");
         proxyLoginField.setPrefHeight(40);
         proxyLoginField.setPromptText("admin");
         grid.add(proxyLoginField, 1, y++);
@@ -145,7 +147,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPassword = new Label("Proxy password");
         grid.add(proxyPassword, 0, y);
         var proxyPasswordField = new TextField();
-        proxyPasswordField.setText("c6399f");
+        proxyPasswordField.setText("dsxozk");
         proxyPasswordField.setPrefHeight(40);
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);

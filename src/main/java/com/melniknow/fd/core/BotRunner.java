@@ -17,9 +17,7 @@ public class BotRunner implements Runnable {
 
                 if (forks == null) {
                     Logger.writeToLogSession("Ошибка при получении вилок с сервера");
-                } else if (forks.isEmpty()) {
-                    Logger.writeToLogSession("Вилки не найдены");
-                } else {
+                } else if (!forks.isEmpty()) {
                     var calculated = MathUtils.calculate(forks);
                     var completed = BetMaker.make(calculated);
 
