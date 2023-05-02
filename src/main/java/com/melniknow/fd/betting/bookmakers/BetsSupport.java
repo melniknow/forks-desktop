@@ -25,7 +25,7 @@ public class BetsSupport {
 
     private static final String secondHalf = "2nd Half";
     private static final String secondSet = "2nd Set";
-    private static final String thirdSet = "2rd Set";
+    private static final String thirdSet = "3rd Set";
 
     public static String getTotalsByStr(String str) {
         return str.split("\n")[1];

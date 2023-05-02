@@ -16,8 +16,7 @@ public class _188Bet implements IBookmaker {
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         driver.manage().window().setSize(new Dimension(1000, 1400));
-//        driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
-        driver.get(info.BK_href());
+        driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
         Logger.writePrettyJson(info);
     }
 

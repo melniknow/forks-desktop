@@ -12,7 +12,7 @@ public class BetUtils {
                              String userAgent, String proxyIp, Integer proxyPort,
                              String proxyLogin, String proxyPassword, String screenSize,
                              String lang, String login, String password) { }
-    public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, BigDecimal income) { }
+    public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String income) { }
     public record Proxy(String ip, String port, String username, String password) { }
 
     public static Bookmaker getBookmakerByNameInApi(String nameInApi) {
