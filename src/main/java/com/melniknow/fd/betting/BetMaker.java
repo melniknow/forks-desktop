@@ -51,16 +51,6 @@ public class BetMaker {
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
 
-            System.out.println("CF1 = " + calculated.fork().betInfo1().BK_cf());
-            System.out.println("CF2 = " + calculated.fork().betInfo2().BK_cf());
-            System.out.println("Currency1 = " + Context.currencyToRubCourse.get(bkParams1.currency()));
-            System.out.println("Currency2 = " + Context.currencyToRubCourse.get(bkParams2.currency()));
-            System.out.println("Bet1 = " + bet1);
-            System.out.println("Bet2 = " + bet2);
-            System.out.println(calculated.fork().betInfo1().BK_cf().multiply(Context.currencyToRubCourse.get(bkParams1.currency())).multiply(bet1));
-            System.out.println(calculated.fork().betInfo2().BK_cf().multiply(Context.currencyToRubCourse.get(bkParams2.currency())).multiply(bet2));
-            System.out.println("-------------------");
-
             realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1);
             realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2);
 
