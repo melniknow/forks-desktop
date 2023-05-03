@@ -1,6 +1,5 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 
 public class EnterSumAndCheckCf {
-    public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
+    public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) {
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
             System.out.println("Current cf = " + currentCf);

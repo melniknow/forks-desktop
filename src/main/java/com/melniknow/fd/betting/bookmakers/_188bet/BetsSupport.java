@@ -1,4 +1,4 @@
-package com.melniknow.fd.betting.bookmakers;
+package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers._188bet.PartOfGame;
@@ -220,12 +220,12 @@ public class BetsSupport {
         }
     }
 
-    public static void closeBetWindow(ChromeDriver driver) throws InterruptedException {
+    public static void closeBetWindow(ChromeDriver driver) {
         try {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(15)).until(
                 driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
             var tmp = BetsSupport.getParentByDeep(wait, 1);
-            sleep(200L);
+            // waiting?
             tmp.findElement(By.xpath(".//following::div[1]")).click();
         } catch (NoSuchElementException | TimeoutException e) {
             System.out.println("Don`t close mini window! [188bet]");

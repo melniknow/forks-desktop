@@ -1,7 +1,7 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers.BetsSupport;
+import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
@@ -43,7 +43,7 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
+    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         EnterSumAndCheckCf.enterSumAndCheckCf(Context.screenManager.getScreenForBookmaker(bookmaker), info, sum);
     }
 

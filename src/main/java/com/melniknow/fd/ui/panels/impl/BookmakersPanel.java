@@ -34,7 +34,7 @@ public class BookmakersPanel implements IPanel {
         return box;
     }
 
-    public static GridPane getTabContent(Bookmaker bookmaker) {
+    public static ScrollPane getTabContent(Bookmaker bookmaker) {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -63,7 +63,6 @@ public class BookmakersPanel implements IPanel {
         var login = new Label("Логин");
         grid.add(login, 0, y);
         var loginField = new TextField();
-        loginField.setText("IT1323513");
         loginField.setPrefHeight(40);
         loginField.setPromptText("login");
         grid.add(loginField, 1, y++);
@@ -72,7 +71,6 @@ public class BookmakersPanel implements IPanel {
         grid.add(password, 0, y);
         var passwordField = new TextField();
         passwordField.setPrefHeight(40);
-        passwordField.setText("33527qA!");
         passwordField.setPromptText("password");
         grid.add(passwordField, 1, y++);
 
@@ -85,7 +83,6 @@ public class BookmakersPanel implements IPanel {
         var minimum = new Label("Минимальная ставка *");
         grid.add(minimum, 0, y);
         var minimumField = new TextField();
-        minimumField.setText("1");
         minimumField.setPrefHeight(40);
         minimumField.setPromptText("В указанной валюте");
         grid.add(minimumField, 1, y++);
@@ -93,7 +90,6 @@ public class BookmakersPanel implements IPanel {
         var maximum = new Label("Максимальная ставка *");
         grid.add(maximum, 0, y);
         var maximumField = new TextField();
-        maximumField.setText("1000");
         maximumField.setPrefHeight(40);
         maximumField.setPromptText("В указанной валюте");
         grid.add(maximumField, 1, y++);
@@ -107,7 +103,6 @@ public class BookmakersPanel implements IPanel {
         var agent = new Label("User Agent");
         grid.add(agent, 0, y);
         var agentField = new TextField();
-        agentField.setText("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 RuxitSynthetic/1.0 v2056842072111261838 t23539024778059721 ath1fb31b7a altpriv cvcv=2 cexpw=1 smf=0");
         agentField.setPrefHeight(40);
         agentField.setPromptText("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
         grid.add(agentField, 1, y++);
@@ -115,7 +110,6 @@ public class BookmakersPanel implements IPanel {
         var lang = new Label("Язык");
         grid.add(lang, 0, y);
         var langField = new TextField();
-        langField.setText("en-GB");
         langField.setPrefHeight(40);
         langField.setPromptText("en-GB");
         grid.add(langField, 1, y++);
@@ -123,7 +117,6 @@ public class BookmakersPanel implements IPanel {
         var proxyIp = new Label("Proxy IP (HTTP)");
         grid.add(proxyIp, 0, y);
         var proxyIpField = new TextField();
-        proxyIpField.setText("62.113.105.132");
         proxyIpField.setPrefHeight(40);
         proxyIpField.setPromptText("193.67.67.124");
         grid.add(proxyIpField, 1, y++);
@@ -131,7 +124,6 @@ public class BookmakersPanel implements IPanel {
         var proxyPort = new Label("Proxy port");
         grid.add(proxyPort, 0, y);
         var proxyPortField = new TextField();
-        proxyPortField.setText("39229");
         proxyPortField.setPrefHeight(40);
         proxyPortField.setPromptText("65233");
         grid.add(proxyPortField, 1, y++);
@@ -139,7 +131,6 @@ public class BookmakersPanel implements IPanel {
         var proxyLogin = new Label("Proxy login");
         grid.add(proxyLogin, 0, y);
         var proxyLoginField = new TextField();
-        proxyLoginField.setText("5lfnqi");
         proxyLoginField.setPrefHeight(40);
         proxyLoginField.setPromptText("admin");
         grid.add(proxyLoginField, 1, y++);
@@ -147,7 +138,6 @@ public class BookmakersPanel implements IPanel {
         var proxyPassword = new Label("Proxy password");
         grid.add(proxyPassword, 0, y);
         var proxyPasswordField = new TextField();
-        proxyPasswordField.setText("dsxozk");
         proxyPasswordField.setPrefHeight(40);
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);
@@ -187,6 +177,6 @@ public class BookmakersPanel implements IPanel {
             }
         });
 
-        return grid;
+        return new ScrollPane(grid);
     }
 }

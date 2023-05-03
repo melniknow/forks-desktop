@@ -10,9 +10,9 @@ import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -25,11 +25,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CurrencyPanel implements IPanel {
     @Override
-    public Node getNode() {
+    public ScrollPane getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -37,10 +38,10 @@ public class CurrencyPanel implements IPanel {
         grid.setHgap(10);
         grid.setVgap(10);
 
-        ColumnConstraints columnOneConstraints = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnOneConstraints = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnOneConstraints.setHalignment(HPos.RIGHT);
 
-        ColumnConstraints columnTwoConstrains = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnTwoConstrains = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnTwoConstrains.setHgrow(Priority.ALWAYS);
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
@@ -73,7 +74,7 @@ public class CurrencyPanel implements IPanel {
         grid.add(thb, 0, y);
         var thbField = new TextField();
         thbField.setPrefHeight(40);
-        thbField.setPromptText("TNB");
+        thbField.setPromptText("THB");
         grid.add(thbField, 1, y++);
 
         var updateButton = new Button("Получить данные с сервера ЦБ РФ");
@@ -122,9 +123,12 @@ public class CurrencyPanel implements IPanel {
                             var obj = JsonParser.parseString(EntityUtils.toString(entity)).getAsJsonObject();
                             var array = obj.getAsJsonObject("Valute");
 
-                            var parsedUsd = array.getAsJsonObject("USD").get("Value").getAsBigDecimal();
-                            var parsedEur = array.getAsJsonObject("EUR").get("Value").getAsBigDecimal();
-                            var parsedTnb = array.getAsJsonObject("THB").get("Value").getAsBigDecimal();
+                            var parsedUsd = array.getAsJsonObject("USD").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("USD").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
+                            var parsedEur = array.getAsJsonObject("EUR").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("EUR").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
+                            var parsedTnb = array.getAsJsonObject("THB").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("THB").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
 
                             Platform.runLater(() -> usdField.setText(parsedUsd.toPlainString()));
                             Platform.runLater(() -> eurField.setText(parsedEur.toPlainString()));
@@ -142,7 +146,7 @@ public class CurrencyPanel implements IPanel {
                 Platform.runLater(() -> PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка получения данных с сервера!"));
         }));
 
-        return grid;
+        return new ScrollPane(grid);
     }
 
     private boolean updateCurrencyValue(String usd, String eur, String tnb) {
