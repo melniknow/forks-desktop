@@ -10,39 +10,49 @@ import java.math.BigDecimal;
 import java.time.Duration;
 
 public class PlaceBet {
+
+    private static boolean isClickable(ChromeDriver driver, By by) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        try {
+            wait.until(driver_ -> driver_.findElement(by));
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
+
+    private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
+    private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
+
     public static BigDecimal placeBet(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            try {
-                wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//h4[text()='Place Bet']"))).click();
-            } catch (TimeoutException e) {
-                try {
-                    var acceptChanges = wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath("//h4[text()='Accept Changes']")));
-                    acceptChanges.click();
-
-                    wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath("//h4[text()='Place Bet']"))).click();
-                } catch (TimeoutException e1) {
-                    BetsSupport.closeBetWindow(driver);
-                    throw new RuntimeException("Don`t Place Bet");
+            int tryingPlace = 0;
+            while (!isClickable(driver, byPlaceBet) && tryingPlace != 3) {
+                if (isClickable(driver, byAccepChanges)) {
+                    driver.findElement(byAccepChanges).click();
                 }
+                tryingPlace++;
             }
+
+            driver.findElement(byPlaceBet).click();
+
             // Wait response of successfully
-            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
-                visibilityOfElementLocated(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
+            new WebDriverWait(driver, Duration.ofSeconds(100)).until(
+              driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
 
 //            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
 //                visibilityOfElementLocated(By.xpath("//h4[text()='Confirmed']")));
 
-            var realCf = BetsSupport.getCurrentCf(driver);
+            var realCf = BetsSupport.getFinalCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
+            System.out.println("Final cf = " + realCf);
             return realCf;
         } catch (NoSuchElementException e) {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet");
-            throw new RuntimeException("Don`t Place Bet");
+            throw new RuntimeException("Don`t Place Bet [188bet]");
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Bet not success! [188bet]");
         }
     }
 }

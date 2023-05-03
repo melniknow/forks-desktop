@@ -9,13 +9,13 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ClickSportsTotals {
-    static public BigDecimal clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    static public void clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var market = BetsSupport.getMarketByMarketName(driver,
-            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
-            sport, PartOfGame.fromString(info.BK_bet()));
+            BetsSupport.buildLocalH4ByText(info.BK_market_meta().get("marketName").getAsString()),
+            sport, PartOfGame.fromString(info.BK_bet(), sport));
 
-        var buttons = BetsSupport.findElementsWithClicking(market.getCorrectWebElement(),
-                BetsSupport.buildDivByText(info.BK_market_meta().get("selectionName").getAsString())).stream()
+        var buttons = BetsSupport.findElementsWithClicking(market,
+                BetsSupport.buildLocalDivByText(info.BK_market_meta().get("selectionName").getAsString())).stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
@@ -23,7 +23,5 @@ public class ClickSportsTotals {
 
         Objects.requireNonNull(buttons.stream().filter(n ->
             BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
-
-        return BetsSupport.getBalance(driver);
     }
 }
