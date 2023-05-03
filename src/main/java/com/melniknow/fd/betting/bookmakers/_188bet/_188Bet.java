@@ -6,9 +6,14 @@ import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 public class _188Bet implements IBookmaker {
 
@@ -18,6 +23,22 @@ public class _188Bet implements IBookmaker {
         driver.manage().window().setSize(new Dimension(1000, 1400));
         driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
         Logger.writePrettyJson(info);
+
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("mtWidth")));
+
+        for (int i = 0; i < 30; ++i) {
+            var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(1)).until(driver1
+                -> driver1.findElement(By.className("print:text-black/80")).getText());
+            balanceButton = balanceButton.substring(4);
+            balanceButton = balanceButton.replace(",", "");
+            var balance = new BigDecimal(balanceButton);
+            if (!balance.equals(BigDecimal.ZERO)) {
+                return;
+            }
+        }
+        throw new RuntimeException("Page not loading [188bet]");
     }
 
     @Override
