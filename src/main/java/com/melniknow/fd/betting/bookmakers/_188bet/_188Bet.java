@@ -2,7 +2,6 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -14,35 +13,44 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 public class _188Bet implements IBookmaker {
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        driver.manage().window().setSize(new Dimension(1000, 1400));
-        driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
-        Logger.writePrettyJson(info);
+        try {
+            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            driver.manage().window().setSize(new Dimension(1000, 1400));
+            driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("mtWidth")));
-
-        for (int i = 0; i < 30; ++i) {
-            var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(1)).until(driver1
-                -> driver1.findElement(By.className("print:text-black/80")).getText());
-            balanceButton = balanceButton.substring(4);
-            balanceButton = balanceButton.replace(",", "");
-            var balance = new BigDecimal(balanceButton);
-            if (!balance.equals(BigDecimal.ZERO)) {
-                return;
+            for (int i = 0; i < 30; ++i) {
+                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(30)).until(driver1
+                    -> driver1.findElement(By.className("print:text-black/80")).getText());
+                if (balanceButton != null && !balanceButton.isEmpty()) {
+                    balanceButton = balanceButton.substring(4);
+                    balanceButton = balanceButton.replace(",", "");
+                    var balance = new BigDecimal(balanceButton);
+                    if (!balance.equals(BigDecimal.ZERO)) {
+                        break;
+                    }
+                }
+                TimeUnit.SECONDS.sleep(1);
             }
+
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("lc_container")));
+            driver.executeScript("document.getElementById('lc_container').classList.add('hidden');");
+        } catch (TimeoutException ignored) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException();
         }
-        throw new RuntimeException("Page not loading [188bet]");
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo
+        info, Sports sport) throws InterruptedException {
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN -> {
                 ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
@@ -67,7 +75,8 @@ public class _188Bet implements IBookmaker {
 
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws
+        InterruptedException {
         return PlaceBet.placeBet(Context.screenManager.getScreenForBookmaker(bookmaker), info);
     }
 }
