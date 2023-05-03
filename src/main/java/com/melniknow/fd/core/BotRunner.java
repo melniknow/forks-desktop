@@ -23,6 +23,7 @@ public class BotRunner implements Runnable {
 
                     Logger.writePrettyMessageAboutFork(completed);
                     TelegramSender.send(completed);
+                    System.out.println("Ставка");
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

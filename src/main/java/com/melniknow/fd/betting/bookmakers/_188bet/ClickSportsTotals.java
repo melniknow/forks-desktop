@@ -14,8 +14,12 @@ public class ClickSportsTotals {
             BetsSupport.buildLocalH4ByText(info.BK_market_meta().get("marketName").getAsString()),
             sport, PartOfGame.fromString(info.BK_bet(), sport));
 
+        var marketName = info.BK_market_meta().get("marketName").getAsString();
+
+        marketName = marketName.split(" - ")[0];
+
         var buttons = BetsSupport.findElementsWithClicking(market,
-                BetsSupport.buildLocalDivByText(info.BK_market_meta().get("selectionName").getAsString())).stream()
+                BetsSupport.buildLocalDivByText(marketName)).stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 

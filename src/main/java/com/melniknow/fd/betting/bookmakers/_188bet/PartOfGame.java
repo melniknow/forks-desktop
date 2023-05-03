@@ -22,6 +22,9 @@ public enum PartOfGame {
         this.part = part;
     }
 
+    public String getPart() {
+        return part;
+    }
     public String toString() {
         return this.part;
     }

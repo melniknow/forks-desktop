@@ -18,6 +18,8 @@ public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
         var executor = Executors.newFixedThreadPool(8);
 
+        System.out.println(calculated);
+
         try {
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
             var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
@@ -43,6 +45,12 @@ public class BetMaker {
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
             var balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
 
+            System.out.println("Balance 1 = " + balance1Rub);
+            System.out.println("Balance 2 = " + balance2Rub);
+
+            System.out.println("Bookmaker 1 = " + bookmaker1);
+            System.out.println("Bookmaker 2 = " + bookmaker2);
+
             var bets = calculateBetsSize(
                 bkParams1.currency(),
                 bkParams2.currency(),
@@ -55,6 +63,8 @@ public class BetMaker {
                 calculated.betCoef1(),
                 calculated.betCoef2()
             );
+
+            System.out.println(bets);
 
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
@@ -82,6 +92,9 @@ public class BetMaker {
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
             }
+
+            System.out.println("RealCf1 = " + realCf1);
+            System.out.println("RealCf2 = " + realCf2);
 
             var income = BigDecimal.ZERO;
 

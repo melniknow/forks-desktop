@@ -20,8 +20,12 @@ public class ClickSportsWin {
 
         var partOfGame = PartOfGame.fromString(info.BK_bet(), sport);
 
+        var marketName = info.BK_market_meta().get("marketName").getAsString();
+
+        marketName = marketName.split(" - ")[0];
+
         var market = BetsSupport.getMarketByMarketName(driver,
-            BetsSupport.buildLocalH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport, partOfGame);
+            BetsSupport.buildLocalH4ByText(marketName), sport, partOfGame);
 
         BetsSupport.findElementWithClicking(market,
             BetsSupport.buildLocalDivByText(selectionName)).click();
