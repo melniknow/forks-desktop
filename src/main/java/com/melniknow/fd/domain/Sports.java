@@ -3,5 +3,8 @@ package com.melniknow.fd.domain;
 public enum Sports {
     SOCCER,
     TENNIS,
-    BASKETBALL
+    BASKETBALL,
+    VOLLEYBALL,
+    HANDBALL,
+    HOCKEY
 }

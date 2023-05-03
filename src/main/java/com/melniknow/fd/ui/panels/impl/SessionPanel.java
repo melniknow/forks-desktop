@@ -3,6 +3,7 @@ package com.melniknow.fd.ui.panels.impl;
 import com.melniknow.fd.ui.panels.IPanel;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 
@@ -14,7 +15,7 @@ public class SessionPanel implements IPanel {
     }
 
     @Override
-    public VBox getNode() {
+    public ScrollPane getNode() {
         sessionLog.appendText("Для запуска бота нажмите кнопку Старт...\n");
         sessionLog.setEditable(false);
         sessionLog.setMinSize(1200, 600);
@@ -23,6 +24,6 @@ public class SessionPanel implements IPanel {
         var box = new VBox(sessionLog);
         box.setStyle("-fx-padding: 20 20 20 20;");
 
-        return box;
+        return new ScrollPane(box);
     }
 }

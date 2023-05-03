@@ -11,10 +11,7 @@ import com.melniknow.fd.utils.PanelUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -25,7 +22,7 @@ import java.util.HashSet;
 
 public class SettingPanel implements IPanel {
     @Override
-    public GridPane getNode() {
+    public ScrollPane getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -33,10 +30,10 @@ public class SettingPanel implements IPanel {
         grid.setHgap(10);
         grid.setVgap(10);
 
-        ColumnConstraints columnOneConstraints = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnOneConstraints = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnOneConstraints.setHalignment(HPos.RIGHT);
 
-        ColumnConstraints columnTwoConstrains = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnTwoConstrains = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnTwoConstrains.setHgrow(Priority.ALWAYS);
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
@@ -75,14 +72,6 @@ public class SettingPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
-        var forkLive = new Label("Минимальное время жизни вилки (сек) *");
-        grid.add(forkLive, 0, y);
-        var forkLiveField = new TextField();
-        forkLiveField.setText("0");
-        forkLiveField.setPromptText("Считается относительно процента -1");
-        forkLiveField.setPrefHeight(40);
-        grid.add(forkLiveField, 1, y++);
-
         var bookmakers = new Label("Букмекеры *");
         grid.add(bookmakers, 0, y);
         var pinnacle = new CheckBox("PINNACLE");
@@ -105,12 +94,38 @@ public class SettingPanel implements IPanel {
         var wins = new CheckBox("WIN");
         wins.setSelected(true);
         grid.add(wins, 1, y++);
+        var setWin = new CheckBox("SET_WIN");
+        setWin.setSelected(true);
+        grid.add(setWin, 1, y++);
+        var halfWin = new CheckBox("HALF_WIN");
+        halfWin.setSelected(true);
+        grid.add(halfWin, 1, y++);
         var totals = new CheckBox("TOTALS");
         totals.setSelected(true);
         grid.add(totals, 1, y++);
+        var setTotals = new CheckBox("SET_TOTALS");
+        setTotals.setSelected(true);
+        grid.add(setTotals, 1, y++);
+        var halfTotals = new CheckBox("HALF_TOTALS");
+        halfTotals.setSelected(true);
+        grid.add(halfTotals, 1, y++);
         var handicaps = new CheckBox("HANDICAP");
         handicaps.setSelected(true);
         grid.add(handicaps, 1, y++);
+        var halfHandicap = new CheckBox("HALF_HANDICAP");
+        halfHandicap.setSelected(true);
+        grid.add(halfHandicap, 1, y++);
+        var setHandicap = new CheckBox("SET_HANDICAP");
+        setHandicap.setSelected(true);
+        grid.add(setHandicap, 1, y++);
+
+        var forkLive = new Label("Минимальное время жизни вилки (сек) *");
+        grid.add(forkLive, 0, y);
+        var forkLiveField = new TextField();
+        forkLiveField.setText("0");
+        forkLiveField.setPromptText("Считается относительно процента -1");
+        forkLiveField.setPrefHeight(40);
+        grid.add(forkLiveField, 1, y++);
 
         var sports = new Label("Виды спорта *");
         grid.add(sports, 0, y);
@@ -123,6 +138,15 @@ public class SettingPanel implements IPanel {
         var basketball = new CheckBox("Basketball");
         basketball.setSelected(true);
         grid.add(basketball, 1, y++);
+        var volleyball = new CheckBox("Volleyball");
+        volleyball.setSelected(true);
+        grid.add(volleyball, 1, y++);
+        var handball = new CheckBox("Handball");
+        handball.setSelected(true);
+        grid.add(handball, 1, y++);
+        var hockey = new CheckBox("Hockey");
+        hockey.setSelected(true);
+        grid.add(hockey, 1, y++);
 
         var saveButton = new Button("Сохранить");
         saveButton.setPrefHeight(40);
@@ -140,14 +164,23 @@ public class SettingPanel implements IPanel {
 
             var typesBetData = new ArrayList<CheckBox>() {{
                 add(wins);
+                add(setWin);
+                add(halfWin);
                 add(totals);
+                add(setTotals);
+                add(halfTotals);
                 add(handicaps);
+                add(setHandicap);
+                add(halfHandicap);
             }};
 
             var sportsData = new ArrayList<CheckBox>() {{
                 add(soccer);
                 add(tennis);
                 add(basketball);
+                add(volleyball);
+                add(handball);
+                add(hockey);
             }};
 
             if (maximumField.getText().isEmpty() || minimumField.getText().isEmpty() ||
@@ -166,7 +199,7 @@ public class SettingPanel implements IPanel {
                 if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
                 var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
-                var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText())).toList();
+                var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText().toUpperCase())).toList();
                 var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sports.valueOf(n.getText().toUpperCase())).toList();
 
                 var noChangeBookmakers = Context.parserParams != null &&
@@ -199,6 +232,6 @@ public class SettingPanel implements IPanel {
             Controller.currency.setDisable(false);
         });
 
-        return grid;
+        return new ScrollPane(grid);
     }
 }

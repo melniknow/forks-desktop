@@ -10,9 +10,9 @@ import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CurrencyPanel implements IPanel {
     @Override
-    public Node getNode() {
+    public ScrollPane getNode() {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -37,10 +37,10 @@ public class CurrencyPanel implements IPanel {
         grid.setHgap(10);
         grid.setVgap(10);
 
-        ColumnConstraints columnOneConstraints = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnOneConstraints = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnOneConstraints.setHalignment(HPos.RIGHT);
 
-        ColumnConstraints columnTwoConstrains = new ColumnConstraints(400, 400, Double.MAX_VALUE);
+        ColumnConstraints columnTwoConstrains = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnTwoConstrains.setHgrow(Priority.ALWAYS);
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
@@ -142,7 +142,7 @@ public class CurrencyPanel implements IPanel {
                 Platform.runLater(() -> PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка получения данных с сервера!"));
         }));
 
-        return grid;
+        return new ScrollPane(grid);
     }
 
     private boolean updateCurrencyValue(String usd, String eur, String tnb) {

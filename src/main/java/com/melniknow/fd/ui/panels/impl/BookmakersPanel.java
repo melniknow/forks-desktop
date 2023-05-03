@@ -34,7 +34,7 @@ public class BookmakersPanel implements IPanel {
         return box;
     }
 
-    public static GridPane getTabContent(Bookmaker bookmaker) {
+    public static ScrollPane getTabContent(Bookmaker bookmaker) {
         var grid = new GridPane();
 
         grid.setAlignment(Pos.BASELINE_CENTER);
@@ -187,6 +187,6 @@ public class BookmakersPanel implements IPanel {
             }
         });
 
-        return grid;
+        return new ScrollPane(grid);
     }
 }

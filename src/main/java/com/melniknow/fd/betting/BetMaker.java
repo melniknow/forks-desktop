@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
+        var executor = Executors.newFixedThreadPool(8);
+
         try {
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
             var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
@@ -29,11 +31,17 @@ public class BetMaker {
             var realization1 = bookmaker1.realization;
             var realization2 = bookmaker2.realization;
 
-            realization1.openLink(bookmaker1, calculated.fork().betInfo1());
-            realization2.openLink(bookmaker2, calculated.fork().betInfo2());
+            var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1, calculated.fork().betInfo1()));
+            var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2, calculated.fork().betInfo2()));
 
-            var balance1Rub = realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1, calculated.fork().betInfo1(), calculated.fork().sport());
-            var balance2Rub = realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2, calculated.fork().betInfo2(), calculated.fork().sport());
+            openLink1.get(30, TimeUnit.SECONDS);
+            openLink2.get(30, TimeUnit.SECONDS);
+
+            var futureBalance1 = executor.submit(() -> realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1, calculated.fork().betInfo1(), calculated.fork().sport()));
+            var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2, calculated.fork().betInfo2(), calculated.fork().sport()));
+
+            var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
+            var balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
@@ -51,30 +59,29 @@ public class BetMaker {
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
 
-            realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1);
-            realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2);
+            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1));
+            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2));
 
-            var executor = Executors.newFixedThreadPool(2);
+            enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
+            enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
 
-            var future1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
-            var future2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
+            var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
+            var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
 
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                realCf1 = future1.get(1, TimeUnit.MINUTES);
+                realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
             }
 
             try {
-                realCf2 = future2.get(1, TimeUnit.MINUTES);
+                realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
             }
-
-            executor.shutdownNow();
 
             var income = BigDecimal.ZERO;
 
@@ -93,6 +100,8 @@ public class BetMaker {
             throw new InterruptedException();
         } catch (Exception e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getMessage());
+        } finally {
+            executor.shutdownNow();
         }
     }
 
