@@ -1,7 +1,6 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
@@ -23,23 +22,21 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
-        if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
-            switch (info.BK_bet_type()) {
-                case WIN -> {
-                    ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
-                }
-                case TOTALS -> {
-                    ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
-                }
-                case HANDICAP -> {
-                    ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
-                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
-                }
-                default -> throw new RuntimeException("BetType`s not supported");
+        switch (info.BK_bet_type()) {
+            case WIN, SET_WIN, HALF_WIN -> {
+                ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
             }
-        throw new RuntimeException("Sport`s not supported");
+            case TOTALS, SET_TOTALS, HALF_TOTALS -> {
+                ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
+            }
+            case HANDICAP, SET_HANDICAP, HALF_HANDICAP -> {
+                ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
+            }
+            default -> throw new RuntimeException("BetType`s not supported");
+        }
     }
 
     @Override

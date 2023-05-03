@@ -1,7 +1,6 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers._188bet.PartOfGame;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
@@ -12,6 +11,31 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+
+/*
+{
+  "BK_name": "188bet",
+  "BK_event_id": "188TNF556336B95E",
+  "BK_bet_type": "SET_WIN",
+  "BK_bet": "SET_02__WIN__P1",
+  "BK_href": "https://sports.188sbk.com/en-gb/sports/all-market/7011071/Aliona-Bolsova-ESP-vs-Sorana-Cirstea-ROU",
+  "BK_cf": 6.1,
+  "BK_game": "Aliona Bolsova (ESP) vs Sorana Cirstea (ROU)",
+  "BK_league": "WTA - Catalonia Open",
+  "BK_market_meta": {
+    "marketName": "Winner - 2nd Set",
+    "selectionName": "Home",
+    "marketId": 117867588,
+    "outcomeId": 9619182786,
+    "original_cf": "6.10"
+  },
+  "BK_event_meta": {
+    "start_at": 1683090000,
+    "raw_start_at": "2023-05-03T08:00:00"
+  },
+  "BK_event_native_id": "7011071"
+}
+ */
 
 public class BetsSupport {
 
@@ -108,7 +132,7 @@ public class BetsSupport {
 
     public static boolean containsItem(WebElement market, PartOfGame partOfGame) {
         try {
-            market.findElement(buildLocalSpanByText(partOfGame.toString()));
+            market.findElement(buildLocalSpanByText(partOfGame.getPart()));
             return true;
         } catch (NoSuchElementException e) {
             return false;
@@ -163,7 +187,7 @@ public class BetsSupport {
                         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Popular']")));
                         return;
                     }
-                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL -> {
+                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL, HANDBALL -> {
                         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
                         return;
                     }
@@ -206,14 +230,13 @@ public class BetsSupport {
         throw new RuntimeException("Market not found in sport: " + sport + " [188bet]");
     }
 
-    public static void clearPreviousBets(ChromeDriver driver) throws InterruptedException {
+    public static void clearPreviousBets(ChromeDriver driver) {
         WebDriverWait wait_ = new WebDriverWait(driver, Duration.ofSeconds(10));
         var button = wait_.until(driver1 -> driver1.findElement(By.xpath("//h4[text()='Bet Slip']")));
         button = BetsSupport.getParentByDeep(button, 1);
         try {
-            var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()='1']"));
+            var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
             countOfPreviousBets.click();
-            sleep(1000L);
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
         } catch (NoSuchElementException e) {
@@ -238,24 +261,12 @@ public class BetsSupport {
             try {
                 var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(60)).until(driver1
                     -> driver.findElement(By.className("print:text-black/80")).getText());
-                balanceButton = balanceButton.substring(4, balanceButton.length() - 3);
-                balanceButton = balanceButton.replace(',', '.');
+                balanceButton = balanceButton.substring(4);
+                balanceButton = balanceButton.replace(",", "");
                 var balance = new BigDecimal(balanceButton);
                 System.out.println("Balance from header THB: " + balance + " [188bet]");
                 return balance.multiply(Context.currencyToRubCourse.get(currency));
             } catch (NoSuchElementException e) { }
-
-            // BetWindow
-            // TODO test
-            WebElement balanceBlock = new WebDriverWait(driver, Duration.ofSeconds(200))
-                .until(driver_ -> BetsSupport.getParentByDeep(
-                    driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
-                    6))
-                .findElement(By.xpath(".//following::div[0]"))
-                .findElement(By.xpath(".//h4[contains(text(), 'THB']"));
-
-            System.out.println("START TEXT balance = " + balanceBlock.getText() + "--- END OF TEXT");
-
             return null;
         } catch (NoSuchElementException e) {
             System.out.println("Balance in mini-window not found  [188bet]");

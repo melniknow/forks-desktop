@@ -24,7 +24,7 @@ public class PlaceBet {
     private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
 
-    public static BigDecimal placeBet(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
+    public static BigDecimal placeBet(ChromeDriver driver, Parser.BetInfo info) {
         try {
             int tryingPlace = 0;
             while (!isClickable(driver, byPlaceBet) && tryingPlace != 3) {
