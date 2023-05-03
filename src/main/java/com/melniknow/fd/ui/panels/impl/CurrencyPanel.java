@@ -25,6 +25,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CurrencyPanel implements IPanel {
@@ -73,7 +74,7 @@ public class CurrencyPanel implements IPanel {
         grid.add(thb, 0, y);
         var thbField = new TextField();
         thbField.setPrefHeight(40);
-        thbField.setPromptText("TNB");
+        thbField.setPromptText("THB");
         grid.add(thbField, 1, y++);
 
         var updateButton = new Button("Получить данные с сервера ЦБ РФ");
@@ -122,9 +123,12 @@ public class CurrencyPanel implements IPanel {
                             var obj = JsonParser.parseString(EntityUtils.toString(entity)).getAsJsonObject();
                             var array = obj.getAsJsonObject("Valute");
 
-                            var parsedUsd = array.getAsJsonObject("USD").get("Value").getAsBigDecimal();
-                            var parsedEur = array.getAsJsonObject("EUR").get("Value").getAsBigDecimal();
-                            var parsedTnb = array.getAsJsonObject("THB").get("Value").getAsBigDecimal();
+                            var parsedUsd = array.getAsJsonObject("USD").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("USD").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
+                            var parsedEur = array.getAsJsonObject("EUR").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("EUR").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
+                            var parsedTnb = array.getAsJsonObject("THB").get("Value").getAsBigDecimal()
+                                .divide(array.getAsJsonObject("THB").get("Nominal").getAsBigDecimal(), 2, RoundingMode.DOWN);
 
                             Platform.runLater(() -> usdField.setText(parsedUsd.toPlainString()));
                             Platform.runLater(() -> eurField.setText(parsedEur.toPlainString()));
