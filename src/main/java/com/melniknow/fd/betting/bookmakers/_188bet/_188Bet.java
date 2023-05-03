@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
+import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -20,6 +21,8 @@ public class _188Bet implements IBookmaker {
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+            Logger.writePrettyJson(info);
 
             driver.manage().window().setSize(new Dimension(1000, 1400));
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
@@ -99,13 +102,21 @@ public class _188Bet implements IBookmaker {
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
+        // The Line, Odds or Score has changed.
         try {
             int tryingPlace = 0;
-            while (!clickIfIsClickable(driver, byPlaceBet) && tryingPlace != 3) {
-                clickIfIsClickable(driver, byAccepChanges);
+            while (!clickIfIsClickable(driver, byPlaceBet) && tryingPlace != 10) {
+                while (!clickIfIsClickable(driver, byAccepChanges)) { // trying to click on 'Accept Changes'
+                    try {
+                        driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
+                        throw new RuntimeException("Bet is closed");
+                    } catch (NoSuchElementException ignored) { }
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(200);
+                    } catch (InterruptedException ignored) { }
+                }
                 try {
-                    TimeUnit.MILLISECONDS.sleep(300L);
+                    TimeUnit.MILLISECONDS.sleep(200);
                 } catch (InterruptedException ignored) { }
                 tryingPlace++;
             }
@@ -117,12 +128,10 @@ public class _188Bet implements IBookmaker {
             BetsSupport.closeAfterSuccessfulBet(driver);
             System.out.println("Final cf = " + realCf);
             return realCf;
-        } catch (NoSuchElementException e) {
+        } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet");
-            throw new RuntimeException("Don`t Place Bet [188bet]");
-        } catch (TimeoutException e) {
-            throw new RuntimeException("Bet not success! [188bet]");
+            throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
         }
     }
 
@@ -130,11 +139,11 @@ public class _188Bet implements IBookmaker {
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
 
     private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
             wait.until(driver_ -> driver_.findElement(by)).click();
             return true;
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
             return false;
         }
     }

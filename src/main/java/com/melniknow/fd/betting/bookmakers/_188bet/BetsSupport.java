@@ -76,12 +76,7 @@ public class BetsSupport {
     }
 
     public static boolean containsItem(WebElement market, String partOfGame) {
-        try {
-            market.findElement(SeleniumSupport.buildLocalSpanByText(partOfGame));
-            return true;
-        } catch (NoSuchElementException e) {
-            return false;
-        }
+        return market.getText().contains(partOfGame);
     }
 
     public static boolean isCorrectMarket(WebElement market, String partOfGame) {
@@ -102,7 +97,7 @@ public class BetsSupport {
 
     public static WebElement getMarketImpl(ChromeDriver driver, By byName, String partOfGame) throws InterruptedException {
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
-        int curScroll = scroll / 3;
+        int curScroll = scroll / 4;
         int scrollPosition = 0;
         while (scrollPosition < 10000) {
             try {
@@ -111,7 +106,7 @@ public class BetsSupport {
                     var parent = SeleniumSupport.getParentByDeep(market, 2);
                     if (isCorrectMarket(parent, partOfGame)) {
                         var result = SeleniumSupport.getParentByDeep(parent, 3);
-                        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 3 + ")");
+                        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
                         return result;
                     }
                 }
