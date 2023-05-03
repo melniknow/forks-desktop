@@ -34,25 +34,26 @@ public class PlaceBet {
                 }
                 tryingPlace++;
             }
+
             driver.findElement(byPlaceBet).click();
 
             // Wait response of successfully
-            new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.
-                visibilityOfElementLocated(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
+            new WebDriverWait(driver, Duration.ofSeconds(100)).until(
+              driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
 
 //            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
 //                visibilityOfElementLocated(By.xpath("//h4[text()='Confirmed']")));
 
-            var realCf = BetsSupport.getCurrentCf(driver);
+            var realCf = BetsSupport.getFinalCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
-            BetsSupport.closeBetWindow(driver);
+            System.out.println("Final cf = " + realCf);
             return realCf;
         } catch (NoSuchElementException e) {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet");
-            throw new RuntimeException("Don`t Place Bet");
+            throw new RuntimeException("Don`t Place Bet [188bet]");
         } catch (TimeoutException e) {
-            throw new RuntimeException("Bet not placed! [188bet]");
+            throw new RuntimeException("Bet not success! [188bet]");
         }
     }
 }

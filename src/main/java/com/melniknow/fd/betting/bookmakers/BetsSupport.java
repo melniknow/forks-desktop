@@ -155,16 +155,20 @@ public class BetsSupport {
             try {
                 // main button
                 wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
-                break;
+                return;
             } catch (TimeoutException e) { }
             try {
                 switch (sport) {
-                    case SOCCER ->
+                    case SOCCER -> {
                         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Popular']")));
-                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL ->
+                        return;
+                    }
+                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL -> {
                         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
+                        return;
+                    }
                 }
-                break;
+                return;
             } catch (TimeoutException e) { }
         }
         throw new RuntimeException("Page`s not loading!");
@@ -174,6 +178,7 @@ public class BetsSupport {
                                                    By byMarketName, Sports sport,
                                                    PartOfGame partOfGame) throws InterruptedException {
         waitLoadingOfPage(driver, sport);
+        sleep(500L);
         clearPreviousBets(driver);
         return getMarketImpl(driver, byMarketName, sport, partOfGame);
     }
@@ -198,7 +203,7 @@ public class BetsSupport {
             sleep(500L); // Wait for the page to finish scrolling
             scrollPosition += curScroll;
         }
-        throw new RuntimeException("Market not found in sport: " + sport);
+        throw new RuntimeException("Market not found in sport: " + sport + " [188bet]");
     }
 
     public static void clearPreviousBets(ChromeDriver driver) throws InterruptedException {
@@ -223,7 +228,7 @@ public class BetsSupport {
             sleep(200L);
             tmp.findElement(By.xpath(".//following::div[1]")).click();
         } catch (NoSuchElementException | TimeoutException e) {
-            System.out.println("Don`t close mini window!");
+            System.out.println("Don`t close mini window! [188bet]");
         }
     }
 
@@ -231,11 +236,12 @@ public class BetsSupport {
         try {
             // Header
             try {
-                var balanceButton = driver.findElement(By.className("print:text-black/80")).getText();
+                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(60)).until(driver1
+                    -> driver.findElement(By.className("print:text-black/80")).getText());
                 balanceButton = balanceButton.substring(4, balanceButton.length() - 3);
                 balanceButton = balanceButton.replace(',', '.');
                 var balance = new BigDecimal(balanceButton);
-                System.out.println("Balance from header THB: " + balance);
+                System.out.println("Balance from header THB: " + balance + " [188bet]");
                 return balance.multiply(Context.currencyToRubCourse.get(currency));
             } catch (NoSuchElementException e) { }
 
@@ -252,32 +258,47 @@ public class BetsSupport {
 
             return null;
         } catch (NoSuchElementException e) {
-            System.out.println("Balance in mini-window not found");
+            System.out.println("Balance in mini-window not found  [188bet]");
             throw new RuntimeException("Balance not found [188bet]");
         }
     }
 
-    public static BigDecimal getCurrentCf(ChromeDriver driver) throws InterruptedException {
-        WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
-            .until(driver_ -> BetsSupport.getParentByDeep(
-                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")),
-                7));
-        sleep(200L);
-        var tmpTitle = tmpButton.findElement(BetsSupport.buildLocalSpanByText("@"));
+    public static BigDecimal getCurrentCf(ChromeDriver driver) {
+        new WebDriverWait(driver, Duration.ofSeconds(60))
+            .until(driver_ ->
+                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
+
+        WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
+            .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
+
+        var title = BetsSupport.getParentByDeep(tmpTitle, 1).getText();
+        return new BigDecimal(title.substring(title.indexOf("@") + 1));
+    }
+
+    public static BigDecimal getFinalCf(ChromeDriver driver) {
+        WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
+            .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
+
         var title = BetsSupport.getParentByDeep(tmpTitle, 1).getText();
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 
     public static void closeAfterSuccessfulBet(ChromeDriver driver) {
         try {
+            new WebDriverWait(driver, Duration.ofSeconds(60))
+                .until(driver_ ->
+                    driver_.findElement(By.cssSelector("[data-txt-bet-status='Confirmed']")));
+
+
             WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
                 .until(driver_ -> BetsSupport.getParentByDeep(
                     driver_.findElement(By.xpath("//span[text()='@']")),
-                    4));
+                    7));
 
             tmpButton.findElement(By.xpath(".//h4[text()='OK']")).click();
+
         } catch (TimeoutException | NoSuchElementException e) {
-            System.out.println("Not Close mini-window after success betting!");
+            System.out.println("Not Close mini-window after success betting!  [188bet]");
         }
     }
 }

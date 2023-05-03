@@ -14,13 +14,14 @@ public class EnterSumAndCheckCf {
     public static void enterSumAndCheckCf(ChromeDriver driver, Parser.BetInfo info, BigDecimal sum) throws InterruptedException {
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
+            System.out.println("Current cf = " + currentCf);
             if (currentCf.compareTo(info.BK_cf()) < 0) {
-                throw new RuntimeException("betCoef is too low");
+                throw new RuntimeException("betCoef is too low [188bet]");
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
 //                sum = new BigDecimal("50");
-                throw new RuntimeException("Very small min Bet");
+                throw new RuntimeException("Very small min Bet [188bet]");
             }
             // TODO: check MAX bet
             WebElement enterSnake = new WebDriverWait(driver, Duration.ofSeconds(60))
@@ -30,7 +31,7 @@ public class EnterSumAndCheckCf {
             enterSnake.sendKeys(sum.toString());
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
-            throw new RuntimeException("Don`t enter Stake!");
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
