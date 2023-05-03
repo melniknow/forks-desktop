@@ -85,7 +85,7 @@ public class _188Bet implements IBookmaker {
             new WebDriverWait(driver, Duration.ofSeconds(100)).until(
                 driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
 
-            var realCf = BetsSupport.getFinalCf(driver);
+            var realCf = BetsSupport.getCurrentCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
             System.out.println("Final cf = " + realCf);
             return realCf;

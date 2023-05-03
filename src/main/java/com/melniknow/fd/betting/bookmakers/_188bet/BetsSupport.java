@@ -166,18 +166,6 @@ public class BetsSupport {
     }
 
     public static BigDecimal getCurrentCf(ChromeDriver driver) {
-        new WebDriverWait(driver, Duration.ofSeconds(60))
-            .until(driver_ ->
-                driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
-
-        WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
-            .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
-
-        var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
-        return new BigDecimal(title.substring(title.indexOf("@") + 1));
-    }
-
-    public static BigDecimal getFinalCf(ChromeDriver driver) {
         WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
             .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
 
