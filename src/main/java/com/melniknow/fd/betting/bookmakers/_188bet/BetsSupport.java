@@ -117,7 +117,7 @@ public class BetsSupport {
                         return parent;
                     }
                 }
-            } catch (NoSuchElementException e) { }
+            } catch (NoSuchElementException ignored) { }
             ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + curScroll + ")");
             sleep(500L); // Wait for the page to finish scrolling
             scrollPosition += curScroll;
@@ -135,7 +135,7 @@ public class BetsSupport {
             // TODO: need some sleep?
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException ignored) {
         }
     }
 
