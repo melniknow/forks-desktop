@@ -1,6 +1,5 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;

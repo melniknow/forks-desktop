@@ -1,8 +1,6 @@
-package com.melniknow.fd.betting.bookmakers;
+package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers._188bet.MarketProxy;
-import com.melniknow.fd.betting.bookmakers._188bet.PartOfGame;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;

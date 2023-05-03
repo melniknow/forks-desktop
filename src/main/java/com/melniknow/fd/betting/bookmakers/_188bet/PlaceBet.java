@@ -1,6 +1,5 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
