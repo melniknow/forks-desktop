@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ClickSportsWin {
@@ -24,6 +25,10 @@ public class ClickSportsWin {
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        BetsSupport.findElementWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName)).click();
+        try {
+            BetsSupport.findElementWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName)).click();
+        } catch (NoSuchElementException e) {
+            throw new RuntimeException("Button not found! [188bet]");
+        }
     }
 }

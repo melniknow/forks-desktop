@@ -24,6 +24,10 @@ public class ClickSportsTotals {
 
         var line = info.BK_market_meta().get("line").getAsString();
 
-        Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
+        try {
+            Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
+        } catch (NullPointerException e) {
+            throw new RuntimeException("Button not found! [188bet]");
+        }
     }
 }

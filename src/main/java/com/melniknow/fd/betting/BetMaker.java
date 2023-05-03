@@ -51,26 +51,26 @@ public class BetMaker {
             System.out.println("Bookmaker 1 = " + bookmaker1);
             System.out.println("Bookmaker 2 = " + bookmaker2);
 
-//            var bets = calculateBetsSize(
-//                bkParams1.currency(),
-//                bkParams2.currency(),
-//                balance1Rub,
-//                balance2Rub,
-//                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.minBetSum()),
-//                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
-//                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
-//                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
-//                calculated.betCoef1(),
-//                calculated.betCoef2()
-//            );
-//
-//            System.out.println(bets);
-//
-//            var bet1 = BigDecimal.valueOf(bets.get(0));
-//            var bet2 = BigDecimal.valueOf(bets.get(1));
+            var bets = calculateBetsSize(
+                bkParams1.currency(),
+                bkParams2.currency(),
+                balance1Rub,
+                balance2Rub,
+                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.minBetSum()),
+                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
+                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
+                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
+                calculated.betCoef1(),
+                calculated.betCoef2()
+            );
 
-            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), new BigDecimal("50")));
-            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), new BigDecimal("50")));
+            System.out.println(bets);
+
+            var bet1 = BigDecimal.valueOf(bets.get(0));
+            var bet2 = BigDecimal.valueOf(bets.get(1));
+
+            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1));
+            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2));
 
             enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
             enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
@@ -97,16 +97,16 @@ public class BetMaker {
             System.out.println("RealCf2 = " + realCf2);
 
             var income = BigDecimal.ZERO;
-//
-//            if (!realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO)) {
-//                var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
-//                var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
-//
-//                income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
-//                    .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub)));
-//
-//                return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
-//            }
+
+            if (!realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO)) {
+                var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
+                var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
+
+                income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
+                    .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub)));
+
+                return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
+            }
 
             return new BetUtils.CompleteBetsFork(calculated, "Одно из плечей не было поставлено");
         } catch (InterruptedException e) {

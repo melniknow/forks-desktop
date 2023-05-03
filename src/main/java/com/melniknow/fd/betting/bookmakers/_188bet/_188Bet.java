@@ -104,8 +104,7 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         // The Line, Odds or Score has changed.
         try {
-            int tryingPlace = 0;
-            while (!clickIfIsClickable(driver, byPlaceBet) && tryingPlace != 10) {
+            while (!clickIfIsClickable(driver, byPlaceBet)) {
                 while (!clickIfIsClickable(driver, byAccepChanges)) { // trying to click on 'Accept Changes'
                     try {
                         driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
@@ -118,7 +117,6 @@ public class _188Bet implements IBookmaker {
                 try {
                     TimeUnit.MILLISECONDS.sleep(200);
                 } catch (InterruptedException ignored) { }
-                tryingPlace++;
             }
 
             new WebDriverWait(driver, Duration.ofSeconds(55)).until(
