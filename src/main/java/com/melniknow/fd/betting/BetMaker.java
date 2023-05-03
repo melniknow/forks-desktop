@@ -82,13 +82,13 @@ public class BetMaker {
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
+                realCf1 = betFuture1.get(60, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
             }
 
             try {
-                realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
+                realCf2 = betFuture2.get(60, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
             }
