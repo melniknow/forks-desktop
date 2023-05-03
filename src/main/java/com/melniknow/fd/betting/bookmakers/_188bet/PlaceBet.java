@@ -37,7 +37,7 @@ public class PlaceBet {
             driver.findElement(byPlaceBet).click();
 
             // Wait response of successfully
-            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
+            new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.
                 visibilityOfElementLocated(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
 
 //            new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.
@@ -51,6 +51,8 @@ public class PlaceBet {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet");
             throw new RuntimeException("Don`t Place Bet");
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Bet not placed! [188bet]");
         }
     }
 }
