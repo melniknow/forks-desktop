@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ClickSportHandicap {
-    static public BigDecimal clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    static public void clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("HANDICAP__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -23,18 +23,16 @@ public class ClickSportHandicap {
         var partOfGame = PartOfGame.fromString(info.BK_bet(), sport);
 
         var market = BetsSupport.getMarketByMarketName(driver,
-            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()),
+            BetsSupport.buildLocalH4ByText(info.BK_market_meta().get("marketName").getAsString()),
             sport, partOfGame);
 
         var buttons = BetsSupport.findElementsWithClicking(market,
-                BetsSupport.buildDivByText(selectionName))
+                BetsSupport.buildLocalDivByText(selectionName))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
 
         var line = info.BK_market_meta().get("line").getAsString();
         Objects.requireNonNull(buttons.stream().filter(b -> BetsSupport.getTotalsByStr(b.getText()).equals(BetsSupport.buildLine(line))).findAny().orElse(null)).click();
-
-        return BetsSupport.getBalance(driver);
     }
 }

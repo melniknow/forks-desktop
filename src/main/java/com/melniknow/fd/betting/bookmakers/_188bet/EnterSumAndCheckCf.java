@@ -19,11 +19,11 @@ public class EnterSumAndCheckCf {
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
-                sum = new BigDecimal("50");
-//                throw new RuntimeException("Very small min Bet");
+//                sum = new BigDecimal("50");
+                throw new RuntimeException("Very small min Bet");
             }
             // TODO: check MAX bet
-            WebElement enterSnake = new WebDriverWait(driver, Duration.ofSeconds(200))
+            WebElement enterSnake = new WebDriverWait(driver, Duration.ofSeconds(60))
                 .until(driver_ ->
                     driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
 

@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.BetsSupport;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
@@ -25,13 +26,16 @@ public class _188Bet implements IBookmaker {
         if (sport.equals(Sports.BASKETBALL) || sport.equals(Sports.SOCCER) || sport.equals(Sports.TENNIS))
             switch (info.BK_bet_type()) {
                 case WIN -> {
-                    return ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    ClickSportsWin.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
                 }
                 case TOTALS -> {
-                    return ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    ClickSportsTotals.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
                 }
                 case HANDICAP -> {
-                    return ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    ClickSportHandicap.clickAndReturnBalanceAsRub(Context.screenManager.getScreenForBookmaker(bookmaker), info, sport);
+                    return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
                 }
                 default -> throw new RuntimeException("BetType`s not supported");
             }

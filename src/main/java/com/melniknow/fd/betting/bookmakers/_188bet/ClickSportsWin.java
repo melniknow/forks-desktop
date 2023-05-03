@@ -8,7 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.math.BigDecimal;
 
 public class ClickSportsWin {
-    static public BigDecimal clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    static public void clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -22,11 +22,9 @@ public class ClickSportsWin {
         var partOfGame = PartOfGame.fromString(info.BK_bet(), sport);
 
         var market = BetsSupport.getMarketByMarketName(driver,
-            BetsSupport.buildH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport, partOfGame);
+            BetsSupport.buildLocalH4ByText(info.BK_market_meta().get("marketName").getAsString()), sport, partOfGame);
 
         BetsSupport.findElementWithClicking(market,
-            BetsSupport.buildDivByText(selectionName)).click();
-
-        return BetsSupport.getBalance(driver);
+            BetsSupport.buildLocalDivByText(selectionName)).click();
     }
 }

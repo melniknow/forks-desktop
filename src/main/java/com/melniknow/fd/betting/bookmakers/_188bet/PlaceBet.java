@@ -13,7 +13,7 @@ import java.time.Duration;
 public class PlaceBet {
 
     private static boolean isClickable(ChromeDriver driver, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         try {
             wait.until(driver_ -> driver_.findElement(by));
             return true;

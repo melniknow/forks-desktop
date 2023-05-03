@@ -4,6 +4,7 @@ public enum Sports {
     SOCCER,
     TENNIS,
     BASKETBALL,
-    HOCKEY,
-    VOLLEYBALL
+    VOLLEYBALL,
+    HANDBALL,
+    HOCKEY
 }
