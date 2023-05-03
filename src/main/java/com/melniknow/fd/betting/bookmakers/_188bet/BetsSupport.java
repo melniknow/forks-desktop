@@ -1,8 +1,8 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.domain.Currency;
-import com.melniknow.fd.domain.Sports;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -12,52 +12,17 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 
-/*
-{
-  "BK_name": "188bet",
-  "BK_event_id": "188TNF556336B95E",
-  "BK_bet_type": "SET_WIN",
-  "BK_bet": "SET_02__WIN__P1",
-  "BK_href": "https://sports.188sbk.com/en-gb/sports/all-market/7011071/Aliona-Bolsova-ESP-vs-Sorana-Cirstea-ROU",
-  "BK_cf": 6.1,
-  "BK_game": "Aliona Bolsova (ESP) vs Sorana Cirstea (ROU)",
-  "BK_league": "WTA - Catalonia Open",
-  "BK_market_meta": {
-    "marketName": "Winner - 2nd Set",
-    "selectionName": "Home",
-    "marketId": 117867588,
-    "outcomeId": 9619182786,
-    "original_cf": "6.10"
-  },
-  "BK_event_meta": {
-    "start_at": 1683090000,
-    "raw_start_at": "2023-05-03T08:00:00"
-  },
-  "BK_event_native_id": "7011071"
-}
- */
-
 public class BetsSupport {
-
-    private static final String firstQuarter = "1st Quarter";
-    private static final String secondQuarter = "2nd Quarter";
-    private static final String thirdQuarter = "3rd Quarter";
-    private static final String fourthQuarter = "4th Quarter";
-
-    private static final String firstHalf = "1st Half";
-    private static final String firstSet = "1st Set";
-
-    private static final String secondHalf = "2nd Half";
-    private static final String secondSet = "2nd Set";
-    private static final String thirdSet = "3rd Set";
-
     public static String getTotalsByStr(String str) {
         return str.split("\n")[1];
     }
 
-    public static WebElement getParentByDeep(WebElement element, int deep) {
-        for (var i = 0; i < deep; i++) element = element.findElement(By.xpath("./.."));
-        return element;
+    public static String getPartOfGameByMarketName(String marketName) {
+        if (marketName.contains(" - ")) {
+            return marketName.split(" - ")[1];
+        } else {
+            return "";
+        }
     }
 
     public static String getTeamFirstNameByTitle(String title) {
@@ -72,18 +37,6 @@ public class BetsSupport {
             return title.substring(title.indexOf("vs") + 3);
         }
         return null;
-    }
-
-    public static By buildLocalSpanByText(String text) {
-        return By.xpath(".//span[text()='" + text + "']");
-    }
-
-    public static By buildLocalDivByText(String text) {
-        return By.xpath(".//div[text()='" + text + "']");
-    }
-
-    public static By buildLocalH4ByText(String text) {
-        return By.xpath(".//h4[text()='" + text + "']");
     }
 
     public static String buildLine(String line) {
@@ -121,103 +74,45 @@ public class BetsSupport {
         }
     }
 
-    public static boolean notContainsItem(WebElement market, String item) {
+    public static boolean containsItem(WebElement market, String partOfGame) {
         try {
-            market.findElement(buildLocalSpanByText(item));
-            return false;
-        } catch (NoSuchElementException e) {
-            return true;
-        }
-    }
-
-    public static boolean containsItem(WebElement market, PartOfGame partOfGame) {
-        try {
-            market.findElement(buildLocalSpanByText(partOfGame.getPart()));
+            market.findElement(SeleniumSupport.buildLocalSpanByText(partOfGame));
             return true;
         } catch (NoSuchElementException e) {
             return false;
         }
     }
 
-    public static boolean containsItem(WebElement market, PartOfGame partOfGame, Sports sport) {
-        if (partOfGame == PartOfGame.totalGame) {
-            return isPureMarket(market, sport);
+    public static boolean isCorrectMarket(WebElement market, String partOfGame) {
+        if (partOfGame.isEmpty()) {
+            return isPureMarket(market);
         }
         return containsItem(market, partOfGame);
     }
 
-    public static boolean isPureMarket(WebElement elem, Sports sport) {
-        switch (sport) {
-            case BASKETBALL -> {
-                return notContainsItem(elem, firstQuarter) &&
-                    notContainsItem(elem, secondQuarter) &&
-                    notContainsItem(elem, thirdQuarter) &&
-                    notContainsItem(elem, fourthQuarter) &&
-                    notContainsItem(elem, firstHalf) &&
-                    notContainsItem(elem, secondHalf);
-            }
-            case TENNIS -> {
-                return notContainsItem(elem, firstSet) &&
-                    notContainsItem(elem, secondSet);
-            }
-            case SOCCER, HANDBALL -> {
-                return notContainsItem(elem, firstHalf) &&
-                    notContainsItem(elem, secondHalf);
-            }
-            case HOCKEY, VOLLEYBALL -> {
-                return notContainsItem(elem, firstSet) &&
-                    notContainsItem(elem, secondSet) &&
-                    notContainsItem(elem, thirdSet);
-            }
-        }
-        return false;
-    }
-
-    public static void waitLoadingOfPage(ChromeDriver driver, Sports sport) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
-        for (int i = 0; i < 60; ++i) {
-            try {
-                // main button
-                wait.until(ExpectedConditions.elementToBeClickable(By.id("tabMT")));
-                return;
-            } catch (TimeoutException e) { }
-            try {
-                switch (sport) {
-                    case SOCCER -> {
-                        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Popular']")));
-                        return;
-                    }
-                    case TENNIS, BASKETBALL, HOCKEY, VOLLEYBALL, HANDBALL -> {
-                        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h4[text()='Main Markets']")));
-                        return;
-                    }
-                }
-                return;
-            } catch (TimeoutException e) { }
-        }
-        throw new RuntimeException("Page`s not loading!");
+    public static boolean isPureMarket(WebElement market) {
+        return !market.getText().contains("\n");
     }
 
     public static WebElement getMarketByMarketName(ChromeDriver driver,
-                                                   By byMarketName, Sports sport,
-                                                   PartOfGame partOfGame) throws InterruptedException {
-        waitLoadingOfPage(driver, sport);
+                                                   By byMarketName,
+                                                   String partOfGame) throws InterruptedException {
         sleep(500L);
         clearPreviousBets(driver);
-        return getMarketImpl(driver, byMarketName, sport, partOfGame);
+        return getMarketImpl(driver, byMarketName, partOfGame);
     }
 
-    public static WebElement getMarketImpl(ChromeDriver driver, By byName, Sports sport, PartOfGame partOfGame) throws InterruptedException {
+    public static WebElement getMarketImpl(ChromeDriver driver, By byName, String partOfGame) throws InterruptedException {
         int scrollPosition = 0;
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
         int curScroll = scroll / 4;
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         while (scrollPosition < 10000) {
             try {
-                List<WebElement> visibleMarkets = wait.until(driver1 -> driver1.findElements(byName));
+                List<WebElement> visibleMarkets = driver.findElements(byName);
                 for (var market : visibleMarkets) {
-                    var parent = getParentByDeep(market, 5);
-                    if (containsItem(parent, partOfGame, sport)) {
+                    var parent = SeleniumSupport.getParentByDeep(market, 2);
+                    if (isCorrectMarket(parent, partOfGame)) {
+                        parent = SeleniumSupport.getParentByDeep(market, 3);
                         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 2 + ")");
                         return parent;
                     }
@@ -227,16 +122,17 @@ public class BetsSupport {
             sleep(500L); // Wait for the page to finish scrolling
             scrollPosition += curScroll;
         }
-        throw new RuntimeException("Market not found in sport: " + sport + " [188bet]");
+        throw new RuntimeException("Market not found" + byName.toString() + " [188bet]");
     }
 
     public static void clearPreviousBets(ChromeDriver driver) {
         WebDriverWait wait_ = new WebDriverWait(driver, Duration.ofSeconds(10));
         var button = wait_.until(driver1 -> driver1.findElement(By.xpath("//h4[text()='Bet Slip']")));
-        button = BetsSupport.getParentByDeep(button, 1);
+        button = SeleniumSupport.getParentByDeep(button, 1);
         try {
             var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
             countOfPreviousBets.click();
+            // TODO: need some sleep?
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             wait_.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
         } catch (NoSuchElementException e) {
@@ -247,7 +143,7 @@ public class BetsSupport {
         try {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(15)).until(
                 driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
-            var tmp = BetsSupport.getParentByDeep(wait, 1);
+            var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             // waiting?
             tmp.findElement(By.xpath(".//following::div[1]")).click();
         } catch (NoSuchElementException | TimeoutException e) {
@@ -257,17 +153,12 @@ public class BetsSupport {
 
     public static BigDecimal getBalance(ChromeDriver driver, Currency currency) {
         try {
-            // Header
-            try {
-                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(60)).until(driver1
-                    -> driver.findElement(By.className("print:text-black/80")).getText());
-                balanceButton = balanceButton.substring(4);
-                balanceButton = balanceButton.replace(",", "");
-                var balance = new BigDecimal(balanceButton);
-                System.out.println("Balance from header THB: " + balance + " [188bet]");
-                return balance.multiply(Context.currencyToRubCourse.get(currency));
-            } catch (NoSuchElementException e) { }
-            return null;
+            var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(60)).until(driver1
+                -> driver1.findElement(By.className("print:text-black/80")).getText());
+            balanceButton = balanceButton.substring(4).replace(",", "");
+            var balance = new BigDecimal(balanceButton);
+            System.out.println("Balance from header THB: " + balance + " [188bet]");
+            return balance.multiply(Context.currencyToRubCourse.get(currency));
         } catch (NoSuchElementException e) {
             System.out.println("Balance in mini-window not found  [188bet]");
             throw new RuntimeException("Balance not found [188bet]");
@@ -282,7 +173,7 @@ public class BetsSupport {
         WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
             .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
 
-        var title = BetsSupport.getParentByDeep(tmpTitle, 1).getText();
+        var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 
@@ -290,7 +181,7 @@ public class BetsSupport {
         WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
             .until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
 
-        var title = BetsSupport.getParentByDeep(tmpTitle, 1).getText();
+        var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
         return new BigDecimal(title.substring(title.indexOf("@") + 1));
     }
 
@@ -302,7 +193,7 @@ public class BetsSupport {
 
 
             WebElement tmpButton = new WebDriverWait(driver, Duration.ofSeconds(60))
-                .until(driver_ -> BetsSupport.getParentByDeep(
+                .until(driver_ -> SeleniumSupport.getParentByDeep(
                     driver_.findElement(By.xpath("//span[text()='@']")),
                     7));
 
@@ -313,4 +204,3 @@ public class BetsSupport {
         }
     }
 }
-
