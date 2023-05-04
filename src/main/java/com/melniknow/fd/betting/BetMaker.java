@@ -110,6 +110,8 @@ public class BetMaker {
                 }
             }
 
+            executor.shutdownNow();
+
             System.out.println("RealCf1 = " + realCf1);
             System.out.println("RealCf2 = " + realCf2);
 

@@ -104,19 +104,15 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         // The Line, Odds or Score has changed.
         try {
-            while (!clickIfIsClickable(driver, byPlaceBet)) {
-                while (!clickIfIsClickable(driver, byAccepChanges)) { // trying to click on 'Accept Changes'
+            while (!clickIfIsClickable(driver, byPlaceBet) && !Thread.currentThread().isInterrupted()) {
+                while (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'
                     try {
                         driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
                         throw new RuntimeException("Bet is closed");
                     } catch (NoSuchElementException ignored) { }
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(200);
-                    } catch (InterruptedException ignored) { }
-                }
-                try {
                     TimeUnit.MILLISECONDS.sleep(200);
-                } catch (InterruptedException ignored) { }
+                }
+                TimeUnit.MILLISECONDS.sleep(200);
             }
 
             new WebDriverWait(driver, Duration.ofSeconds(55)).until(
@@ -130,6 +126,8 @@ public class _188Bet implements IBookmaker {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet");
             throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException();
         }
     }
 

@@ -63,23 +63,29 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
-        var bookmakerData = Context.betsParams.get(bookmaker);
-        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
+        try {
+            var bookmakerData = Context.betsParams.get(bookmaker);
+            var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 
-        var betId = "";
+            var betId = "";
+            var count = 0;
 
-        while (betId.equals("")) {
-            try {
-                betId = realPlaceBet(auth, bookmakerData.proxyIp(),
-                    bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
-            } catch (RuntimeException ignored) {
-                Logger.writeToLogSession("Pinnacle пытается поставить ставку");
+            while (betId.equals("") && !Thread.currentThread().isInterrupted() && count < 10) {
+                count++;
+                try {
+                    betId = realPlaceBet(auth, bookmakerData.proxyIp(),
+                        bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
+                } catch (RuntimeException ignored) {
+                    Logger.writeToLogSession("Pinnacle пытается поставить ставку");
+                }
             }
-        }
 
-        return checkBetAndGetCf(betId, auth, bookmakerData.proxyIp(),
-            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
+            return checkBetAndGetCf(betId, auth, bookmakerData.proxyIp(),
+                bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupt");
+        }
     }
 
     private static BigDecimal getBalanceAsRub(String base64Auth, String proxyHost, int proxyPort, String proxyLogin, String proxyPasswd) {
@@ -120,7 +126,9 @@ public class Pinnacle implements IBookmaker {
 
     private BigDecimal checkBetAndGetCf(String betId, String auth, String proxyIp, Integer proxyPort,
                                         String proxyLogin, String proxyPassword) throws InterruptedException {
-        while (true) {
+        var count = 0;
+        while (!Thread.currentThread().isInterrupted() && count < 10) {
+            count++;
             TimeUnit.SECONDS.sleep(1);
 
             var provider = new BasicCredentialsProvider();
@@ -160,10 +168,11 @@ public class Pinnacle implements IBookmaker {
                     Logger.writeToLogSession("Ставка обрабатывается [Pinnacle]");
 
                 else throw new RuntimeException("Ставка не принята [Pinnacle]");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
+        return null;
     }
 
     private String realPlaceBet(String auth, String proxyIp, Integer proxyPort,
