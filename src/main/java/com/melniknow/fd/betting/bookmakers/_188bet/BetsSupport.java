@@ -107,6 +107,7 @@ public class BetsSupport {
                     if (isCorrectMarket(parent, partOfGame)) {
                         var result = SeleniumSupport.getParentByDeep(parent, 3);
                         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
+                        sleep(300L);
                         return result;
                     }
                 }

@@ -31,6 +31,11 @@ public class ClickSportHandicap {
             .toList();
 
         var line = info.BK_market_meta().get("line").getAsString();
+
+        System.out.println("MarketName = " + marketName);
+        System.out.println("partOfGame = " + partOfGame);
+        System.out.println("line = " + line);
+
         try {
             Objects.requireNonNull(buttons.stream().filter(
                 b -> BetsSupport.getTotalsByStr(b.getText()).contains(line)).findAny().orElse(null)).click();

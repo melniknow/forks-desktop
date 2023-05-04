@@ -24,6 +24,10 @@ public class ClickSportsTotals {
 
         var line = info.BK_market_meta().get("line").getAsString();
 
+        System.out.println("MarketName = " + marketName);
+        System.out.println("partOfGame = " + partOfGame);
+        System.out.println("line = " + line);
+
         try {
             Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
         } catch (NullPointerException e) {
