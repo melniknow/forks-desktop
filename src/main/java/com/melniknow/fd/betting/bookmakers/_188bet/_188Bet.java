@@ -138,7 +138,8 @@ public class _188Bet implements IBookmaker {
     private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
-            wait.until(driver_ -> driver_.findElement(by)).click();
+            var button = wait.until(driver_ -> driver_.findElement(by));
+            driver.executeScript("arguments[0].click();", button);
             return true;
         } catch (Exception e) {
             return false;
