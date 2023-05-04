@@ -12,10 +12,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -62,8 +64,15 @@ public class ScreenManager {
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
-                        options.addExtensions(new File(Objects.requireNonNull(App.class.getResource("proxy.crx")).toURI()));
-                    } catch (URISyntaxException e) {
+                        var stream = Objects.requireNonNull(App.class.getResourceAsStream("proxy.crx"));
+                        var file = new File(UUID.randomUUID().toString());
+                        if (!file.createNewFile())
+                            throw new RuntimeException("Не удалось создать файл");
+
+                        Files.copy(stream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        options.addExtensions(file);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                         throw new RuntimeException(e);
                     }
                 }
