@@ -129,7 +129,7 @@ public class BetMaker {
                 return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
             }
 
-            return new BetUtils.CompleteBetsFork(calculated, "Минимум одно из плечей не было поставлено");
+            return new BetUtils.CompleteBetsFork(calculated, "Одно из плечей не было поставлено");
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (Exception e) {
