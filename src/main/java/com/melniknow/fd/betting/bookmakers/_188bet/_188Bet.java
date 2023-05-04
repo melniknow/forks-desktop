@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +25,7 @@ public class _188Bet implements IBookmaker {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
-            driver.manage().window().setSize(new Dimension(1000, 1400));
+            driver.manage().window().setSize(new Dimension(1000, 1000));
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
 
             for (int i = 0; i < 30; ++i) {
@@ -74,8 +75,8 @@ public class _188Bet implements IBookmaker {
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
 
-            if (currentCf.compareTo(info.BK_cf()) < 0) {
-                throw new RuntimeException("betCoef is too low [188bet]");
+            if (currentCf.compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+                throw new RuntimeException("betCoef is too low [188bet] - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
