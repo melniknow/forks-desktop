@@ -2,6 +2,7 @@ package com.melniknow.fd.betting;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Logger;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
@@ -76,22 +77,37 @@ public class BetMaker {
             enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
             enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
 
-            var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
-            var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
-
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
 
-            try {
-                realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
-            } catch (ExecutionException | TimeoutException e) {
-                Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
-            }
+            if (bookmaker1 == Bookmaker._188BET) {
+                try {
+                    var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
+                    realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | TimeoutException e) {
+                    throw new RuntimeException("Не удалось поставить вилку");
+                }
 
-            try {
-                realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
-            } catch (ExecutionException | TimeoutException e) {
-                Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
+                try {
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
+                    realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | TimeoutException e) {
+                    Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
+                }
+            } else {
+                try {
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
+                    realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | TimeoutException e) {
+                    throw new RuntimeException("Не удалось поставить вилку");
+                }
+
+                try {
+                    var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
+                    realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
+                } catch (ExecutionException | TimeoutException e) {
+                    Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
+                }
             }
 
             System.out.println("RealCf1 = " + realCf1);
