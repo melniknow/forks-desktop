@@ -69,16 +69,11 @@ public class Pinnacle implements IBookmaker {
 
         var betId = "";
 
-        try {
-            betId = realPlaceBet(auth, bookmakerData.proxyIp(),
-                bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
-        } catch (RuntimeException e) {
+        while (betId.equals("")) {
             try {
                 betId = realPlaceBet(auth, bookmakerData.proxyIp(),
                     bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
-            } catch (RuntimeException e1) {
-                betId = realPlaceBet(auth, bookmakerData.proxyIp(),
-                    bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
+            } catch (RuntimeException ignored) {
             }
         }
 

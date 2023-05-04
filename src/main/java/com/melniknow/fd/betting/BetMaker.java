@@ -82,13 +82,13 @@ public class BetMaker {
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                realCf1 = betFuture1.get(60, TimeUnit.SECONDS);
+                realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
             }
 
             try {
-                realCf2 = betFuture2.get(60, TimeUnit.SECONDS);
+                realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
             }
@@ -99,6 +99,10 @@ public class BetMaker {
             var income = BigDecimal.ZERO;
 
             if (!realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO)) {
+                if (realCf1.compareTo(calculated.fork().betInfo1().BK_cf()) < 0 ||
+                    realCf2.compareTo(calculated.fork().betInfo2().BK_cf()) < 0)
+                    return new BetUtils.CompleteBetsFork(calculated, "Вилка была поставлена по изменённым в худшую сторону коэффициентам");
+
                 var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
                 var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
 
@@ -108,7 +112,7 @@ public class BetMaker {
                 return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
             }
 
-            return new BetUtils.CompleteBetsFork(calculated, "Одно из плечей не было поставлено");
+            return new BetUtils.CompleteBetsFork(calculated, "Минимум одно из плечей не было поставлено");
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (Exception e) {

@@ -6,7 +6,6 @@ import com.melniknow.fd.ui.panels.impl.SessionPanel;
 import com.melniknow.fd.utils.BetUtils;
 
 public class Logger {
-
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static void writeToLogSession(String message) {
