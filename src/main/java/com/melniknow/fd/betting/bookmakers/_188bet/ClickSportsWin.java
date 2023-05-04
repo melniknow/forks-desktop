@@ -2,11 +2,11 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
-import com.melniknow.fd.domain.Sports;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ClickSportsWin {
-    static public void clickAndReturnBalanceAsRub(ChromeDriver driver, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -23,10 +23,12 @@ public class ClickSportsWin {
 
         marketName = marketName.split(" - ")[0];
 
-        var market = BetsSupport.getMarketByMarketName(driver,
-        SeleniumSupport.buildLocalH4ByText(marketName), partOfGame);
+        var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        BetsSupport.findElementWithClicking(market,
-            SeleniumSupport.buildLocalDivByText(selectionName)).click();
+        try {
+            BetsSupport.findElementWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName)).click();
+        } catch (NoSuchElementException e) {
+            throw new RuntimeException("Button not found! [188bet]");
+        }
     }
 }
