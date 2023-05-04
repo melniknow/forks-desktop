@@ -3,8 +3,13 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.Objects;
 
 public class ClickSportsTotals {
@@ -29,7 +34,10 @@ public class ClickSportsTotals {
         System.out.println("line = " + line);
 
         try {
-            Objects.requireNonNull(buttons.stream().filter(n -> BetsSupport.getTotalsByStr(n.getText()).equals(line)).findAny().orElse(null)).click();
+            var button = Objects.requireNonNull(buttons.stream().filter(
+                b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null));
+
+            driver.executeScript("arguments[0].click();", button);
         } catch (NullPointerException e) {
             throw new RuntimeException("Button not found! [188bet]");
         }

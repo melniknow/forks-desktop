@@ -74,6 +74,7 @@ public class Pinnacle implements IBookmaker {
                 betId = realPlaceBet(auth, bookmakerData.proxyIp(),
                     bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
             } catch (RuntimeException ignored) {
+                Logger.writeToLogSession("Pinnacle пытается поставить ставку");
             }
         }
 

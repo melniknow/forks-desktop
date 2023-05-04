@@ -106,7 +106,8 @@ public class BetsSupport {
                     var parent = SeleniumSupport.getParentByDeep(market, 2);
                     if (isCorrectMarket(parent, partOfGame)) {
                         var result = SeleniumSupport.getParentByDeep(parent, 3);
-                        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
+                        if (result.getLocation().y > scroll / 2)
+                            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
                         sleep(300L);
                         return result;
                     }
@@ -126,10 +127,11 @@ public class BetsSupport {
         try {
             var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
             countOfPreviousBets.click();
-            TimeUnit.MILLISECONDS.sleep(350);
+            TimeUnit.MILLISECONDS.sleep(500);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
-            TimeUnit.MILLISECONDS.sleep(350);
+            TimeUnit.MILLISECONDS.sleep(500);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
+            TimeUnit.MILLISECONDS.sleep(500);
         } catch (NoSuchElementException ignored) {
         } catch (InterruptedException | TimeoutException e) {
             throw new RuntimeException(e.getMessage());

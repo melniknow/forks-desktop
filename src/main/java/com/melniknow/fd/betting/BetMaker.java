@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
@@ -83,13 +84,13 @@ public class BetMaker {
 
             try {
                 realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | TimeoutException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
             }
 
             try {
                 realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | TimeoutException e) {
                 Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
             }
 

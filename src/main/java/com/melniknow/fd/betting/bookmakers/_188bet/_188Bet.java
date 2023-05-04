@@ -2,11 +2,13 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
-import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -21,8 +23,6 @@ public class _188Bet implements IBookmaker {
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
-            Logger.writePrettyJson(info);
 
             driver.manage().window().setSize(new Dimension(1000, 1400));
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
@@ -73,8 +73,6 @@ public class _188Bet implements IBookmaker {
 
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
-
-            System.out.println("Current cf = " + currentCf);
 
             if (currentCf.compareTo(info.BK_cf()) < 0) {
                 throw new RuntimeException("betCoef is too low [188bet]");
