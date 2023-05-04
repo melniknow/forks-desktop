@@ -27,10 +27,6 @@ public class _188Bet implements IBookmaker {
             driver.manage().window().setSize(new Dimension(1000, 1400));
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
 
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("lc_container")));
-            driver.executeScript("document.getElementById('lc_container').classList.add('hidden');");
-
             for (int i = 0; i < 30; ++i) {
                 var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(30)).until(driver1
                     -> driver1.findElement(By.className("print:text-black/80")).getText());
@@ -44,6 +40,11 @@ public class _188Bet implements IBookmaker {
                 }
                 TimeUnit.SECONDS.sleep(1);
             }
+
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("lc_container")));
+            driver.executeScript("document.getElementById('lc_container').classList.add('hidden');");
+
         } catch (TimeoutException ignored) {
             throw new RuntimeException("Page not loading! [188bet]");
         } catch (InterruptedException e) {
@@ -104,12 +105,15 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         // The Line, Odds or Score has changed.
         try {
-            while (notClickable(driver, byPlaceBet)) {
-                if (notClickable(driver, byAccepChanges)) {
+            while (!clickIfIsClickable(driver, byPlaceBet)) {
+                while (!clickIfIsClickable(driver, byAccepChanges)) { // trying to click on 'Accept Changes'
                     try {
                         driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
                         throw new RuntimeException("Bet is closed");
                     } catch (NoSuchElementException ignored) { }
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(200);
+                    } catch (InterruptedException ignored) { }
                 }
                 try {
                     TimeUnit.MILLISECONDS.sleep(200);
@@ -133,13 +137,13 @@ public class _188Bet implements IBookmaker {
     private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
 
-    private static boolean notClickable(ChromeDriver driver, By by) {
+    private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
             wait.until(driver_ -> driver_.findElement(by)).click();
-            return false;
-        } catch (Exception e) {
             return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
