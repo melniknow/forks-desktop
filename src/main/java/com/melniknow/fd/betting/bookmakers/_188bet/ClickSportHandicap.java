@@ -33,7 +33,7 @@ public class ClickSportHandicap {
         var line = info.BK_market_meta().get("line").getAsString();
         try {
             Objects.requireNonNull(buttons.stream().filter(
-                b -> BetsSupport.getTotalsByStr(b.getText()).equals(BetsSupport.buildLine(line))).findAny().orElse(null)).click();
+                b -> BetsSupport.getTotalsByStr(b.getText()).contains(line)).findAny().orElse(null)).click();
         } catch (NullPointerException e) {
             throw new RuntimeException("Button not found! [188bet]");
         }
