@@ -357,7 +357,7 @@ public class Pinnacle implements IBookmaker {
             }
             throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка в получении коэффициентов [Pinnacle] - " + e.getMessage());
+            throw new RuntimeException("Ошибка в получении коэффициентов [Pinnacle]");
         }
     }
 }
