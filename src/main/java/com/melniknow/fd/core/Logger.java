@@ -8,8 +8,6 @@ public class Logger {
         SessionPanel.addMessageToLog(message);
     }
     public static void writePrettyMessageAboutFork(BetUtils.CompleteBetsFork completed) {
-        writeToLogSession("Поставлена вилка: %s - %s, доход: %s ₽".formatted(completed.calculatedFork().fork().betInfo1().BK_name(),
-            completed.calculatedFork().fork().betInfo2().BK_name(),
-            completed.income()));
+        writeToLogSession(TelegramSender.getForkAsMessage(completed));
     }
 }

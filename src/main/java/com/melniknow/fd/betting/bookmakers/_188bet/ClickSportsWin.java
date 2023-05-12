@@ -2,14 +2,8 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
-import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 public class ClickSportsWin {
     static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
