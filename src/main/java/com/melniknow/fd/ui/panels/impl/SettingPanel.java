@@ -125,6 +125,11 @@ public class SettingPanel implements IPanel {
         var hockey = new CheckBox("Hockey");
         grid.add(hockey, 1, y++);
 
+        var isRepeatFork = new Label("Повтор вилок");
+        grid.add(isRepeatFork, 0, y);
+        var isRepeatForkCheckBox = new CheckBox("Включить");
+        grid.add(isRepeatForkCheckBox, 1, y++);
+
         var saveButton = new Button("Сохранить");
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
@@ -134,6 +139,7 @@ public class SettingPanel implements IPanel {
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
         saveButton.setOnAction(event -> {
+            Context.isRepeatFork = isRepeatForkCheckBox.isSelected();
             var bookmakersData = new ArrayList<CheckBox>() {{
                 add(pinnacle);
                 add(_188Bet);

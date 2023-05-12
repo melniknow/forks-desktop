@@ -20,9 +20,10 @@ public class Context {
     public static volatile ExecutorService parsingPool = Executors.newCachedThreadPool();
     public static final ScreenManager screenManager = new ScreenManager();
 
+    public static volatile boolean isRepeatFork = false;
+
     public static final LoadingCache<BigDecimal, Parser.Fork> forksCache = CacheBuilder.newBuilder()
-//        .maximumSize(1000)
-        .expireAfterAccess(2, TimeUnit.MINUTES)
+        .expireAfterAccess(30, TimeUnit.MINUTES)
         .build(
             new CacheLoader<>() {
                 @Override

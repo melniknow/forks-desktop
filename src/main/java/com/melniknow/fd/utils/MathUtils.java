@@ -16,18 +16,22 @@ public class MathUtils {
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
+
         Parser.Fork fork = null;
 
-        for (var curFork : forks) {
-            if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
-                Context.forksCache.put(curFork.forkId(), curFork);
-                fork = curFork;
-                break;
+        if (Context.isRepeatFork) {
+            fork = forks.get(0);
+        } else {
+            for (var curFork : forks) {
+                if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
+                    Context.forksCache.put(curFork.forkId(), curFork);
+                    fork = curFork;
+                    break;
+                }
             }
-        }
-
-        if (fork == null) {
-            throw new RuntimeException("Fork not found");
+            if (fork == null) {
+                throw new RuntimeException("Fork not found");
+            }
         }
 
         var mode = RoundingMode.DOWN;
