@@ -178,14 +178,13 @@ public class BetMaker {
         return data;
     }
 
-
     private static BetUtils.CompleteBetsFork buildCompleteBetsFork(MathUtils.CalculatedFork calculated,
                                                                    BigDecimal realCf1, BigDecimal realCf2,
                                                                    BigDecimal balance1Rub, BigDecimal balance2Rub,
                                                                    BigDecimal bet1Rub, BigDecimal bet2Rub) {
-        String income = "";
-        BigDecimal realRubBalance1 = null;
-        BigDecimal realRubBalance2 = null;
+        String income;
+        BigDecimal realRubBalance1;
+        BigDecimal realRubBalance2;
 
         if (isSuccessFork(realCf1, realCf2)) {
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
@@ -208,6 +207,8 @@ public class BetMaker {
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
             realRubBalance2 = balance2Rub;
             bet2Rub = BigDecimal.ZERO;
+        } else {
+            throw new RuntimeException("Вилка не была поставлена");
         }
 
         return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
