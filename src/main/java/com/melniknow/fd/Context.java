@@ -1,5 +1,8 @@
 package com.melniknow.fd;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.melniknow.fd.betting.ScreenManager;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.domain.Currency;
@@ -7,10 +10,7 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.core.Parser;
 
 import java.math.BigDecimal;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class Context {
     public static volatile Parser.ParserParams parserParams;
@@ -19,5 +19,16 @@ public class Context {
     public static volatile ExecutorService botPool = Executors.newSingleThreadExecutor();
     public static volatile ExecutorService parsingPool = Executors.newCachedThreadPool();
     public static final ScreenManager screenManager = new ScreenManager();
+
+    public static final LoadingCache<BigDecimal, Parser.Fork> forksCache = CacheBuilder.newBuilder()
+//        .maximumSize(1000)
+        .expireAfterAccess(2, TimeUnit.MINUTES)
+        .build(
+            new CacheLoader<>() {
+                @Override
+                public Parser.Fork load(BigDecimal key) throws NullPointerException {
+                    return null;
+                }
+            });
 }
 

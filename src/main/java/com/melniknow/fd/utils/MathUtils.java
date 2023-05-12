@@ -1,5 +1,6 @@
 package com.melniknow.fd.utils;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Parser;
 
 import java.math.BigDecimal;
@@ -14,7 +15,20 @@ public class MathUtils {
         if (forks == null || forks.isEmpty()) return null;
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
-        var fork = forks.get(0);
+
+        Parser.Fork fork = null;
+
+        for (var curFork : forks) {
+            if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
+                Context.forksCache.put(curFork.forkId(), curFork);
+                fork = curFork;
+                break;
+            }
+        }
+
+        if (fork == null) {
+            throw new RuntimeException("Fork not found");
+        }
 
         var mode = RoundingMode.DOWN;
         var scale = 8;
