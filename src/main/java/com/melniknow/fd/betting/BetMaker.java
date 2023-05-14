@@ -199,9 +199,9 @@ public class BetMaker {
             }
         } else if (isFirstForkFailAndSecondSuccess(realCf1, realCf2)) {
             income = "Одно из плечей не было поставлено";
+            realRubBalance2 = balance2Rub.subtract(bet2Rub);
             realRubBalance1 = balance1Rub;
             bet1Rub = BigDecimal.ZERO;
-            realRubBalance2 = balance2Rub.subtract(bet2Rub);
         } else if (isFirstForkSuccessAndSecondFail(realCf1, realCf2)) {
             income = "Одно из плечей не было поставлено";
             realRubBalance1 = balance1Rub.subtract(bet1Rub);

@@ -3,6 +3,7 @@ package com.melniknow.fd.core;
 import com.melniknow.fd.utils.BetUtils;
 import io.mikael.urlbuilder.UrlBuilder;
 
+import java.math.RoundingMode;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -38,7 +39,7 @@ public class TelegramSender {
                 "<i>Коэффициент:</i> <b>" + fork.betInfo1().BK_cf() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betInfo1().BK_bet_type() + "</b>" + "\n\n" +
                 "<i>Сумма ставки:</i> <b>" + completedFork.bet1Rub() + "руб</b>" + "\n\n" +
-                "<i>Баланс:</i> <b>" + completedFork.betRubBalance1() + "руб</b>" + "\n\n" +
+                "<i>Баланс:</i> <b>" + completedFork.betRubBalance1().setScale(2, RoundingMode.DOWN) + "руб</b>" + "\n\n" +
 
                 "Букмекер 2\n" +
                 "<i>Имя:</i> <b>" + fork.betInfo2().BK_name() + "</b>" + "\n" +
@@ -48,7 +49,7 @@ public class TelegramSender {
                 "<i>Коэффициент:</i> <b>" + fork.betInfo2().BK_cf() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet_type() + "</b>" + "\n\n" +
                 "<i>Сумма ставки:</i> <b>" + completedFork.bet2Rub() + "руб</b>" + "\n\n" +
-                "<i>Баланс:</i> <b>" + completedFork.betRubBalance2() + "руб</b>" + "\n\n" +
+                "<i>Баланс:</i> <b>" + completedFork.betRubBalance2().setScale(2, RoundingMode.DOWN) + "руб</b>" + "\n\n" +
 
                 "<i>Доход ₽:</i> <b>" + completedFork.income() + "</b>" + "\n",
             StandardCharsets.UTF_8
@@ -58,9 +59,9 @@ public class TelegramSender {
     public static String getForkAsMessageInTextArea(BetUtils.CompleteBetsFork completedFork) {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
-            "-----------------------------------------------------------------------------" +
-            "--------------------------- NEW FORK ----------------------------------------" +
-            "-----------------------------------------------------------------------------" +
+            "-----------------------------------------------------------------------------\n" +
+            "--------------------------- NEW FORK ----------------------------------\n" +
+            "-----------------------------------------------------------------------------\n" +
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "Спорт: " + fork.sport() + "\n" +
                 "Тип ставки: " + fork.betType() + "\n\n" +
@@ -73,7 +74,7 @@ public class TelegramSender {
                 "Коэффициент: " + fork.betInfo1().BK_cf() + "\n" +
                 "Тип ставки: " + fork.betInfo1().BK_bet_type() + "\n\n" +
                 "Сумма ставки: " + completedFork.bet1Rub() + "руб" + "\n\n" +
-                "Баланс: " + completedFork.betRubBalance1() + "руб" + "\n\n" +
+                "Баланс: " + completedFork.betRubBalance1().setScale(2, RoundingMode.DOWN) + "руб" + "\n\n" +
 
                 "Букмекер 2\n" +
                 "Имя: " + fork.betInfo2().BK_name() + "\n" +
@@ -83,12 +84,12 @@ public class TelegramSender {
                 "Коэффициент: " + fork.betInfo2().BK_cf() + "\n" +
                 "Тип ставки: " + fork.betInfo2().BK_bet_type() + "\n\n" +
                 "Сумма ставки: " + completedFork.bet2Rub() + "руб" + "\n\n" +
-                "Баланс: " + completedFork.betRubBalance2() + "руб" + "\n\n" +
+                "Баланс: " + completedFork.betRubBalance2().setScale(2, RoundingMode.DOWN) + "руб" + "\n\n" +
 
                 "Доход ₽: " + completedFork.income() + "\n" +
-                "-----------------------------------------------------------------------------" +
-                "--------------------------- END OF FORK -------------------------------------" +
-                "-----------------------------------------------------------------------------",
+                "------------------------------------------------------------------------\n" +
+                "--------------------------- END OF FORK --------------------------\n" +
+                "------------------------------------------------------------------------\n",
             StandardCharsets.UTF_8
         );
     }
