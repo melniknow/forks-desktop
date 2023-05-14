@@ -105,6 +105,7 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         // The Line, Odds or Score has changed.
         try {
+            // TODO: while -> if
             while (!clickIfIsClickable(driver, byPlaceBet) && !Thread.currentThread().isInterrupted()) {
                 while (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'
                     try {
@@ -122,9 +123,6 @@ public class _188Bet implements IBookmaker {
             var realCf = BetsSupport.getCurrentCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
             System.out.println("Final cf = " + realCf);
-
-            BetsSupport.cashOut(driver);
-
             return realCf;
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);

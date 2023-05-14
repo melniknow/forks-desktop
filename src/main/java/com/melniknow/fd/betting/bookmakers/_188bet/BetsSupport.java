@@ -157,7 +157,6 @@ public class BetsSupport {
                 driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
             var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             tmp.findElement(By.xpath(".//following::div[1]")).click();
-            // TODO: waiting?
         } catch (NoSuchElementException | TimeoutException e) {
             System.out.println("Don`t close mini window! [188bet]");
         }
@@ -199,7 +198,6 @@ public class BetsSupport {
             curCashOutField = tmp.getText();
 
             tmpButton = SeleniumSupport.getParentByDeep(tmpButton, 7);
-            // TODO: see 'Ok' or 'OK'
             try {
                 tmpButton.findElement(SeleniumSupport.buildLocalH4ByText("OK")).click();
             } catch (NoSuchElementException e) {
