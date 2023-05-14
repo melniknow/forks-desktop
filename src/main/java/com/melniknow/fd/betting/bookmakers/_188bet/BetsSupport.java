@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class BetsSupport {
+
+    public static String curCashOutField;
+
     public static String getTotalsByStr(String str) {
         return str.split("\n")[1];
     }
@@ -24,6 +27,16 @@ public class BetsSupport {
         } else {
             return "";
         }
+    }
+
+    public static String getFirstNameForCashOut(String title) {
+        if (!title.contains(" - ")) {
+            return title;
+        }
+        if (title.split(" - ", -1).length - 1 == 1) {
+            return title.substring(0, title.indexOf(" - "));
+        }
+        return null;
     }
 
     public static String getTeamFirstNameByTitle(String title) {
@@ -58,7 +71,7 @@ public class BetsSupport {
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            sleep(300L);
+            TimeUnit.MILLISECONDS.sleep(300);
             return element.findElement(by);
         }
     }
@@ -70,7 +83,7 @@ public class BetsSupport {
             return res;
         } catch (NoSuchElementException e) {
             element.click();
-            sleep(500L);
+            TimeUnit.MILLISECONDS.sleep(500);
             return element.findElements(by);
         }
     }
@@ -108,13 +121,13 @@ public class BetsSupport {
                         var result = SeleniumSupport.getParentByDeep(parent, 3);
                         if (result.getLocation().y > scroll / 2)
                             ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
-                        sleep(300L);
+                        TimeUnit.MILLISECONDS.sleep(300);
                         return result;
                     }
                 }
             } catch (NoSuchElementException ignored) { }
             ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + curScroll + ")");
-            sleep(300L); // Wait for the page to finish scrolling
+            TimeUnit.MILLISECONDS.sleep(300); // Wait for the page to finish scrolling
             scrollPosition += curScroll;
         }
         throw new RuntimeException("Market not found" + byName.toString() + " [188bet]");
@@ -144,7 +157,6 @@ public class BetsSupport {
                 driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
             var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             tmp.findElement(By.xpath(".//following::div[1]")).click();
-            // TODO: waiting?
         } catch (NoSuchElementException | TimeoutException e) {
             System.out.println("Don`t close mini window! [188bet]");
         }
@@ -181,8 +193,11 @@ public class BetsSupport {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             var tmpButton = wait.until(driver_ -> driver_.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
 
+            var tmp = tmpButton;
+            tmp = SeleniumSupport.getParentByDeep(tmp, 2);
+            curCashOutField = tmp.getText();
+
             tmpButton = SeleniumSupport.getParentByDeep(tmpButton, 7);
-            // TODO: see 'Ok' or 'OK'
             try {
                 tmpButton.findElement(SeleniumSupport.buildLocalH4ByText("OK")).click();
             } catch (NoSuchElementException e) {
@@ -190,6 +205,45 @@ public class BetsSupport {
             }
         } catch (TimeoutException | NoSuchElementException e) {
             System.out.println("Not Close mini-window after success betting!  [188bet]");
+        }
+    }
+
+    public static void cashOut(ChromeDriver driver) {
+        var originalLines = curCashOutField.lines().toList();
+        if (originalLines.size() < 4) {
+            throw new RuntimeException("CashOut не поставлен");
+        }
+        var findStr = getFirstNameForCashOut(originalLines.get(1));
+        if (findStr == null) {
+            throw new RuntimeException("CashOut не поставлен");
+        }
+
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            var button = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalH4ByText("Bet Slip")));
+            button = SeleniumSupport.getParentByDeep(button, 2);
+            button.findElement(SeleniumSupport.buildLocalH4ByText("My Bets")).click();
+            TimeUnit.SECONDS.sleep(2);
+            var blocks = wait.until(driver1 -> driver1.findElements(
+                By.xpath("//span[contains(translate(text(),' ',''),'" + findStr.replaceAll("\\s+","") + "')]")));
+
+            for (var t : blocks) {
+                var curLines = SeleniumSupport.getParentByDeep(t, 2).getText().lines().toList();
+                if (curLines.get(1).equals(originalLines.get(2)) && curLines.get(2).equals(originalLines.get(3))) {
+                    var finalBlock = SeleniumSupport.getParentByDeep(t, 5);
+                    var finalButton = wait.until(driver1 -> finalBlock.findElement(SeleniumSupport.buildLocalH4ByText("Cash Out")));
+
+                    wait.until(ExpectedConditions.elementToBeClickable(finalButton));
+
+                    driver.executeScript("arguments[0].click();", finalButton);
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                    var finalButton2 = finalBlock.findElement(SeleniumSupport.buildLocalH4ByText("Confirm Cash Out"));
+                    driver.executeScript("arguments[0].click();", finalButton2);
+                    break;
+                }
+            }
+        } catch (InterruptedException | RuntimeException e) {
+            throw new RuntimeException("CashOut не поставлен\n" + e.getMessage());
         }
     }
 }
