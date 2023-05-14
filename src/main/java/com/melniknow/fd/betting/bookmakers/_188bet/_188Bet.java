@@ -21,13 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 public class _188Bet implements IBookmaker {
 
-    /*
-    CashOut:
-    BetSlip -> 2 parent ->
-    h4: My Bets
-    h4: Cash Out
-     */
-
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         try {
