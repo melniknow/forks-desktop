@@ -8,6 +8,6 @@ public class Logger {
         SessionPanel.addMessageToLog(message);
     }
     public static void writePrettyMessageAboutFork(BetUtils.CompleteBetsFork completed) {
-        writeToLogSession(TelegramSender.getForkAsMessage(completed));
+        writeToLogSession(TelegramSender.getForkAsMessageInTextArea(completed));
     }
 }

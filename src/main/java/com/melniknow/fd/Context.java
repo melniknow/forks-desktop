@@ -22,12 +22,12 @@ public class Context {
 
     public static volatile boolean isRepeatFork = false;
 
-    public static final LoadingCache<BigDecimal, Parser.Fork> forksCache = CacheBuilder.newBuilder()
+    public static final LoadingCache<String, Parser.Fork> forksCache = CacheBuilder.newBuilder()
         .expireAfterAccess(30, TimeUnit.MINUTES)
         .build(
             new CacheLoader<>() {
                 @Override
-                public Parser.Fork load(BigDecimal key) throws NullPointerException {
+                public Parser.Fork load(String key) throws NullPointerException {
                     return null;
                 }
             });

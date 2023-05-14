@@ -28,6 +28,7 @@ public class MathUtils {
                     fork = curFork;
                     break;
                 }
+                System.out.println("skip fork with id = " + curFork.forkId());
             }
             if (fork == null) {
                 throw new RuntimeException("Fork not found");

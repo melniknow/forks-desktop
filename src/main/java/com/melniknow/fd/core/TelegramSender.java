@@ -54,4 +54,36 @@ public class TelegramSender {
             StandardCharsets.UTF_8
         );
     }
+
+    public static String getForkAsMessageInTextArea(BetUtils.CompleteBetsFork completedFork) {
+        var fork = completedFork.calculatedFork().fork();
+        return String.format(
+            "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
+                "Спорт: " + fork.sport() + "\n" +
+                "Тип ставки: " + fork.betType() + "\n\n" +
+
+                "Букмекер 1\n" +
+                "Имя: " + fork.betInfo1().BK_name() + "\n" +
+                "Событие: " + fork.betInfo1().BK_event_id() + "\n" +
+                "Тип ставки: " + fork.betInfo1().BK_bet() + "\n" +
+                "Ссылка: " + fork.betInfo1().BK_href() + "\n" +
+                "Коэффициент: " + fork.betInfo1().BK_cf() + "\n" +
+                "Тип ставки: " + fork.betInfo1().BK_bet_type() + "\n\n" +
+                "Сумма ставки: " + completedFork.bet1Rub() + "руб" + "\n\n" +
+                "Баланс: " + completedFork.betRubBalance1() + "руб" + "\n\n" +
+
+                "Букмекер 2\n" +
+                "Имя: " + fork.betInfo2().BK_name() + "\n" +
+                "Событие: " + fork.betInfo2().BK_event_id() + "\n" +
+                "Тип ставки: " + fork.betInfo2().BK_bet() + "\n" +
+                "Ссылка: " + fork.betInfo2().BK_href() + "\n" +
+                "Коэффициент: " + fork.betInfo2().BK_cf() + "\n" +
+                "Тип ставки: " + fork.betInfo2().BK_bet_type() + "\n\n" +
+                "Сумма ставки: " + completedFork.bet2Rub() + "руб" + "\n\n" +
+                "Баланс: " + completedFork.betRubBalance2() + "руб" + "\n\n" +
+
+                "Доход ₽: " + completedFork.income() + "\n",
+            StandardCharsets.UTF_8
+        );
+    }
 }
