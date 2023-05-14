@@ -31,7 +31,7 @@ public class Parser {
                           JsonObject BK_market_meta, JsonObject BK_event_meta,
                           String BK_event_native_id) { }
 
-    public record Fork(BigDecimal income, Sports sport, int isMiddles, BetType betType,
+    public record Fork(String forkId, BigDecimal income, Sports sport, int isMiddles, BetType betType,
                        BetInfo betInfo1, BetInfo betInfo2) { }
 
     public static List<Fork> getForks(ParserParams params) {
@@ -99,6 +99,7 @@ public class Parser {
 
     private static Fork buildForkByJson(JsonObject forkObject) {
         return new Fork(
+            forkObject.get("fork_id").getAsString(),
             forkObject.get("income").getAsBigDecimal(),
             Sports.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
             Integer.parseInt(forkObject.get("is_middles").getAsString()),

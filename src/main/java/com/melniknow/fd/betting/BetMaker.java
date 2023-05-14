@@ -115,23 +115,11 @@ public class BetMaker {
             System.out.println("RealCf1 = " + realCf1);
             System.out.println("RealCf2 = " + realCf2);
 
-            var income = BigDecimal.ZERO;
+            var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
+            var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
 
-            if (!realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO)) {
-                if (realCf1.compareTo(calculated.fork().betInfo1().BK_cf()) < 0 ||
-                    realCf2.compareTo(calculated.fork().betInfo2().BK_cf()) < 0)
-                    return new BetUtils.CompleteBetsFork(calculated, "Вилка была поставлена по изменённым в худшую сторону коэффициентам");
+            return buildCompleteBetsFork(calculated, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub);
 
-                var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
-                var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
-
-                income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
-                    .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub)));
-
-                return new BetUtils.CompleteBetsFork(calculated, income.setScale(2, RoundingMode.DOWN).toString());
-            }
-
-            return new BetUtils.CompleteBetsFork(calculated, "Одно из плечей не было поставлено");
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (Exception e) {
@@ -188,5 +176,53 @@ public class BetMaker {
         data.add(value2);
 
         return data;
+    }
+
+    private static BetUtils.CompleteBetsFork buildCompleteBetsFork(MathUtils.CalculatedFork calculated,
+                                                                   BigDecimal realCf1, BigDecimal realCf2,
+                                                                   BigDecimal balance1Rub, BigDecimal balance2Rub,
+                                                                   BigDecimal bet1Rub, BigDecimal bet2Rub) {
+        String income;
+        BigDecimal realRubBalance1;
+        BigDecimal realRubBalance2;
+
+        if (isSuccessFork(realCf1, realCf2)) {
+            realRubBalance1 = balance1Rub.subtract(bet1Rub);
+            realRubBalance2 = balance2Rub.subtract(bet2Rub);
+
+            if (realCf1.compareTo(calculated.fork().betInfo1().BK_cf()) < 0 ||
+                realCf2.compareTo(calculated.fork().betInfo2().BK_cf()) < 0) {
+                income = "Вилка была поставлена по изменённым в худшую сторону коэффициентам";
+            } else {
+                income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
+                    .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub))).setScale(2, RoundingMode.DOWN).toString();
+            }
+        } else if (isFirstForkFailAndSecondSuccess(realCf1, realCf2)) {
+            income = "Одно из плечей не было поставлено";
+            realRubBalance1 = balance1Rub;
+            bet1Rub = BigDecimal.ZERO;
+            realRubBalance2 = balance2Rub.subtract(bet2Rub);
+        } else if (isFirstForkSuccessAndSecondFail(realCf1, realCf2)) {
+            income = "Одно из плечей не было поставлено";
+            realRubBalance1 = balance1Rub.subtract(bet1Rub);
+            realRubBalance2 = balance2Rub;
+            bet2Rub = BigDecimal.ZERO;
+        } else {
+            throw new RuntimeException("Вилка не была поставлена");
+        }
+
+        return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
+    }
+
+    private static boolean isSuccessFork(BigDecimal realCf1, BigDecimal realCf2) {
+        return !realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO);
+    }
+
+    private static boolean isFirstForkFailAndSecondSuccess(BigDecimal realCf1, BigDecimal realCf2) {
+        return realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO);
+    }
+
+    private static boolean isFirstForkSuccessAndSecondFail(BigDecimal realCf1, BigDecimal realCf2) {
+        return !realCf1.equals(BigDecimal.ZERO) && realCf2.equals(BigDecimal.ZERO);
     }
 }
