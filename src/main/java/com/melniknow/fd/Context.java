@@ -4,10 +4,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.melniknow.fd.betting.ScreenManager;
-import com.melniknow.fd.utils.BetUtils;
-import com.melniknow.fd.domain.Currency;
-import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.core.Parser;
+import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.domain.Currency;
+import com.melniknow.fd.profile.Profile;
+import com.melniknow.fd.utils.BetUtils;
 
 import java.math.BigDecimal;
 import java.util.concurrent.*;
@@ -19,7 +20,7 @@ public class Context {
     public static volatile ExecutorService botPool = Executors.newSingleThreadExecutor();
     public static volatile ExecutorService parsingPool = Executors.newCachedThreadPool();
     public static final ScreenManager screenManager = new ScreenManager();
-
+    public static volatile Profile profile;
     public static volatile boolean isRepeatFork = false;
 
     public static final LoadingCache<String, Parser.Fork> forksCache = CacheBuilder.newBuilder()
@@ -32,4 +33,3 @@ public class Context {
                 }
             });
 }
-
