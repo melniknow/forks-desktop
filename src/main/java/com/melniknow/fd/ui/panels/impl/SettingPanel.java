@@ -276,3 +276,4 @@ public class SettingPanel implements IPanel {
         } catch (NullPointerException | JsonParseException ignored) { }
     }
 }
+
