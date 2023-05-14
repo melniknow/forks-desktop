@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
+import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sports;
@@ -19,6 +20,13 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public class _188Bet implements IBookmaker {
+
+    /*
+    CashOut:
+    BetSlip -> 2 parent ->
+    h4: My Bets
+    h4: Cash Out
+     */
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
@@ -121,6 +129,9 @@ public class _188Bet implements IBookmaker {
             var realCf = BetsSupport.getCurrentCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
             System.out.println("Final cf = " + realCf);
+
+            BetsSupport.cashOut(driver);
+
             return realCf;
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
