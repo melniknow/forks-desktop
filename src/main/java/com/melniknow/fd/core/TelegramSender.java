@@ -58,6 +58,9 @@ public class TelegramSender {
     public static String getForkAsMessageInTextArea(BetUtils.CompleteBetsFork completedFork) {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
+            "-----------------------------------------------------------------------------" +
+            "--------------------------- NEW FORK ----------------------------------------" +
+            "-----------------------------------------------------------------------------" +
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "Спорт: " + fork.sport() + "\n" +
                 "Тип ставки: " + fork.betType() + "\n\n" +
@@ -82,7 +85,10 @@ public class TelegramSender {
                 "Сумма ставки: " + completedFork.bet2Rub() + "руб" + "\n\n" +
                 "Баланс: " + completedFork.betRubBalance2() + "руб" + "\n\n" +
 
-                "Доход ₽: " + completedFork.income() + "\n",
+                "Доход ₽: " + completedFork.income() + "\n" +
+                "-----------------------------------------------------------------------------" +
+                "--------------------------- END OF FORK -------------------------------------" +
+                "-----------------------------------------------------------------------------",
             StandardCharsets.UTF_8
         );
     }
