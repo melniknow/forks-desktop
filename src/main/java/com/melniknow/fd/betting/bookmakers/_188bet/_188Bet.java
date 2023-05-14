@@ -99,22 +99,19 @@ public class _188Bet implements IBookmaker {
         }
     }
 
-
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         // The Line, Odds or Score has changed.
         try {
-            // TODO: while -> if
             while (!clickIfIsClickable(driver, byPlaceBet) && !Thread.currentThread().isInterrupted()) {
-                while (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'
+                if (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'
                     try {
                         driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
                         throw new RuntimeException("Bet is closed");
                     } catch (NoSuchElementException ignored) { }
-                    TimeUnit.MILLISECONDS.sleep(200);
                 }
-                TimeUnit.MILLISECONDS.sleep(200);
+                TimeUnit.MILLISECONDS.sleep(1000);
             }
 
             new WebDriverWait(driver, Duration.ofSeconds(55)).until(
