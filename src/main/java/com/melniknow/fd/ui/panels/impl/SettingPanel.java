@@ -152,6 +152,7 @@ public class SettingPanel implements IPanel {
         var isRepeatFork = new Label("Повтор вилок");
         grid.add(isRepeatFork, 0, y);
         var isRepeatForkCheckBox = new CheckBox("Включить");
+        profileBooleanCheck("isRepeatForkCheckBox", isRepeatForkCheckBox);
         grid.add(isRepeatForkCheckBox, 1, y++);
 
         var saveButton = new Button("Сохранить");
@@ -259,6 +260,7 @@ public class SettingPanel implements IPanel {
             json.addProperty("volleyball", volleyball.isSelected());
             json.addProperty("handball", handball.isSelected());
             json.addProperty("hockey", hockey.isSelected());
+            json.addProperty("isRepeatForkCheckBox", isRepeatForkCheckBox.isSelected());
 
             Context.profile.save();
 
