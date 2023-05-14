@@ -16,6 +16,7 @@ public class SessionPanel implements IPanel {
 
     @Override
     public ScrollPane getNode() {
+        sessionLog.clear();
         sessionLog.appendText("Для запуска бота нажмите кнопку Старт...\n");
         sessionLog.setEditable(false);
         sessionLog.setMinSize(1200, 600);

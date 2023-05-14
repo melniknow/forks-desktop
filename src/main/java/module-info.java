@@ -12,6 +12,7 @@ module com.melniknow.fd {
     requires org.apache.httpcomponents.httpcore;
     requires org.apache.httpcomponents.httpclient;
     requires org.apache.commons.codec;
+    requires java.sql;
 
     opens com.melniknow.fd to javafx.fxml;
     exports com.melniknow.fd;
@@ -28,4 +29,5 @@ module com.melniknow.fd {
     exports com.melniknow.fd.betting.bookmakers;
     exports com.melniknow.fd.betting.bookmakers._188bet;
     exports com.melniknow.fd.betting.bookmakers.pinnacle;
+    exports com.melniknow.fd.profile;
 }

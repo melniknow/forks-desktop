@@ -6,10 +6,7 @@ import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Security;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.ui.panels.IPanel;
-import com.melniknow.fd.ui.panels.impl.BookmakersPanel;
-import com.melniknow.fd.ui.panels.impl.CurrencyPanel;
-import com.melniknow.fd.ui.panels.impl.SessionPanel;
-import com.melniknow.fd.ui.panels.impl.SettingPanel;
+import com.melniknow.fd.ui.panels.impl.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -28,43 +25,23 @@ public class Controller {
     @FXML
     public Button run;
 
+    public static TabPane pane;
+    public static Tab setting;
     public static Tab currency;
     public static Tab bookmakers;
     public static Button runButton;
 
     public void initialize() {
         Security.PolypokerCheck();
-
-        var settingTab = tabConstructor("Настройки", new SettingPanel());
-        var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
-        var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
-        var sessionTab = tabConstructor("Сессия", new SessionPanel());
-
-        currencyTab.setDisable(true);
-        bookmakersTab.setDisable(true);
-
-        currency = currencyTab;
-        bookmakers = bookmakersTab;
-
-        bookmakers.setOnSelectionChanged(event -> {
-            if (Context.parserParams != null && !equalsBookmakersForPanel(Context.parserParams.bookmakers(), BookmakersPanel.tabPane.getTabs())) {
-                BookmakersPanel.tabPane.getTabs().clear();
-                BookmakersPanel.tabPane.getTabs().addAll(Context.parserParams.bookmakers().stream().map(bookmaker -> {
-                    var tab = new Tab(bookmaker.nameInAPI.toUpperCase());
-                    tab.setClosable(false);
-                    tab.setContent(BookmakersPanel.getTabContent(bookmaker));
-
-                    return tab;
-                }).toList());
-            }
-        });
-
         run.setDisable(true);
         runButton = run;
 
-        tabPane.getTabs().addAll(settingTab, currencyTab, bookmakersTab, sessionTab);
+        var profileTab = tabConstructor("Профиль", new ProfileTab());
+
+        pane = tabPane;
+        tabPane.getTabs().addAll(profileTab);
     }
-    private boolean equalsBookmakersForPanel(List<Bookmaker> bookmakers, List<Tab> tabs) {
+    public static boolean equalsBookmakersForPanel(List<Bookmaker> bookmakers, List<Tab> tabs) {
         var data = bookmakers.stream().map(n -> n.nameInAPI.toUpperCase()).toList();
         var data2 = new ArrayList<String>();
 
@@ -107,7 +84,7 @@ public class Controller {
         Logger.writeToLogSession("Сессия остановлена");
     }
 
-    private Tab tabConstructor(String label, IPanel panel) {
+    public static Tab tabConstructor(String label, IPanel panel) {
         var tab = new Tab(label);
 
         tab.setClosable(false);
