@@ -82,7 +82,7 @@ public class ScreenManager {
                 var screenX = 1600;
                 var screenY = 900;
 
-                if (params.screenSize() != null) {
+                if (params.screenSize() != null && !params.screenSize().isEmpty()) {
                     var screenSizes = params.screenSize().split("/");
                     screenX = Integer.parseInt(screenSizes[0]);
                     screenY = Integer.parseInt(screenSizes[1]);
