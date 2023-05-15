@@ -53,17 +53,6 @@ public class BetsSupport {
         return null;
     }
 
-    public static String buildLine(String line) {
-        if (!line.startsWith("-") && !line.startsWith("+") && !line.equals("0")) {
-            line = "+" + line;
-        }
-        return line;
-    }
-
-    public static void sleep(Long milliseconds) throws InterruptedException {
-        Thread.sleep(milliseconds);
-    }
-
     public static WebElement findElementWithClicking(WebElement element, By by) throws InterruptedException {
         WebElement res;
         try {
