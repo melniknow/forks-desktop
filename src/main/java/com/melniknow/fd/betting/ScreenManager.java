@@ -97,7 +97,7 @@ public class ScreenManager {
 
                 driver.get(link);
             } catch (Exception e) {
-                Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
+                Logger.writeToLogSession(e.getMessage() + " Бот не смог открыть ссылку - " + link);
             }
         });
     }
