@@ -30,7 +30,7 @@ public class ClickSportsWin {
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
         try {
-            var button = BetsSupport.findElementWithClicking(driver, market, SeleniumSupport.buildLocalDivByText(selectionName));
+            var button = BetsSupport.findElementWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName));
             driver.executeScript("arguments[0].click();", button);
         } catch (NoSuchElementException e) {
             throw new RuntimeException("Button not found! [188bet]");

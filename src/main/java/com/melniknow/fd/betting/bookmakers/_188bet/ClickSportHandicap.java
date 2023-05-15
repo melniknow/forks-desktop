@@ -25,7 +25,7 @@ public class ClickSportHandicap {
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        var buttons = BetsSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalDivByText(selectionName))
+        var buttons = BetsSupport.findElementsWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();
