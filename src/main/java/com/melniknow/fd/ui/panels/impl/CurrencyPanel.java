@@ -105,7 +105,7 @@ public class CurrencyPanel implements IPanel {
             var uri = "https://www.cbr-xml-daily.ru/daily_json.js";
             var isGood = true;
 
-            var timeout = 2;
+            var timeout = 20;
 
             var config = RequestConfig.custom()
                 .setConnectTimeout(timeout * 1000)
