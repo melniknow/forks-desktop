@@ -53,38 +53,29 @@ public class BetsSupport {
         return null;
     }
 
-    public static String buildLine(String line) {
-        if (!line.startsWith("-") && !line.startsWith("+") && !line.equals("0")) {
-            line = "+" + line;
-        }
-        return line;
-    }
-
-    public static void sleep(Long milliseconds) throws InterruptedException {
-        Thread.sleep(milliseconds);
-    }
-
-    public static WebElement findElementWithClicking(WebElement element, By by) throws InterruptedException {
+    public static WebElement findElementWithClicking(ChromeDriver driver, WebElement element, By by) throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement res;
         try {
-            res = element.findElement(by);
+            res = wait.until(driver1 -> element.findElement(by));
             return res;
         } catch (NoSuchElementException e) {
             element.click();
             TimeUnit.MILLISECONDS.sleep(300);
-            return element.findElement(by);
+            return wait.until(driver1 -> element.findElement(by));
         }
     }
 
-    public static List<WebElement> findElementsWithClicking(WebElement element, By by) throws InterruptedException {
+    public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement element, By by) throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         List<WebElement> res;
         try {
-            res = element.findElements(by);
+            res = wait.until(driver1 -> element.findElements(by));
             return res;
         } catch (NoSuchElementException e) {
             element.click();
             TimeUnit.MILLISECONDS.sleep(500);
-            return element.findElements(by);
+            return wait.until(driver1 -> element.findElements(by));
         }
     }
 
@@ -112,9 +103,10 @@ public class BetsSupport {
         int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
         int curScroll = scroll / 4;
         int scrollPosition = 0;
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         while (scrollPosition < 10000) {
             try {
-                List<WebElement> visibleMarkets = driver.findElements(byName);
+                List<WebElement> visibleMarkets = wait.until(driver1 -> driver1.findElements(byName));
                 for (var market : visibleMarkets) {
                     var parent = SeleniumSupport.getParentByDeep(market, 2);
                     if (isCorrectMarket(parent, partOfGame)) {
@@ -138,7 +130,9 @@ public class BetsSupport {
         var button = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalH4ByText("Bet Slip")));
         button = SeleniumSupport.getParentByDeep(button, 1);
         try {
-            var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
+            WebElement finalButton = button;
+            var countOfPreviousBets = wait.until(driver1 -> finalButton.findElement(By.xpath(".//h1[text()!='0']")));
+            wait.until(ExpectedConditions.elementToBeClickable(countOfPreviousBets));
             countOfPreviousBets.click();
             TimeUnit.MILLISECONDS.sleep(500);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();

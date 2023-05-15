@@ -16,7 +16,7 @@ public class ClickSportsTotals {
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        var buttons = BetsSupport.findElementsWithClicking(market, SeleniumSupport.buildLocalDivByText(
+        var buttons = BetsSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalDivByText(
                 info.BK_market_meta().get("selectionName").getAsString()))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
