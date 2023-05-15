@@ -2,6 +2,7 @@ package com.melniknow.fd.ui.panels.impl;
 
 import com.google.gson.JsonParser;
 import com.melniknow.fd.Context;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.profile.Database;
 import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.ui.Controller;
@@ -14,10 +15,12 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 import static com.melniknow.fd.ui.Controller.*;
-import static com.melniknow.fd.ui.Controller.tabConstructor;
 
 public class ProfileTab implements IPanel {
     @Override
@@ -72,6 +75,7 @@ public class ProfileTab implements IPanel {
             var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
             var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
             var sessionTab = tabConstructor("Сессия", new SessionPanel());
+            var forksTab = tabConstructor("Вилки", new ForksPanel());
 
             settingTab.setDisable(true);
             currencyTab.setDisable(true);
@@ -98,11 +102,31 @@ public class ProfileTab implements IPanel {
                 pane.getTabs().remove(pane.getTabs().size() - 1);
             }
 
-            pane.getTabs().addAll(setting, currency, bookmakers, sessionTab);
+            pane.getTabs().addAll(setting, currency, bookmakers, sessionTab, forksTab);
 
             Controller.setting.setDisable(false);
         });
 
         return new ScrollPane(grid);
+    }
+
+    public static Tab tabConstructor(String label, IPanel panel) {
+        var tab = new Tab(label);
+
+        tab.setClosable(false);
+        tab.setContent(panel.getNode());
+
+        return tab;
+    }
+
+    private boolean equalsBookmakersForPanel(List<Bookmaker> bookmakers, List<Tab> tabs) {
+        var data = bookmakers.stream().map(n -> n.nameInAPI.toUpperCase()).toList();
+        var data2 = new ArrayList<String>();
+
+        for (Tab tab : tabs) {
+            data2.add(tab.getText());
+        }
+
+        return new HashSet<>(data).containsAll(data2) && data2.containsAll(data);
     }
 }

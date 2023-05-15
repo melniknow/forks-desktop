@@ -28,7 +28,7 @@ public class Context {
         .build(
             new CacheLoader<>() {
                 @Override
-                public Parser.Fork load(String key) throws NullPointerException {
+                public Parser.Fork load(String s) {
                     return null;
                 }
             });

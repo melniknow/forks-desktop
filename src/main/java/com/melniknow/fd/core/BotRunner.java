@@ -19,11 +19,15 @@ public class BotRunner implements Runnable {
                     Logger.writeToLogSession("Ошибка при получении вилок с сервера");
                 } else if (!forks.isEmpty()) {
                     var calculated = MathUtils.calculate(forks);
-                    var completed = BetMaker.make(calculated);
 
-                    Logger.writePrettyMessageAboutFork(completed);
-                    TelegramSender.send(completed);
-                    System.out.println("Ставка");
+                    if (calculated != null) {
+                        var completed = BetMaker.make(calculated);
+
+                        Logger.writePrettyMessageAboutFork(completed);
+                        TelegramSender.send(completed);
+
+                        System.out.println("Ставка");
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

@@ -4,7 +4,6 @@ import com.melniknow.fd.App;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.utils.BetUtils;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
@@ -22,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ScreenManager {
-    private final ConcurrentMap<Bookmaker, Object> screenStorage = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Bookmaker, ChromeDriver> screenStorage = new ConcurrentHashMap<>();
 
     public ScreenManager() {
         WebDriverManager.chromedriver().setup();
@@ -34,16 +33,7 @@ public class ScreenManager {
 
         Context.parsingPool.execute(() -> {
             try {
-                if (bookmaker.isApi) {
-                    screenStorage.put(bookmaker,
-                        new BetUtils.Proxy(params.proxyIp(),
-                            String.valueOf(params.proxyPort()),
-                            params.proxyLogin(),
-                            params.proxyPassword()
-                        )
-                    );
-                    return;
-                }
+                if (bookmaker.isApi) return;
 
                 var options = new ChromeOptions();
                 options.addArguments("--remote-allow-origins=*");
@@ -114,20 +104,11 @@ public class ScreenManager {
 
     public synchronized void removeScreenForBookmaker(Bookmaker bookmaker) {
         var driver = screenStorage.remove(bookmaker);
-        if (driver != null && !bookmaker.isApi) {
-            var driverImpl = (ChromeDriver) driver;
-            driverImpl.quit();
-        }
-    }
-
-    public synchronized BetUtils.Proxy getProxyForApiBookmaker(Bookmaker bookmaker) {
-        if (!bookmaker.isApi) return null;
-        return (BetUtils.Proxy) screenStorage.get(bookmaker);
+        if (driver != null) driver.quit();
     }
 
     public synchronized ChromeDriver getScreenForBookmaker(Bookmaker bookmaker) {
-        if (bookmaker.isApi) return null;
-        return (ChromeDriver) screenStorage.get(bookmaker);
+        return screenStorage.get(bookmaker);
     }
 
     public synchronized void clear() {

@@ -16,7 +16,6 @@ public class MathUtils {
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
-
         Parser.Fork fork = null;
 
         if (Context.isRepeatFork) {
@@ -31,7 +30,7 @@ public class MathUtils {
                 System.out.println("skip fork with id = " + curFork.forkId());
             }
             if (fork == null) {
-                throw new RuntimeException("Forks not found");
+                return null;
             }
         }
 
