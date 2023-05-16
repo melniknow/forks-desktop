@@ -18,12 +18,11 @@ public class MathUtils {
 
         Parser.Fork fork = null;
 
-        if (Context.isRepeatFork) {
+        if (Context.parserParams.isRepeatFork()) {
             fork = forks.get(0);
         } else {
             for (var curFork : forks) {
                 if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
-                    Context.forksCache.put(curFork.forkId(), curFork);
                     fork = curFork;
                     break;
                 }

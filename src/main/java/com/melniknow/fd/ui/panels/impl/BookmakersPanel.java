@@ -1,7 +1,9 @@
 package com.melniknow.fd.ui.panels.impl;
 
+import com.google.gson.JsonParseException;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.utils.BetUtils;
@@ -19,6 +21,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
+
+import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileTextCheck;
 
 public class BookmakersPanel implements IPanel {
     public static TabPane tabPane;
@@ -58,11 +62,13 @@ public class BookmakersPanel implements IPanel {
         linkField.setPrefHeight(40);
         linkField.setEditable(!bookmaker.isApi);
         linkField.setText(bookmaker.link);
+        profileTextCheck(bookmaker.name() + "linkField", linkField);
         grid.add(linkField, 1, y++);
 
         var login = new Label("Логин");
         grid.add(login, 0, y);
         var loginField = new TextField();
+        profileTextCheck(bookmaker.name() + "loginField", loginField);
         loginField.setPrefHeight(40);
         loginField.setPromptText("login");
         grid.add(loginField, 1, y++);
@@ -70,6 +76,7 @@ public class BookmakersPanel implements IPanel {
         var password = new Label("Пароль");
         grid.add(password, 0, y);
         var passwordField = new TextField();
+        profileTextCheck(bookmaker.name() + "passwordField", passwordField);
         passwordField.setPrefHeight(40);
         passwordField.setPromptText("password");
         grid.add(passwordField, 1, y++);
@@ -77,12 +84,14 @@ public class BookmakersPanel implements IPanel {
         var currency = new Label("Валюта *");
         grid.add(currency, 0, y);
         var currencyField = new ComboBox<>(FXCollections.observableArrayList(Context.currencyToRubCourse.keySet()));
+        setCurrency(bookmaker.name() + "currencyField", currencyField);
         currencyField.setPrefHeight(40);
         grid.add(currencyField, 1, y++);
 
         var minimum = new Label("Минимальная ставка *");
         grid.add(minimum, 0, y);
         var minimumField = new TextField();
+        profileTextCheck(bookmaker.name() + "minimumField", minimumField);
         minimumField.setPrefHeight(40);
         minimumField.setPromptText("В указанной валюте");
         grid.add(minimumField, 1, y++);
@@ -90,6 +99,7 @@ public class BookmakersPanel implements IPanel {
         var maximum = new Label("Максимальная ставка *");
         grid.add(maximum, 0, y);
         var maximumField = new TextField();
+        profileTextCheck(bookmaker.name() + "maximumField", maximumField);
         maximumField.setPrefHeight(40);
         maximumField.setPromptText("В указанной валюте");
         grid.add(maximumField, 1, y++);
@@ -97,12 +107,14 @@ public class BookmakersPanel implements IPanel {
         var screenSize = new Label("Разрешение");
         grid.add(screenSize, 0, y);
         var screenSizeField = new ComboBox<>(FXCollections.observableArrayList("1920/1200", "1920/1080", "1600/900", "1440/900"));
+        setString(bookmaker.name() + "screenSizeField", screenSizeField);
         screenSizeField.setPrefHeight(40);
         grid.add(screenSizeField, 1, y++);
 
         var agent = new Label("User Agent");
         grid.add(agent, 0, y);
         var agentField = new TextField();
+        profileTextCheck(bookmaker.name() + "agentField", agentField);
         agentField.setPrefHeight(40);
         agentField.setPromptText("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
         grid.add(agentField, 1, y++);
@@ -110,6 +122,7 @@ public class BookmakersPanel implements IPanel {
         var lang = new Label("Язык");
         grid.add(lang, 0, y);
         var langField = new TextField();
+        profileTextCheck(bookmaker.name() + "langField", langField);
         langField.setPrefHeight(40);
         langField.setPromptText("en-GB");
         grid.add(langField, 1, y++);
@@ -117,6 +130,7 @@ public class BookmakersPanel implements IPanel {
         var proxyIp = new Label("Proxy IP (HTTP)");
         grid.add(proxyIp, 0, y);
         var proxyIpField = new TextField();
+        profileTextCheck(bookmaker.name() + "proxyIpField", proxyIpField);
         proxyIpField.setPrefHeight(40);
         proxyIpField.setPromptText("193.67.67.124");
         grid.add(proxyIpField, 1, y++);
@@ -124,6 +138,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPort = new Label("Proxy port");
         grid.add(proxyPort, 0, y);
         var proxyPortField = new TextField();
+        profileTextCheck(bookmaker.name() + "proxyPortField", proxyPortField);
         proxyPortField.setPrefHeight(40);
         proxyPortField.setPromptText("65233");
         grid.add(proxyPortField, 1, y++);
@@ -131,6 +146,7 @@ public class BookmakersPanel implements IPanel {
         var proxyLogin = new Label("Proxy login");
         grid.add(proxyLogin, 0, y);
         var proxyLoginField = new TextField();
+        profileTextCheck(bookmaker.name() + "proxyLoginField", proxyLoginField);
         proxyLoginField.setPrefHeight(40);
         proxyLoginField.setPromptText("admin");
         grid.add(proxyLoginField, 1, y++);
@@ -138,6 +154,7 @@ public class BookmakersPanel implements IPanel {
         var proxyPassword = new Label("Proxy password");
         grid.add(proxyPassword, 0, y);
         var proxyPasswordField = new TextField();
+        profileTextCheck(bookmaker.name() + "proxyPasswordField", proxyPasswordField);
         proxyPasswordField.setPrefHeight(40);
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);
@@ -168,6 +185,24 @@ public class BookmakersPanel implements IPanel {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Context.screenManager.createScreenForBookmaker(bookmaker);
 
+                var json = Context.profile.json;
+                json.addProperty(bookmaker.name() + "linkField", linkField.getText());
+                json.addProperty(bookmaker.name() + "loginField", loginField.getText());
+                json.addProperty(bookmaker.name() + "passwordField", passwordField.getText());
+                json.addProperty(bookmaker.name() + "minimumField", minimumField.getText());
+                json.addProperty(bookmaker.name() + "maximumField", maximumField.getText());
+                json.addProperty(bookmaker.name() + "agentField", agentField.getText());
+                json.addProperty(bookmaker.name() + "langField", langField.getText());
+                json.addProperty(bookmaker.name() + "proxyIpField", proxyIpField.getText());
+                json.addProperty(bookmaker.name() + "proxyPortField", proxyPortField.getText());
+                json.addProperty(bookmaker.name() + "proxyLoginField", proxyLoginField.getText());
+                json.addProperty(bookmaker.name() + "proxyPasswordField", proxyPasswordField.getText());
+                json.addProperty(bookmaker.name() + "proxyPasswordField", proxyPasswordField.getText());
+                json.addProperty(bookmaker.name() + "currencyField", currencyField.getValue().name());
+                json.addProperty(bookmaker.name() + "screenSizeField", screenSizeField.getValue());
+
+                Context.profile.save();
+
                 PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             } catch (Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
@@ -178,5 +213,20 @@ public class BookmakersPanel implements IPanel {
         });
 
         return new ScrollPane(grid);
+    }
+    private static void setString(String name, ComboBox<String> screenSizeField) {
+        try {
+            var json = Context.profile.json;
+            var data = json.getAsJsonPrimitive(name).getAsString();
+            if (data != null)
+                screenSizeField.setValue(data);
+        } catch (Exception ignored) { }
+    }
+
+    private static void setCurrency(String name, ComboBox<Currency> currencyField1) {
+        try {
+            var json = Context.profile.json;
+            currencyField1.setValue(Currency.valueOf(json.getAsJsonPrimitive(name).getAsString()));
+        } catch (Exception ignored) { }
     }
 }

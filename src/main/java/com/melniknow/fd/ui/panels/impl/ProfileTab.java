@@ -80,6 +80,7 @@ public class ProfileTab implements IPanel {
             settingTab.setDisable(true);
             currencyTab.setDisable(true);
             bookmakersTab.setDisable(true);
+            runButton.setDisable(true);
 
             setting = settingTab;
             currency = currencyTab;
@@ -105,6 +106,10 @@ public class ProfileTab implements IPanel {
             pane.getTabs().addAll(setting, currency, bookmakers, sessionTab, forksTab);
 
             Controller.setting.setDisable(false);
+
+            Context.parserParams = null;
+            Context.betsParams.clear();
+            Context.screenManager.clear();
         });
 
         return new ScrollPane(grid);

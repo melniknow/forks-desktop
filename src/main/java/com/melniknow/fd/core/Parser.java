@@ -23,7 +23,9 @@ public class Parser {
     public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
-                               List<BetType> types, BigDecimal forkLive, List<Sports> sports) { }
+                               List<BetType> types, BigDecimal forkLive, List<Sports> sports,
+                               BigDecimal pauseAfterSuccess, BigDecimal maxMinus,
+                               BigDecimal countFork, boolean isRepeatFork) { }
 
     public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet,
                           String BK_href,
@@ -31,52 +33,53 @@ public class Parser {
                           JsonObject BK_market_meta, JsonObject BK_event_meta,
                           String BK_event_native_id) { }
 
-    public record Fork(String forkId, BigDecimal income, Sports sport, int isMiddles, BetType betType,
-                       BetInfo betInfo1, BetInfo betInfo2) { }
+    public record Fork(String forkId, BigDecimal income, BigDecimal eventId, Sports sport,
+                       int isMiddles, BetType betType, BetInfo betInfo1, BetInfo betInfo2) { }
 
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-        var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
-            .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
-            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
-            .addParameter("is_middles", Integer.toString(params.middles))
-            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
-            .addParameter("min_cf", params.minCf.toPlainString())
-            .addParameter("max_cf", params.maxCf.toPlainString())
-            .addParameter("min_fi", params.minFi.toPlainString())
-            .addParameter("max_fi", params.maxFi.toPlainString())
-            .addParameter("alive_sec", params.forkLive.toPlainString())
-            .addParameter("token", oddscorpToken)
-            .toUri();
-
-        var stringForks = "";
-
-        var timeout = 2;
-
-        var config = RequestConfig.custom()
-            .setConnectTimeout(timeout * 1000)
-            .setConnectionRequestTimeout(timeout * 1000)
-            .setSocketTimeout(timeout * 1000).build();
-
-        try (var httpClient = HttpClientBuilder.create()
-            .setDefaultRequestConfig(config)
-            .build()) {
-            var request = new HttpGet(url);
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    return null;
-                }
-                var entity = response.getEntity();
-                if (entity != null) {
-                    stringForks = EntityUtils.toString(entity);
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        var jsonParser = JsonParser.parseString(stringForks);
+//        var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
+//            .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
+//            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
+//            .addParameter("is_middles", Integer.toString(params.middles))
+//            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
+//            .addParameter("min_cf", params.minCf.toPlainString())
+//            .addParameter("max_cf", params.maxCf.toPlainString())
+//            .addParameter("min_fi", params.minFi.toPlainString())
+//            .addParameter("max_fi", params.maxFi.toPlainString())
+//            .addParameter("alive_sec", params.forkLive.toPlainString())
+//            .addParameter("token", oddscorpToken)
+//            .toUri();
+//
+//        var stringForks = "";
+//
+//        var timeout = 2;
+//
+//        var config = RequestConfig.custom()
+//            .setConnectTimeout(timeout * 1000)
+//            .setConnectionRequestTimeout(timeout * 1000)
+//            .setSocketTimeout(timeout * 1000).build();
+//
+//        try (var httpClient = HttpClientBuilder.create()
+//            .setDefaultRequestConfig(config)
+//            .build()) {
+//            var request = new HttpGet(url);
+//            try (CloseableHttpResponse response = httpClient.execute(request)) {
+//                if (response.getStatusLine().getStatusCode() != 200) {
+//                    return null;
+//                }
+//                var entity = response.getEntity();
+//                if (entity != null) {
+//                    stringForks = EntityUtils.toString(entity);
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        var jsonParser = JsonParser.parseString(stringForks);
+        var jsonParser = JsonParser.parseString(FakeServer.get());
 
         var forks = new ArrayList<Fork>();
         if (!jsonParser.isJsonArray()) return null;
@@ -101,6 +104,7 @@ public class Parser {
         return new Fork(
             forkObject.get("fork_id").getAsString(),
             forkObject.get("income").getAsBigDecimal(),
+            forkObject.get("event_id").getAsBigDecimal(),
             Sports.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
             Integer.parseInt(forkObject.get("is_middles").getAsString()),
             BetType.valueOf(forkObject.get("bet_type").getAsString()),

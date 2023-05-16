@@ -28,6 +28,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileTextCheck;
+
 public class CurrencyPanel implements IPanel {
     @Override
     public ScrollPane getNode() {
@@ -59,6 +61,7 @@ public class CurrencyPanel implements IPanel {
         var usd = new Label("Доллар *");
         grid.add(usd, 0, y);
         var usdField = new TextField();
+        profileTextCheck("usdField", usdField);
         usdField.setPrefHeight(40);
         usdField.setPromptText("USD");
         grid.add(usdField, 1, y++);
@@ -66,6 +69,7 @@ public class CurrencyPanel implements IPanel {
         var eur = new Label("Евро *");
         grid.add(eur, 0, y);
         var eurField = new TextField();
+        profileTextCheck("eurField", eurField);
         eurField.setPrefHeight(40);
         eurField.setPromptText("EUR");
         grid.add(eurField, 1, y++);
@@ -73,6 +77,7 @@ public class CurrencyPanel implements IPanel {
         var thb = new Label("Таиландский бат *");
         grid.add(thb, 0, y);
         var thbField = new TextField();
+        profileTextCheck("thbField", thbField);
         thbField.setPrefHeight(40);
         thbField.setPromptText("THB");
         grid.add(thbField, 1, y++);
@@ -156,6 +161,12 @@ public class CurrencyPanel implements IPanel {
             res.put(Currency.USD, new BigDecimal(usd));
             res.put(Currency.EUR, new BigDecimal(eur));
             res.put(Currency.THB, new BigDecimal(tnb));
+
+            var json = Context.profile.json;
+            json.addProperty("usdField", usd);
+            json.addProperty("eurField", eur);
+            json.addProperty("thbField", tnb);
+            Context.profile.save();
 
             Context.currencyToRubCourse = res;
 

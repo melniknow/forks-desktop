@@ -73,6 +73,30 @@ public class SettingPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
+        var pauseAfterSuccess = new Label("Пауза после успешно проставленной вилки *");
+        grid.add(pauseAfterSuccess, 0, y);
+        var pauseAfterSuccessField = new TextField();
+        profileTextCheck("pauseAfterSuccessField", pauseAfterSuccessField);
+        pauseAfterSuccessField.setPromptText("3");
+        pauseAfterSuccessField.setPrefHeight(40);
+        grid.add(pauseAfterSuccessField, 1, y++);
+
+        var maxMinus = new Label("Максимальный минус при перекрытии (%) *");
+        grid.add(maxMinus, 0, y);
+        var maxMinusField = new TextField();
+        profileTextCheck("maxMinusField", maxMinusField);
+        maxMinusField.setPromptText("6");
+        maxMinusField.setPrefHeight(40);
+        grid.add(maxMinusField, 1, y++);
+
+        var countFork = new Label("Максимальное количество вилок в одном событии *");
+        grid.add(countFork, 0, y);
+        var countForkField = new TextField();
+        profileTextCheck("countForkField", countForkField);
+        countForkField.setPromptText("6");
+        countForkField.setPrefHeight(40);
+        grid.add(countForkField, 1, y++);
+
         var bookmakers = new Label("Букмекеры *");
         grid.add(bookmakers, 0, y);
         var pinnacle = new CheckBox("PINNACLE");
@@ -167,7 +191,6 @@ public class SettingPanel implements IPanel {
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
         saveButton.setOnAction(event -> {
-            Context.isRepeatFork = isRepeatForkCheckBox.isSelected();
             var bookmakersData = new ArrayList<CheckBox>() {{
                 add(pinnacle);
                 add(_188Bet);
@@ -200,7 +223,9 @@ public class SettingPanel implements IPanel {
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 typesBetData.stream().noneMatch(CheckBox::isSelected) ||
-                forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected)) {
+                forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
+                pauseAfterSuccessField.getText().isEmpty() || maxMinusField.getText().isEmpty() ||
+                countForkField.getText().isEmpty()) {
 
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
@@ -227,7 +252,11 @@ public class SettingPanel implements IPanel {
                     bookmakersParse,
                     typesBetParse,
                     new BigDecimal(forkLiveField.getText()),
-                    sportsType
+                    sportsType,
+                    new BigDecimal(pauseAfterSuccessField.getText()),
+                    new BigDecimal(maxMinusField.getText()),
+                    new BigDecimal(countForkField.getText()),
+                    isRepeatForkCheckBox.isSelected()
                 );
 
                 if (!noChangeBookmakers) {
@@ -245,6 +274,9 @@ public class SettingPanel implements IPanel {
             json.addProperty("maximumField", maximumField.getText());
             json.addProperty("minimumRatioField", minimumRatioField.getText());
             json.addProperty("maximumRatioField", maximumRatioField.getText());
+            json.addProperty("pauseAfterSuccessField", pauseAfterSuccessField.getText());
+            json.addProperty("maxMinusField", maxMinusField.getText());
+            json.addProperty("countForkField", countForkField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());
             json.addProperty("_188Bet", _188Bet.isSelected());
             json.addProperty("bet365", bet365.isSelected());
@@ -275,18 +307,20 @@ public class SettingPanel implements IPanel {
 
         return new ScrollPane(grid);
     }
-    private void profileTextCheck(String name, TextField field) {
+    public static void profileTextCheck(String name, TextField field) {
         try {
             var json = Context.profile.json;
-            field.setText(json.getAsJsonPrimitive(name).getAsString());
-        } catch (NullPointerException | JsonParseException ignored) { }
+            var data = json.getAsJsonPrimitive(name).getAsString();
+            if (data != null)
+                field.setText(data);
+        } catch (Exception ignored) { }
     }
 
-    private void profileBooleanCheck(String name, CheckBox checkBox) {
+    public static void profileBooleanCheck(String name, CheckBox checkBox) {
         try {
             var json = Context.profile.json;
             checkBox.setSelected(json.getAsJsonPrimitive(name).getAsBoolean());
-        } catch (NullPointerException | JsonParseException ignored) { }
+        } catch (Exception ignored) { }
     }
 }
 

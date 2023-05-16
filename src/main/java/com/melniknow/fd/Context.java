@@ -21,7 +21,6 @@ public class Context {
     public static volatile ExecutorService parsingPool = Executors.newCachedThreadPool();
     public static final ScreenManager screenManager = new ScreenManager();
     public static volatile Profile profile;
-    public static volatile boolean isRepeatFork = false;
 
     public static final LoadingCache<String, Parser.Fork> forksCache = CacheBuilder.newBuilder()
         .expireAfterAccess(30, TimeUnit.MINUTES)

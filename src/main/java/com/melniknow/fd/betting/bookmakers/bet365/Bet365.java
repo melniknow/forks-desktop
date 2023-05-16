@@ -14,7 +14,7 @@ public class Bet365 implements IBookmaker {
     }
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
-        return null;
+        return BigDecimal.valueOf(10000L);
     }
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
@@ -22,6 +22,6 @@ public class Bet365 implements IBookmaker {
     }
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
-        return null;
+        return info.BK_cf();
     }
 }

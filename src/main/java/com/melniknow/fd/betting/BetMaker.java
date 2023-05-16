@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
-        var executor = Executors.newFixedThreadPool(8);
+        var executor = Executors.newFixedThreadPool(2);
 
         System.out.println(calculated);
 
@@ -111,6 +111,8 @@ public class BetMaker {
             }
 
             executor.shutdownNow();
+
+            Context.forksCache.put(calculated.fork().forkId(), calculated.fork());
 
             System.out.println("RealCf1 = " + realCf1);
             System.out.println("RealCf2 = " + realCf2);

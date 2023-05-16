@@ -28,13 +28,13 @@ public class ScreenManager {
     }
 
     public synchronized void createScreenForBookmaker(Bookmaker bookmaker) {
+        if (bookmaker.isApi) return;
+
         var params = Context.betsParams.get(bookmaker);
         var link = params.link();
 
         Context.parsingPool.execute(() -> {
             try {
-                if (bookmaker.isApi) return;
-
                 var options = new ChromeOptions();
                 options.addArguments("--remote-allow-origins=*");
                 options.addArguments("ignore-certificate-errors");
@@ -68,6 +68,7 @@ public class ScreenManager {
                 }
 
                 var driver = new ChromeDriver(options);
+                screenStorage.put(bookmaker, driver);
 
                 if (!params.proxyIp().isEmpty()) {
                     driver.get("chrome-extension://hjocpjdeacglfchomobaagbmipeggnjg/options.html");
@@ -93,11 +94,9 @@ public class ScreenManager {
                 driver.manage().window().setSize(dimension);
                 driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 
-                screenStorage.put(bookmaker, driver);
-
                 driver.get(link);
             } catch (Exception e) {
-                Logger.writeToLogSession(e.getMessage() + " Бот не смог открыть ссылку - " + link);
+                Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
             }
         });
     }
