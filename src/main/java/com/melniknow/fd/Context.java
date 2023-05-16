@@ -3,6 +3,7 @@ package com.melniknow.fd;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.melniknow.fd.advanced.Rule;
 import com.melniknow.fd.betting.ScreenManager;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
@@ -21,6 +22,7 @@ public class Context {
     public static volatile ConcurrentMap<Sport, ArrayList<BetType>> sportToBetTypes = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Currency, BigDecimal> currencyToRubCourse = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Bookmaker, BetUtils.BetsParams> betsParams = new ConcurrentHashMap<>();
+    public static volatile ConcurrentMap<Bookmaker, ArrayList<Rule>> rulesForBookmaker = new ConcurrentHashMap<>();
     public static volatile ExecutorService botPool = Executors.newSingleThreadExecutor();
     public static volatile ExecutorService parsingPool = Executors.newCachedThreadPool();
     public static final ScreenManager screenManager = new ScreenManager();

@@ -74,7 +74,7 @@ public class SettingPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
-        var pauseAfterSuccess = new Label("Пауза после успешно проставленной вилки *");
+        var pauseAfterSuccess = new Label("Пауза после успешно проставленной вилки (сек) *");
         grid.add(pauseAfterSuccess, 0, y);
         var pauseAfterSuccessField = new TextField();
         profileTextCheck("pauseAfterSuccessField", pauseAfterSuccessField);
@@ -199,6 +199,7 @@ public class SettingPanel implements IPanel {
             var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sport.valueOf(n.getText().toUpperCase())).toList();
             var json = Context.profile.json;
             Context.sportToBetTypes.clear();
+            var isError = false;
 
             for (Sport sport_ : Sport.values()) {
                 if (!sportsType.contains(sport_)) continue;
@@ -242,12 +243,13 @@ public class SettingPanel implements IPanel {
                 json.addProperty(sport + "setHandicap", isSetHandicap);
                 if (isSetHandicap) data.add(BetType.SET_HANDICAP);
 
+                if (data.isEmpty()) isError = true;
                 Context.sportToBetTypes.put(sport_, data);
             }
 
             try {
                 var middlesParse = Integer.parseInt(middlesField.getText());
-                if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
+                if (middlesParse > 1 || middlesParse < -1 || isError) throw new RuntimeException();
 
                 var setBetTypes = new HashSet<BetType>();
 
@@ -312,8 +314,6 @@ public class SettingPanel implements IPanel {
             json.addProperty("isRepeatForkCheckBox", isRepeatForkCheckBox.isSelected());
 
             Context.profile.save();
-
-            PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             Controller.currency.setDisable(false);
         });
 

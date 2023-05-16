@@ -100,7 +100,6 @@ public class CurrencyPanel implements IPanel {
 
         saveButton.setOnAction(event -> {
             if (updateCurrencyValue(usdField.getText(), eurField.getText(), thbField.getText())) {
-                PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
                 Controller.bookmakers.setDisable(false);
             } else
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");

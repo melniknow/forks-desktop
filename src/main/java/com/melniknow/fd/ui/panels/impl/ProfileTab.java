@@ -45,6 +45,7 @@ public class ProfileTab implements IPanel {
         var profile = new Label("Введите имя профиля");
         grid.add(profile, 0, y);
         var profileField = new TextField();
+        profileField.setText("aa");
         profileField.setPrefHeight(40);
         profileField.setPromptText("MyProfile");
         grid.add(profileField, 1, y++);

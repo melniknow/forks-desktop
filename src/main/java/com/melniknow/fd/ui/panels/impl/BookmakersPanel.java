@@ -1,9 +1,11 @@
 package com.melniknow.fd.ui.panels.impl;
 
-import com.google.gson.JsonParseException;
 import com.melniknow.fd.Context;
+import com.melniknow.fd.advanced.Rule;
+import com.melniknow.fd.advanced.RuleType;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
+import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.utils.BetUtils;
@@ -21,7 +23,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileBooleanCheck;
 import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileTextCheck;
 
 public class BookmakersPanel implements IPanel {
@@ -159,11 +165,71 @@ public class BookmakersPanel implements IPanel {
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);
 
+        var rules = new Label("Правила и исключения спорта");
+        grid.add(rules, 0, y);
+        var nameRulesField = new TextField();
+        nameRulesField.setPrefHeight(40);
+        nameRulesField.setPromptText("Имя правила");
+        grid.add(nameRulesField, 1, y, 1, 1);
+        var sportRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(Sport.values()).map(Enum::name).toList()));
+        sportRulesField.setPrefHeight(40);
+        grid.add(sportRulesField, 2, y++, 1, 1);
+        var typeRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(RuleType.values()).map(Enum::name).toList()));
+        typeRulesField.setPrefHeight(40);
+        grid.add(typeRulesField, 1, y, 1, 1);
+        var isExceptionField = new CheckBox("Исключение");
+        profileBooleanCheck(bookmaker.name() + "isExceptionField", isExceptionField);
+        grid.add(isExceptionField, 2, y++, 1, 1);
+
+        var addButton = new Button("Добавить правило");
+        addButton.setPrefHeight(40);
+        addButton.setDefaultButton(true);
+        addButton.setPrefWidth(250);
+        grid.add(addButton, 2, y, 2, 1);
+
         var saveButton = new Button("Сохранить данные " + bookmaker.nameInAPI);
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(250);
         grid.add(saveButton, 0, ++y, 2, 1);
+
+        AtomicInteger finalY = new AtomicInteger(y);
+        addButton.setOnAction(event -> {
+            try {
+                if (nameRulesField.getText().isEmpty() || sportRulesField.getValue() == null ||
+                    typeRulesField.getValue() == null) throw new RuntimeException();
+
+                var rule = new Rule(nameRulesField.getText(), Sport.valueOf(sportRulesField.getValue()),
+                    RuleType.valueOf(typeRulesField.getValue()), isExceptionField.isSelected());
+
+                var array = Context.rulesForBookmaker.get(bookmaker);
+                if (array == null) Context.rulesForBookmaker.put(bookmaker, new ArrayList<>() {{
+                    add(rule);
+                }});
+                else {
+                    for (Rule rule1 : array) {
+                        if (rule1.name().equals(rule.name())) throw new RuntimeException();
+                    }
+                    array.add(rule);
+                }
+
+                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type() + " " +
+                    (rule.isException() ? "Исключение" : "Правило"));
+
+                delButton.setOnAction(ev -> {
+                    Context.rulesForBookmaker.get(bookmaker).remove(rule);
+                    grid.getChildren().remove(delButton);
+                    System.out.println(Context.rulesForBookmaker);
+                });
+
+                grid.add(delButton, 2, finalY.getAndIncrement(), 1, 1);
+                System.out.println(Context.rulesForBookmaker);
+            } catch (Exception e) {
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка добавления правила");
+            }
+        });
+
+
         GridPane.setHalignment(saveButton, HPos.CENTER);
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
@@ -202,8 +268,6 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "screenSizeField", screenSizeField.getValue());
 
                 Context.profile.save();
-
-                PanelUtils.showSuccessAlert(grid.getScene().getWindow(), "Все настройки сохранены!");
             } catch (Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);

@@ -12,13 +12,4 @@ public class PanelUtils {
         alert.initOwner(owner);
         alert.show();
     }
-
-    public static void showSuccessAlert(Window owner, String text) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("");
-        alert.setHeaderText(null);
-        alert.setContentText(text);
-        alert.initOwner(owner);
-        alert.show();
-    }
 }

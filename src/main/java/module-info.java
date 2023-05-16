@@ -30,4 +30,5 @@ module com.melniknow.fd {
     exports com.melniknow.fd.betting.bookmakers._188bet;
     exports com.melniknow.fd.betting.bookmakers.pinnacle;
     exports com.melniknow.fd.profile;
+    exports com.melniknow.fd.advanced;
 }
