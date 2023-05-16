@@ -1,6 +1,6 @@
 package com.melniknow.fd.domain;
 
-public enum Sports {
+public enum Sport {
     SOCCER,
     TENNIS,
     BASKETBALL,

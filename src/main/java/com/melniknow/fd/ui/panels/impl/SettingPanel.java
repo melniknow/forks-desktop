@@ -1,11 +1,10 @@
 package com.melniknow.fd.ui.panels.impl;
 
-import com.google.gson.JsonParseException;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
 import com.melniknow.fd.utils.PanelUtils;
@@ -19,9 +18,11 @@ import javafx.scene.layout.Priority;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class SettingPanel implements IPanel {
+    private final HashMap<String, CheckBox> sportAndBetTypeToCheckbox = new HashMap<>();
     @Override
     public ScrollPane getNode() {
         var grid = new GridPane();
@@ -34,7 +35,7 @@ public class SettingPanel implements IPanel {
         ColumnConstraints columnOneConstraints = new ColumnConstraints(550, 550, Double.MAX_VALUE);
         columnOneConstraints.setHalignment(HPos.RIGHT);
 
-        ColumnConstraints columnTwoConstrains = new ColumnConstraints(550, 550, Double.MAX_VALUE);
+        ColumnConstraints columnTwoConstrains = new ColumnConstraints(100, 100, Double.MAX_VALUE);
         columnTwoConstrains.setHgrow(Priority.ALWAYS);
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
@@ -117,36 +118,6 @@ public class SettingPanel implements IPanel {
         middlesField.setPrefHeight(40);
         grid.add(middlesField, 1, y++);
 
-        var typesBet = new Label("Виды ставок *");
-        grid.add(typesBet, 0, y);
-        var wins = new CheckBox("WIN");
-        profileBooleanCheck("wins", wins);
-        grid.add(wins, 1, y++);
-        var setWin = new CheckBox("SET_WIN");
-        profileBooleanCheck("setWin", setWin);
-        grid.add(setWin, 1, y++);
-        var halfWin = new CheckBox("HALF_WIN");
-        profileBooleanCheck("halfWin", halfWin);
-        grid.add(halfWin, 1, y++);
-        var totals = new CheckBox("TOTALS");
-        profileBooleanCheck("totals", totals);
-        grid.add(totals, 1, y++);
-        var setTotals = new CheckBox("SET_TOTALS");
-        profileBooleanCheck("setTotals", setTotals);
-        grid.add(setTotals, 1, y++);
-        var halfTotals = new CheckBox("HALF_TOTALS");
-        profileBooleanCheck("halfTotals", halfTotals);
-        grid.add(halfTotals, 1, y++);
-        var handicaps = new CheckBox("HANDICAP");
-        profileBooleanCheck("handicaps", handicaps);
-        grid.add(handicaps, 1, y++);
-        var halfHandicap = new CheckBox("HALF_HANDICAP");
-        profileBooleanCheck("halfHandicap", halfHandicap);
-        grid.add(halfHandicap, 1, y++);
-        var setHandicap = new CheckBox("SET_HANDICAP");
-        profileBooleanCheck("setHandicap", setHandicap);
-        grid.add(setHandicap, 1, y++);
-
         var forkLive = new Label("Минимальное время жизни вилки (сек) *");
         grid.add(forkLive, 0, y);
         var forkLiveField = new TextField();
@@ -155,26 +126,33 @@ public class SettingPanel implements IPanel {
         forkLiveField.setPrefHeight(40);
         grid.add(forkLiveField, 1, y++);
 
-        var sports = new Label("Виды спорта *");
+        var sports = new Label("Вид спорта *");
         grid.add(sports, 0, y);
         var soccer = new CheckBox("Soccer");
         profileBooleanCheck("soccer", soccer);
         grid.add(soccer, 1, y++);
+        y = viewTypesForSport("soccer", grid, y);
+
         var tennis = new CheckBox("Tennis");
         profileBooleanCheck("tennis", tennis);
         grid.add(tennis, 1, y++);
+        y = viewTypesForSport("tennis", grid, y);
         var basketball = new CheckBox("Basketball");
         profileBooleanCheck("basketball", basketball);
         grid.add(basketball, 1, y++);
+        y = viewTypesForSport("basketball", grid, y);
         var volleyball = new CheckBox("Volleyball");
         profileBooleanCheck("volleyball", volleyball);
         grid.add(volleyball, 1, y++);
+        y = viewTypesForSport("volleyball", grid, y);
         var handball = new CheckBox("Handball");
         profileBooleanCheck("handball", handball);
         grid.add(handball, 1, y++);
+        y = viewTypesForSport("handball", grid, y);
         var hockey = new CheckBox("Hockey");
         profileBooleanCheck("hockey", hockey);
         grid.add(hockey, 1, y++);
+        y = viewTypesForSport("hockey", grid, y);
 
         var isRepeatFork = new Label("Повтор вилок");
         grid.add(isRepeatFork, 0, y);
@@ -186,7 +164,7 @@ public class SettingPanel implements IPanel {
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
         saveButton.setPrefWidth(150);
-        grid.add(saveButton, 0, ++y, 2, 1);
+        grid.add(saveButton, 1, ++y, 2, 1);
         GridPane.setHalignment(saveButton, HPos.CENTER);
         GridPane.setMargin(saveButton, new Insets(20, 0, 20, 0));
 
@@ -195,18 +173,6 @@ public class SettingPanel implements IPanel {
                 add(pinnacle);
                 add(_188Bet);
                 add(bet365);
-            }};
-
-            var typesBetData = new ArrayList<CheckBox>() {{
-                add(wins);
-                add(setWin);
-                add(halfWin);
-                add(totals);
-                add(setTotals);
-                add(halfTotals);
-                add(handicaps);
-                add(setHandicap);
-                add(halfHandicap);
             }};
 
             var sportsData = new ArrayList<CheckBox>() {{
@@ -222,7 +188,6 @@ public class SettingPanel implements IPanel {
                 minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() ||
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
-                typesBetData.stream().noneMatch(CheckBox::isSelected) ||
                 forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
                 pauseAfterSuccessField.getText().isEmpty() || maxMinusField.getText().isEmpty() ||
                 countForkField.getText().isEmpty()) {
@@ -231,14 +196,71 @@ public class SettingPanel implements IPanel {
                 return;
             }
 
+            var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sport.valueOf(n.getText().toUpperCase())).toList();
+            var json = Context.profile.json;
+            Context.sportToBetTypes.clear();
+
+            for (Sport sport_ : Sport.values()) {
+                if (!sportsType.contains(sport_)) continue;
+
+                var sport = sport_.name().toLowerCase();
+                var data = new ArrayList<BetType>();
+
+                var isWins = sportAndBetTypeToCheckbox.get(sport + "wins").isSelected();
+                json.addProperty(sport + "wins", isWins);
+                if (isWins) data.add(BetType.WIN);
+
+                var isSetWin = sportAndBetTypeToCheckbox.get(sport + "setWin").isSelected();
+                json.addProperty(sport + "setWin", isSetWin);
+                if (isSetWin) data.add(BetType.SET_WIN);
+
+                var isHalfWin = sportAndBetTypeToCheckbox.get(sport + "halfWin").isSelected();
+                json.addProperty(sport + "halfWin", isHalfWin);
+                if (isHalfWin) data.add(BetType.HALF_WIN);
+
+                var isTotals = sportAndBetTypeToCheckbox.get(sport + "totals").isSelected();
+                json.addProperty(sport + "totals", isTotals);
+                if (isTotals) data.add(BetType.TOTALS);
+
+                var isSetTotals = sportAndBetTypeToCheckbox.get(sport + "setTotals").isSelected();
+                json.addProperty(sport + "setTotals", isSetTotals);
+                if (isSetTotals) data.add(BetType.SET_TOTALS);
+
+                var isHalfTotals = sportAndBetTypeToCheckbox.get(sport + "halfTotals").isSelected();
+                json.addProperty(sport + "halfTotals", isHalfTotals);
+                if (isHalfTotals) data.add(BetType.HALF_TOTALS);
+
+                var isHandicap = sportAndBetTypeToCheckbox.get(sport + "handicaps").isSelected();
+                json.addProperty(sport + "handicaps", isHandicap);
+                if (isHandicap) data.add(BetType.HANDICAP);
+
+                var isHalfHandicap = sportAndBetTypeToCheckbox.get(sport + "halfHandicap").isSelected();
+                json.addProperty(sport + "halfHandicap", isHalfHandicap);
+                if (isHalfHandicap) data.add(BetType.HALF_HANDICAP);
+
+                var isSetHandicap = sportAndBetTypeToCheckbox.get(sport + "setHandicap").isSelected();
+                json.addProperty(sport + "setHandicap", isSetHandicap);
+                if (isSetHandicap) data.add(BetType.SET_HANDICAP);
+
+                Context.sportToBetTypes.put(sport_, data);
+            }
+
             try {
                 var middlesParse = Integer.parseInt(middlesField.getText());
                 if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
-                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
-                var typesBetParse = typesBetData.stream().filter(CheckBox::isSelected).map(n -> BetType.valueOf(n.getText().toUpperCase())).toList();
-                var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sports.valueOf(n.getText().toUpperCase())).toList();
+                var setBetTypes = new HashSet<BetType>();
 
+                for (Sport sport : Context.sportToBetTypes.keySet()) {
+                    setBetTypes.addAll(Context.sportToBetTypes.get(sport));
+                }
+
+                if (setBetTypes.isEmpty()) throw new RuntimeException();
+
+                var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
+                System.out.println(sportsType);
+                System.out.println(setBetTypes.stream().toList());
+                System.out.println(Context.sportToBetTypes);
                 var noChangeBookmakers = Context.parserParams != null &&
                     new HashSet<>(Context.parserParams.bookmakers()).containsAll(bookmakersParse) &&
                     new HashSet<>(bookmakersParse).containsAll(Context.parserParams.bookmakers());
@@ -250,7 +272,7 @@ public class SettingPanel implements IPanel {
                     new BigDecimal(maximumRatioField.getText()),
                     middlesParse,
                     bookmakersParse,
-                    typesBetParse,
+                    setBetTypes.stream().toList(),
                     new BigDecimal(forkLiveField.getText()),
                     sportsType,
                     new BigDecimal(pauseAfterSuccessField.getText()),
@@ -269,7 +291,6 @@ public class SettingPanel implements IPanel {
                 return;
             }
 
-            var json = Context.profile.json;
             json.addProperty("minimumField", minimumField.getText());
             json.addProperty("maximumField", maximumField.getText());
             json.addProperty("minimumRatioField", minimumRatioField.getText());
@@ -281,15 +302,6 @@ public class SettingPanel implements IPanel {
             json.addProperty("_188Bet", _188Bet.isSelected());
             json.addProperty("bet365", bet365.isSelected());
             json.addProperty("middlesField", middlesField.getText());
-            json.addProperty("wins", wins.isSelected());
-            json.addProperty("setWin", setWin.isSelected());
-            json.addProperty("halfWin", halfWin.isSelected());
-            json.addProperty("totals", totals.isSelected());
-            json.addProperty("setTotals", setTotals.isSelected());
-            json.addProperty("halfTotals", halfTotals.isSelected());
-            json.addProperty("handicaps", handicaps.isSelected());
-            json.addProperty("halfHandicap", halfHandicap.isSelected());
-            json.addProperty("setHandicap", setHandicap.isSelected());
             json.addProperty("forkLiveField", forkLiveField.getText());
             json.addProperty("soccer", soccer.isSelected());
             json.addProperty("tennis", tennis.isSelected());
@@ -306,6 +318,43 @@ public class SettingPanel implements IPanel {
         });
 
         return new ScrollPane(grid);
+    }
+    private int viewTypesForSport(String sport, GridPane grid, int y) {
+        var wins = new CheckBox("WIN");
+        profileBooleanCheckAndPutHashMAp(sport + "wins", wins);
+        grid.add(wins, 2, y++);
+        var setWin = new CheckBox("SET_WIN");
+        profileBooleanCheckAndPutHashMAp(sport + "setWin", setWin);
+        grid.add(setWin, 2, y++);
+        var halfWin = new CheckBox("HALF_WIN");
+        profileBooleanCheckAndPutHashMAp(sport + "halfWin", halfWin);
+        grid.add(halfWin, 2, y++);
+        var totals = new CheckBox("TOTALS");
+        profileBooleanCheckAndPutHashMAp(sport + "totals", totals);
+        grid.add(totals, 2, y++);
+        var setTotals = new CheckBox("SET_TOTALS");
+        profileBooleanCheckAndPutHashMAp(sport + "setTotals", setTotals);
+        grid.add(setTotals, 2, y++);
+        var halfTotals = new CheckBox("HALF_TOTALS");
+        profileBooleanCheckAndPutHashMAp(sport + "halfTotals", halfTotals);
+        grid.add(halfTotals, 2, y++);
+        var handicaps = new CheckBox("HANDICAP");
+        profileBooleanCheckAndPutHashMAp(sport + "handicaps", handicaps);
+        grid.add(handicaps, 2, y++);
+        var halfHandicap = new CheckBox("HALF_HANDICAP");
+        profileBooleanCheckAndPutHashMAp(sport + "halfHandicap", halfHandicap);
+        grid.add(halfHandicap, 2, y++);
+        var setHandicap = new CheckBox("SET_HANDICAP");
+        profileBooleanCheckAndPutHashMAp(sport + "setHandicap", setHandicap);
+        grid.add(setHandicap, 2, y++);
+        return y;
+    }
+    private void profileBooleanCheckAndPutHashMAp(String name, CheckBox checkBox) {
+        sportAndBetTypeToCheckbox.put(name, checkBox);
+        try {
+            var json = Context.profile.json;
+            checkBox.setSelected(json.getAsJsonPrimitive(name).getAsBoolean());
+        } catch (Exception ignored) { }
     }
     public static void profileTextCheck(String name, TextField field) {
         try {

@@ -10,9 +10,8 @@ import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
-import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.domain.Sport;
 import io.mikael.urlbuilder.UrlBuilder;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -41,7 +40,7 @@ public class Pinnacle implements IBookmaker {
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) { }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
 //        var bookmakerData = Context.betsParams.get(bookmaker);
 //        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
 //

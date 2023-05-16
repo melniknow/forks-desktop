@@ -5,16 +5,20 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.melniknow.fd.betting.ScreenManager;
 import com.melniknow.fd.core.Parser;
+import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
+import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.utils.BetUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class Context {
     public static volatile Parser.ParserParams parserParams;
+    public static volatile ConcurrentMap<Sport, ArrayList<BetType>> sportToBetTypes = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Currency, BigDecimal> currencyToRubCourse = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Bookmaker, BetUtils.BetsParams> betsParams = new ConcurrentHashMap<>();
     public static volatile ExecutorService botPool = Executors.newSingleThreadExecutor();

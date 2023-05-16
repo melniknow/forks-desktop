@@ -3,7 +3,7 @@ package com.melniknow.fd.betting.bookmakers.bet365;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.domain.Sport;
 
 import java.math.BigDecimal;
 
@@ -13,7 +13,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
         return BigDecimal.valueOf(10000L);
     }
     @Override

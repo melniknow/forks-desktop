@@ -1,22 +1,15 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
-import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.domain.Sports;
+import com.melniknow.fd.domain.Sport;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 public class _188Bet implements IBookmaker {
 
@@ -54,7 +47,7 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sports sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
 //        switch (info.BK_bet_type()) {
 //            case WIN, SET_WIN, HALF_WIN ->
 //                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);

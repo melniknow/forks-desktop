@@ -4,15 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
-import com.melniknow.fd.domain.Sports;
-import io.mikael.urlbuilder.UrlBuilder;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import com.melniknow.fd.domain.Sport;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +16,7 @@ public class Parser {
     public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
-                               List<BetType> types, BigDecimal forkLive, List<Sports> sports,
+                               List<BetType> types, BigDecimal forkLive, List<Sport> sports,
                                BigDecimal pauseAfterSuccess, BigDecimal maxMinus,
                                BigDecimal countFork, boolean isRepeatFork) { }
 
@@ -33,7 +26,7 @@ public class Parser {
                           JsonObject BK_market_meta, JsonObject BK_event_meta,
                           String BK_event_native_id) { }
 
-    public record Fork(String forkId, BigDecimal income, BigDecimal eventId, Sports sport,
+    public record Fork(String forkId, BigDecimal income, BigDecimal eventId, Sport sport,
                        int isMiddles, BetType betType, BetInfo betInfo1, BetInfo betInfo2) { }
 
     public static List<Fork> getForks(ParserParams params) {
@@ -105,7 +98,7 @@ public class Parser {
             forkObject.get("fork_id").getAsString(),
             forkObject.get("income").getAsBigDecimal(),
             forkObject.get("event_id").getAsBigDecimal(),
-            Sports.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
+            Sport.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
             Integer.parseInt(forkObject.get("is_middles").getAsString()),
             BetType.valueOf(forkObject.get("bet_type").getAsString()),
             new BetInfo(forkObject.get("BK1_name").getAsString(), forkObject.get("BK1_event_id").getAsString(),
