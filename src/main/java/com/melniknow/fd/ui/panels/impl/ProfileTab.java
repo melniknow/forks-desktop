@@ -72,17 +72,22 @@ public class ProfileTab implements IPanel {
                 Context.profile.save();
             }
 
+            Context.bundleStorage.clear();
+
             var settingTab = tabConstructor("Настройки", new SettingPanel());
             var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
             var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());
+            var bundleTab_ = tabConstructor("Связки", new BundlePanel());
             var sessionTab = tabConstructor("Сессия", new SessionPanel());
             var forksTab = tabConstructor("Вилки", new ForksPanel());
 
             settingTab.setDisable(true);
             currencyTab.setDisable(true);
             bookmakersTab.setDisable(true);
+            bundleTab_.setDisable(true);
             runButton.setDisable(true);
 
+            bundleTab = bundleTab_;
             setting = settingTab;
             currency = currencyTab;
             bookmakers = bookmakersTab;
@@ -104,7 +109,7 @@ public class ProfileTab implements IPanel {
                 pane.getTabs().remove(pane.getTabs().size() - 1);
             }
 
-            pane.getTabs().addAll(setting, currency, bookmakers, sessionTab, forksTab);
+            pane.getTabs().addAll(setting, currency, bookmakers, bundleTab, sessionTab, forksTab);
 
             Controller.setting.setDisable(false);
 

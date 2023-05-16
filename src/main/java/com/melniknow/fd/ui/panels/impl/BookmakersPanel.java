@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileBooleanCheck;
 import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileTextCheck;
 
 public class BookmakersPanel implements IPanel {
@@ -169,8 +168,14 @@ public class BookmakersPanel implements IPanel {
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);
 
+        var saveButton = new Button("Сохранить данные " + bookmaker.nameInAPI);
+        saveButton.setPrefHeight(40);
+        saveButton.setDefaultButton(true);
+        saveButton.setPrefWidth(250);
+        grid.add(saveButton, 0, ++y, 2, 1);
+
         var rules = new Label("Правила и исключения спорта");
-        grid.add(rules, 0, y);
+        grid.add(rules, 0, ++y);
         var nameRulesField = new TextField();
         nameRulesField.setPrefHeight(40);
         nameRulesField.setPromptText("Имя правила");
@@ -181,23 +186,14 @@ public class BookmakersPanel implements IPanel {
         var typeRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(RuleType.values()).map(Enum::name).toList()));
         typeRulesField.setPrefHeight(40);
         grid.add(typeRulesField, 1, y, 1, 1);
-        var isExceptionField = new CheckBox("Исключение");
-        profileBooleanCheck(bookmaker.name() + "isExceptionField", isExceptionField);
-        grid.add(isExceptionField, 2, y++, 1, 1);
 
         var addButton = new Button("Добавить правило");
         addButton.setPrefHeight(40);
         addButton.setDefaultButton(true);
         addButton.setPrefWidth(250);
-        grid.add(addButton, 2, y, 2, 1);
+        grid.add(addButton, 2, y, 1, 1);
 
         y = loadRulesFromDb(grid, ++y, bookmaker);
-
-        var saveButton = new Button("Сохранить данные " + bookmaker.nameInAPI);
-        saveButton.setPrefHeight(40);
-        saveButton.setDefaultButton(true);
-        saveButton.setPrefWidth(250);
-        grid.add(saveButton, 0, ++y, 2, 1);
 
         AtomicInteger finalY = new AtomicInteger(y);
         addButton.setOnAction(event -> {
@@ -206,7 +202,7 @@ public class BookmakersPanel implements IPanel {
                     typeRulesField.getValue() == null) throw new RuntimeException();
 
                 var rule = new Rule(nameRulesField.getText(), Sport.valueOf(sportRulesField.getValue()),
-                    RuleType.valueOf(typeRulesField.getValue()), isExceptionField.isSelected());
+                    RuleType.valueOf(typeRulesField.getValue()));
 
                 var array = Context.rulesForBookmaker.get(bookmaker);
                 if (array == null) Context.rulesForBookmaker.put(bookmaker, new ArrayList<>() {{
@@ -219,8 +215,7 @@ public class BookmakersPanel implements IPanel {
                     array.add(rule);
                 }
 
-                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type() + " " +
-                    (rule.isException() ? "Исключение" : "Правило"));
+                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
@@ -229,7 +224,7 @@ public class BookmakersPanel implements IPanel {
                     System.out.println(Context.rulesForBookmaker);
                 });
 
-                grid.add(delButton, 2, finalY.getAndIncrement(), 1, 1);
+                grid.add(delButton, 1, finalY.getAndIncrement(), 1, 1);
                 rulesToJsonAndSave(Context.rulesForBookmaker);
                 System.out.println(Context.rulesForBookmaker);
             } catch (Exception e) {
@@ -255,6 +250,7 @@ public class BookmakersPanel implements IPanel {
                     loginField.getText(), passwordField.getText()));
 
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
+                Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Context.screenManager.createScreenForBookmaker(bookmaker);
@@ -294,8 +290,7 @@ public class BookmakersPanel implements IPanel {
             for (JsonElement jsonElement : array) {
                 var rule = new Rule(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
                     Sport.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("sport").getAsString()),
-                    RuleType.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("type").getAsString()),
-                    jsonElement.getAsJsonObject().getAsJsonPrimitive("isException").getAsBoolean());
+                    RuleType.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("type").getAsString()));
 
                 if (Context.rulesForBookmaker.containsKey(bookmaker)) {
                     Context.rulesForBookmaker.get(bookmaker).add(rule);
@@ -305,8 +300,7 @@ public class BookmakersPanel implements IPanel {
                     }});
                 }
 
-                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type() + " " +
-                    (rule.isException() ? "Исключение" : "Правило"));
+                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
@@ -315,7 +309,7 @@ public class BookmakersPanel implements IPanel {
                     System.out.println(Context.rulesForBookmaker);
                 });
 
-                grid.add(delButton, 2, y_++, 1, 1);
+                grid.add(delButton, 1, y_++, 1, 1);
             }
 
         } catch (Exception ignored) {
@@ -334,7 +328,6 @@ public class BookmakersPanel implements IPanel {
                 ruleObj.addProperty("name", rule.name());
                 ruleObj.addProperty("sport", rule.sport().name());
                 ruleObj.addProperty("type", rule.type().name());
-                ruleObj.addProperty("isException", rule.isException());
 
                 bookmakerObj.add(ruleObj);
             }

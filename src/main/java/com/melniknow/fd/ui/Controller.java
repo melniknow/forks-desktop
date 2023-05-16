@@ -26,6 +26,7 @@ public class Controller {
     public static Tab setting;
     public static Tab currency;
     public static Tab bookmakers;
+    public static Tab bundleTab;
     public static Button runButton;
 
     public void initialize() {
