@@ -111,6 +111,7 @@ public class ProfileTab implements IPanel {
             Context.parserParams = null;
             Context.betsParams.clear();
             Context.screenManager.clear();
+            Context.rulesForBookmaker.clear();
         });
 
         return new ScrollPane(grid);

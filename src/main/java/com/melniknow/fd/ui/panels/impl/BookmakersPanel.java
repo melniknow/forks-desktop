@@ -1,5 +1,8 @@
 package com.melniknow.fd.ui.panels.impl;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.advanced.Rule;
 import com.melniknow.fd.advanced.RuleType;
@@ -25,6 +28,7 @@ import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.melniknow.fd.ui.panels.impl.SettingPanel.profileBooleanCheck;
@@ -187,6 +191,8 @@ public class BookmakersPanel implements IPanel {
         addButton.setPrefWidth(250);
         grid.add(addButton, 2, y, 2, 1);
 
+        y = loadRulesFromDb(grid, ++y, bookmaker);
+
         var saveButton = new Button("Сохранить данные " + bookmaker.nameInAPI);
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
@@ -219,10 +225,12 @@ public class BookmakersPanel implements IPanel {
                 delButton.setOnAction(ev -> {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
                     grid.getChildren().remove(delButton);
+                    rulesToJsonAndSave(Context.rulesForBookmaker);
                     System.out.println(Context.rulesForBookmaker);
                 });
 
                 grid.add(delButton, 2, finalY.getAndIncrement(), 1, 1);
+                rulesToJsonAndSave(Context.rulesForBookmaker);
                 System.out.println(Context.rulesForBookmaker);
             } catch (Exception e) {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка добавления правила");
@@ -278,6 +286,67 @@ public class BookmakersPanel implements IPanel {
 
         return new ScrollPane(grid);
     }
+    private static int loadRulesFromDb(GridPane grid, int y, Bookmaker bookmaker) {
+        var y_ = y;
+
+        try {
+            var array = Context.profile.json.getAsJsonObject("rules").getAsJsonArray(bookmaker.name());
+            for (JsonElement jsonElement : array) {
+                var rule = new Rule(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
+                    Sport.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("sport").getAsString()),
+                    RuleType.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("type").getAsString()),
+                    jsonElement.getAsJsonObject().getAsJsonPrimitive("isException").getAsBoolean());
+
+                if (Context.rulesForBookmaker.containsKey(bookmaker)) {
+                    Context.rulesForBookmaker.get(bookmaker).add(rule);
+                } else {
+                    Context.rulesForBookmaker.put(bookmaker, new ArrayList<>() {{
+                        add(rule);
+                    }});
+                }
+
+                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type() + " " +
+                    (rule.isException() ? "Исключение" : "Правило"));
+
+                delButton.setOnAction(ev -> {
+                    Context.rulesForBookmaker.get(bookmaker).remove(rule);
+                    grid.getChildren().remove(delButton);
+                    rulesToJsonAndSave(Context.rulesForBookmaker);
+                    System.out.println(Context.rulesForBookmaker);
+                });
+
+                grid.add(delButton, 2, y_++, 1, 1);
+            }
+
+        } catch (Exception ignored) {
+        }
+
+        return y_;
+    }
+    private static void rulesToJsonAndSave(ConcurrentMap<Bookmaker, ArrayList<Rule>> rulesForBookmaker) {
+        var obj = new JsonObject();
+
+        for (Bookmaker bookmaker : rulesForBookmaker.keySet()) {
+            var bookmakerObj = new JsonArray();
+
+            for (var rule : rulesForBookmaker.get(bookmaker)) {
+                var ruleObj = new JsonObject();
+                ruleObj.addProperty("name", rule.name());
+                ruleObj.addProperty("sport", rule.sport().name());
+                ruleObj.addProperty("type", rule.type().name());
+                ruleObj.addProperty("isException", rule.isException());
+
+                bookmakerObj.add(ruleObj);
+            }
+
+            obj.add(bookmaker.name(), bookmakerObj);
+        }
+
+        Context.profile.json.add("rules", obj);
+        System.out.println(obj);
+        Context.profile.save();
+    }
+
     private static void setString(String name, ComboBox<String> screenSizeField) {
         try {
             var json = Context.profile.json;
