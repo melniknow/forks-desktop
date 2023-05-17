@@ -5,14 +5,30 @@ import com.melniknow.fd.core.Parser;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
 
-    public static CalculatedFork calculate(List<Parser.Fork> forks) {
-        if (forks == null || forks.isEmpty()) return null;
+    public static CalculatedFork calculate(List<Parser.Fork> forks_) {
+        if (forks_ == null || forks_.isEmpty()) return null;
+
+        var forks = new ArrayList<>(
+            forks_.stream()
+                .filter(fork -> {
+                    var count = Context.eventIdToCountSuccessForks.get(fork.eventId().longValue());
+                    return count == null || count < Context.parserParams.countFork().longValue();
+                })
+                .filter(fork -> {
+                    var betTypes = Context.sportToBetTypes.get(fork.sport());
+                    if (betTypes == null) return false;
+
+                    return betTypes.contains(fork.betInfo1().BK_bet_type()) && betTypes.contains(fork.betInfo2().BK_bet_type());
+                })
+                .toList()
+        );
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
@@ -26,7 +42,6 @@ public class MathUtils {
                     fork = curFork;
                     break;
                 }
-                System.out.println("skip fork with id = " + curFork.forkId());
             }
             if (fork == null) {
                 return null;

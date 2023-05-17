@@ -224,12 +224,10 @@ public class BookmakersPanel implements IPanel {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
                     grid.getChildren().remove(delButton);
                     rulesToJsonAndSave(Context.rulesForBookmaker);
-                    System.out.println(Context.rulesForBookmaker);
                 });
 
                 grid.add(delButton, 1, finalY.getAndIncrement(), 1, 1);
                 rulesToJsonAndSave(Context.rulesForBookmaker);
-                System.out.println(Context.rulesForBookmaker);
             } catch (Exception e) {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка добавления правила");
             }
@@ -309,7 +307,6 @@ public class BookmakersPanel implements IPanel {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
                     grid.getChildren().remove(delButton);
                     rulesToJsonAndSave(Context.rulesForBookmaker);
-                    System.out.println(Context.rulesForBookmaker);
                 });
 
                 grid.add(delButton, 1, y_++, 1, 1);
@@ -339,7 +336,6 @@ public class BookmakersPanel implements IPanel {
         }
 
         Context.profile.json.add("rules", obj);
-        System.out.println(obj);
         Context.profile.save();
     }
 

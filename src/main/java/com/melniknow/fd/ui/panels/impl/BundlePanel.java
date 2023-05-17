@@ -88,8 +88,6 @@ public class BundlePanel implements IPanel {
 
                 GridPane.setHalignment(delButton, HPos.CENTER);
 
-                System.out.println(bundle);
-
                 delButton.setOnAction(ev -> {
                     Context.bundleStorage.remove(bundle);
                     grid.getChildren().remove(delButton);
@@ -118,7 +116,7 @@ public class BundlePanel implements IPanel {
 
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
                     " " + (bundle.isValue() ? "Валуй" : "Не валуй"));
-                System.out.println(bundle);
+
                 delButton.setOnAction(ev -> {
                     Context.bundleStorage.remove(bundle);
                     grid.getChildren().remove(delButton);

@@ -7,11 +7,17 @@ import com.melniknow.fd.utils.MathUtils;
 import java.util.concurrent.TimeUnit;
 
 public class BotRunner implements Runnable {
+    public boolean lastDealSuccess = false;
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.MILLISECONDS.sleep(1000);
+                if (lastDealSuccess) {
+                    TimeUnit.SECONDS.sleep(Context.parserParams.pauseAfterSuccess().intValue());
+                    lastDealSuccess = false;
+                } else {
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                }
 
                 var forks = Parser.getForks(Context.parserParams);
 
@@ -26,6 +32,15 @@ public class BotRunner implements Runnable {
                         Logger.writePrettyMessageAboutFork(completed);
                         TelegramSender.send(completed);
 
+                        lastDealSuccess = true;
+
+                        var eventId = completed.calculatedFork().fork().eventId().longValue();
+                        var count = Context.eventIdToCountSuccessForks.get(eventId);
+
+                        Context.eventIdToCountSuccessForks.put(eventId, count == null ? 1 : ++count);
+
+                        System.out.println(eventId);
+                        System.out.println(Context.eventIdToCountSuccessForks);
                         System.out.println("Ставка");
                     }
                 }

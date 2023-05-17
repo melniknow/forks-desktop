@@ -62,7 +62,6 @@ public class ScreenManager {
                         Files.copy(stream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         options.addExtensions(file);
                     } catch (Exception e) {
-                        System.out.println(e.getMessage());
                         throw new RuntimeException(e);
                     }
                 }

@@ -260,9 +260,7 @@ public class SettingPanel implements IPanel {
                 if (setBetTypes.isEmpty()) throw new RuntimeException();
 
                 var bookmakersParse = bookmakersData.stream().filter(CheckBox::isSelected).map(n -> Bookmaker.valueOf(n.getText())).toList();
-                System.out.println(sportsType);
-                System.out.println(setBetTypes.stream().toList());
-                System.out.println(Context.sportToBetTypes);
+
                 var noChangeBookmakers = Context.parserParams != null &&
                     new HashSet<>(Context.parserParams.bookmakers()).containsAll(bookmakersParse) &&
                     new HashSet<>(bookmakersParse).containsAll(Context.parserParams.bookmakers());

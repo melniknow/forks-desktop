@@ -21,6 +21,7 @@ import java.util.concurrent.*;
 public class Context {
     public static volatile Parser.ParserParams parserParams;
     public static final BundleStorage bundleStorage = new BundleStorage();
+    public static volatile ConcurrentMap<Long, Long> eventIdToCountSuccessForks = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Sport, ArrayList<BetType>> sportToBetTypes = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Currency, BigDecimal> currencyToRubCourse = new ConcurrentHashMap<>();
     public static volatile ConcurrentMap<Bookmaker, BetUtils.BetsParams> betsParams = new ConcurrentHashMap<>();
