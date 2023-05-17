@@ -193,7 +193,10 @@ public class BookmakersPanel implements IPanel {
         addButton.setPrefWidth(250);
         grid.add(addButton, 2, y, 1, 1);
 
-        y = loadRulesFromDb(grid, ++y, bookmaker);
+        var list = new Label("Список правил");
+        grid.add(list, 0, ++y);
+
+        y = loadRulesFromDb(grid, y, bookmaker);
 
         AtomicInteger finalY = new AtomicInteger(y);
         addButton.setOnAction(event -> {
@@ -215,7 +218,7 @@ public class BookmakersPanel implements IPanel {
                     array.add(rule);
                 }
 
-                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type());
+                var delButton = new Button(rule.name() + "_ " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);
@@ -300,7 +303,7 @@ public class BookmakersPanel implements IPanel {
                     }});
                 }
 
-                var delButton = new Button(rule.name() + " " + rule.sport() + " " + rule.type());
+                var delButton = new Button(rule.name() + "_ " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
                     Context.rulesForBookmaker.get(bookmaker).remove(rule);

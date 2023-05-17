@@ -66,6 +66,9 @@ public class BundlePanel implements IPanel {
         GridPane.setHalignment(addButton, HPos.CENTER);
         GridPane.setMargin(addButton, new Insets(20, 0, 20, 0));
 
+        var list = new Label("Список правил");
+        grid.add(list, 0, y.get());
+
         loadRulesFromDb(grid, y);
 
         addButton.setOnAction(event -> {
@@ -83,6 +86,8 @@ public class BundlePanel implements IPanel {
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
                     " " + (bundle.isValue() ? "Валуй" : "Не валуй"));
 
+                GridPane.setHalignment(delButton, HPos.CENTER);
+
                 System.out.println(bundle);
 
                 delButton.setOnAction(ev -> {
@@ -91,7 +96,7 @@ public class BundlePanel implements IPanel {
                     Context.bundleStorage.saveToDb();
                 });
 
-                grid.add(delButton, 1, y.getAndIncrement(), 1, 1);
+                grid.add(delButton, 1, y.getAndIncrement(), 2, 1);
             } catch (Exception e) {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка добавления правила");
             }
@@ -120,7 +125,9 @@ public class BundlePanel implements IPanel {
                     Context.bundleStorage.saveToDb();
                 });
 
-                grid.add(delButton, 1, y.getAndIncrement(), 1, 1);
+                GridPane.setHalignment(delButton, HPos.CENTER);
+
+                grid.add(delButton, 1, y.getAndIncrement(), 2, 1);
             }
 
         } catch (Exception ignored) {
