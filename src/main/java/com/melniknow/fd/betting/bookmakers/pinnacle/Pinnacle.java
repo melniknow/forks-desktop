@@ -34,7 +34,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Pinnacle implements IBookmaker {
-    private static Long since = 0L;
     private BigDecimal sumBet = null;
 
     @Override
@@ -290,10 +289,11 @@ public class Pinnacle implements IBookmaker {
             .build()) {
 
             var config = RequestConfig.custom().build();
-            var url = "https://api.pinnacle.com/v1/odds?sportId=" + event.getAsJsonPrimitive("sport_id").getAsInt() +
-                "&leagueIds=" + event.getAsJsonPrimitive("league_id").getAsInt() +
-                "&oddsFormat=Decimal&since=" + since + "&isLive=true" +
-                "&eventIds=" + market.getAsJsonPrimitive("matchup_id").getAsBigInteger();
+            var url = "https://api.pinnacle.com/v1/odds?sportId=" + event.getAsJsonPrimitive("sport_id").getAsLong() +
+                "&leagueIds=" + event.getAsJsonPrimitive("league_id").getAsLong() +
+                "&oddsFormat=Decimal&isLive=true" +
+                "&eventIds=" + market.getAsJsonPrimitive("matchup_id").getAsLong();
+            System.out.println(url);
 
             var post = new HttpGet(url);
             post.setHeader(new BasicHeader(HttpHeaders.AUTHORIZATION, "Basic " + auth));
@@ -303,13 +303,14 @@ public class Pinnacle implements IBookmaker {
                 EntityUtils.toString(response.getEntity()));
 
             var jsonRoot = JsonParser.parseString(json).getAsJsonObject();
-
-            since = jsonRoot.getAsJsonPrimitive("last").getAsLong();
+            System.out.println(info.BK_market_meta());
 
             var preArray = jsonRoot
                 .getAsJsonArray("leagues").get(0).getAsJsonObject()
                 .getAsJsonArray("events").get(0).getAsJsonObject()
                 .getAsJsonArray("periods").get(0).getAsJsonObject();
+
+            System.out.println(preArray);
 
             switch (marketName) {
                 case "spreads" -> {
