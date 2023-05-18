@@ -62,7 +62,7 @@ public class SettingPanel implements IPanel {
         grid.add(minimumRatio, 0, y);
         var minimumRatioField = new TextField();
         profileTextCheck("minimumRatioField", minimumRatioField);
-        minimumRatioField.setPromptText("Минимальный коэффициент");
+        minimumRatioField.setPromptText("1");
         minimumRatioField.setPrefHeight(40);
         grid.add(minimumRatioField, 1, y++);
 
@@ -70,7 +70,7 @@ public class SettingPanel implements IPanel {
         grid.add(maximumRatio, 0, y);
         var maximumRatioField = new TextField();
         profileTextCheck("maximumRatioField", maximumRatioField);
-        maximumRatioField.setPromptText("Максимальный коэффициент");
+        maximumRatioField.setPromptText("100");
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
@@ -81,14 +81,6 @@ public class SettingPanel implements IPanel {
         pauseAfterSuccessField.setPromptText("3");
         pauseAfterSuccessField.setPrefHeight(40);
         grid.add(pauseAfterSuccessField, 1, y++);
-
-        var maxMinus = new Label("Максимальный минус при перекрытии (%) *");
-        grid.add(maxMinus, 0, y);
-        var maxMinusField = new TextField();
-        profileTextCheck("maxMinusField", maxMinusField);
-        maxMinusField.setPromptText("6");
-        maxMinusField.setPrefHeight(40);
-        grid.add(maxMinusField, 1, y++);
 
         var countFork = new Label("Максимальное количество вилок в одном событии *");
         grid.add(countFork, 0, y);
@@ -114,7 +106,7 @@ public class SettingPanel implements IPanel {
         grid.add(middles, 0, y);
         var middlesField = new TextField();
         profileTextCheck("middlesField", middlesField);
-        middlesField.setPromptText("-1 - без коридоров. 0 - вилки и коридоры. 1 - только коридоры");
+        middlesField.setPromptText("-1, 0, 1");
         middlesField.setPrefHeight(40);
         grid.add(middlesField, 1, y++);
 
@@ -122,7 +114,7 @@ public class SettingPanel implements IPanel {
         grid.add(forkLive, 0, y);
         var forkLiveField = new TextField();
         profileTextCheck("forkLiveField", forkLiveField);
-        forkLiveField.setPromptText("Считается относительно процента -1");
+        forkLiveField.setPromptText("1");
         forkLiveField.setPrefHeight(40);
         grid.add(forkLiveField, 1, y++);
 
@@ -189,7 +181,7 @@ public class SettingPanel implements IPanel {
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
-                pauseAfterSuccessField.getText().isEmpty() || maxMinusField.getText().isEmpty() ||
+                pauseAfterSuccessField.getText().isEmpty() ||
                 countForkField.getText().isEmpty()) {
 
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
@@ -276,7 +268,6 @@ public class SettingPanel implements IPanel {
                     new BigDecimal(forkLiveField.getText()),
                     sportsType,
                     new BigDecimal(pauseAfterSuccessField.getText()),
-                    new BigDecimal(maxMinusField.getText()),
                     new BigDecimal(countForkField.getText()),
                     isRepeatForkCheckBox.isSelected()
                 );
@@ -296,7 +287,6 @@ public class SettingPanel implements IPanel {
             json.addProperty("minimumRatioField", minimumRatioField.getText());
             json.addProperty("maximumRatioField", maximumRatioField.getText());
             json.addProperty("pauseAfterSuccessField", pauseAfterSuccessField.getText());
-            json.addProperty("maxMinusField", maxMinusField.getText());
             json.addProperty("countForkField", countForkField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());
             json.addProperty("_188Bet", _188Bet.isSelected());

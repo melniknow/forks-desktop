@@ -91,12 +91,12 @@ public class BetMaker {
                 throw new RuntimeException("Не удалось поставить вилку");
             }
 
+            var isClosed = false;
             if (!isValue) {
                 try {
                     var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2()));
                     realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
-                    var isClosed = false;
                     if (bookmaker1Final.equals(Bookmaker._188BET)) {
                         isClosed = BetsSupport.cashOut(Context.screenManager.getScreenForBookmaker(bookmaker1Final));
                     }
@@ -112,7 +112,7 @@ public class BetMaker {
             var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
 
-            return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub, isValue);
+            return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub, isValue, isClosed);
 
         } catch (InterruptedException e) {
             throw new InterruptedException();
@@ -183,7 +183,8 @@ public class BetMaker {
     private static BetUtils.CompleteBetsFork buildCompleteBetsFork(MathUtils.CalculatedFork calculated,
                                                                    BigDecimal realCf1, BigDecimal realCf2,
                                                                    BigDecimal balance1Rub, BigDecimal balance2Rub,
-                                                                   BigDecimal bet1Rub, BigDecimal bet2Rub, boolean isValue) {
+                                                                   BigDecimal bet1Rub, BigDecimal bet2Rub, boolean isValue,
+                                                                   boolean isClosed) {
         String income;
         BigDecimal realRubBalance1;
         BigDecimal realRubBalance2;
@@ -205,7 +206,8 @@ public class BetMaker {
             realRubBalance2 = balance2Rub;
             bet2Rub = BigDecimal.ZERO;
         } else if (isFirstForkSuccessAndSecondFail(realCf1, realCf2)) {
-            income = "Одно из плечей не было поставлено";
+            var desc = isClosed ? "Сделан CashOut" : "Не сделан CashOut";
+            income = "Одно из плечей не было поставлено(%s)".formatted(desc);
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
             realRubBalance2 = balance2Rub;
             bet2Rub = BigDecimal.ZERO;

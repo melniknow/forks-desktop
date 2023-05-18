@@ -17,7 +17,7 @@ public class Parser {
     public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
                                BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive, List<Sport> sports,
-                               BigDecimal pauseAfterSuccess, BigDecimal maxMinus,
+                               BigDecimal pauseAfterSuccess,
                                BigDecimal countFork, boolean isRepeatFork) { }
 
     public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet,
