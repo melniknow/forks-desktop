@@ -1,7 +1,9 @@
 package com.melniknow.fd.betting;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Logger;
+import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.utils.BetUtils;
@@ -20,38 +22,42 @@ public class BetMaker {
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
         var executor = Executors.newFixedThreadPool(2);
 
-        System.out.println(calculated);
-
         try {
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
             var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
 
+            var bundle = Context.bundleStorage.get(bookmaker1, bookmaker2);
+
+            var isReversed = bundle != null && !bundle.bk1().equals(bookmaker1);
+            var isValue = bundle != null && bundle.isValue();
+
+            if (isReversed) {
+                calculated = reverseCalculated(calculated);
+                bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
+                bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
+            }
+
+            final var bookmaker1Final = bookmaker1;
+            final var bookmaker2Final = bookmaker2;
+            final var calculatedFinal = calculated;
+
             var bkParams1 = Context.betsParams.get(bookmaker1);
             var bkParams2 = Context.betsParams.get(bookmaker2);
 
-            if (bookmaker1.equals(bookmaker2))
-                throw new RuntimeException("Букмекеры в вилке должны различаться");
+            var realization1 = bookmaker1Final.realization;
+            var realization2 = bookmaker2Final.realization;
 
-            var realization1 = bookmaker1.realization;
-            var realization2 = bookmaker2.realization;
-
-            var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1, calculated.fork().betInfo1()));
-            var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2, calculated.fork().betInfo2()));
+            var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1()));
+            var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
 
             openLink1.get(30, TimeUnit.SECONDS);
             openLink2.get(30, TimeUnit.SECONDS);
 
-            var futureBalance1 = executor.submit(() -> realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1, calculated.fork().betInfo1(), calculated.fork().sport()));
-            var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2, calculated.fork().betInfo2(), calculated.fork().sport()));
+            var futureBalance1 = executor.submit(() -> realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport()));
+            var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
             var balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
-
-            System.out.println("Balance 1 = " + balance1Rub);
-            System.out.println("Balance 2 = " + balance2Rub);
-
-            System.out.println("Bookmaker 1 = " + bookmaker1);
-            System.out.println("Bookmaker 2 = " + bookmaker2);
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
@@ -62,17 +68,15 @@ public class BetMaker {
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
                 Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
-                calculated.betCoef1(),
-                calculated.betCoef2()
+                calculatedFinal.betCoef1(),
+                calculatedFinal.betCoef2()
             );
-
-            System.out.println(bets);
 
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
 
-            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1, calculated.fork().betInfo1(), bet1));
-            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2, calculated.fork().betInfo2(), bet2));
+            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
+            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
 
             enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
             enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
@@ -80,47 +84,35 @@ public class BetMaker {
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
 
-            if (bookmaker1 == Bookmaker._188BET) {
-                try {
-                    var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
-                    realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
-                } catch (ExecutionException | TimeoutException e) {
-                    throw new RuntimeException("Не удалось поставить вилку");
-                }
+            try {
+                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1()));
+                realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
+            } catch (ExecutionException | TimeoutException e) {
+                throw new RuntimeException("Не удалось поставить вилку");
+            }
 
+            if (!isValue) {
                 try {
-                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2()));
                     realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
-                    Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo2().BK_name()));
-                }
-            } else {
-                try {
-                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2, calculated.fork().betInfo2()));
-                    realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
-                } catch (ExecutionException | TimeoutException e) {
-                    throw new RuntimeException("Не удалось поставить вилку");
-                }
+                    var isClosed = false;
+                    if (bookmaker1Final.equals(Bookmaker._188BET)) {
+                        isClosed = BetsSupport.cashOut(Context.screenManager.getScreenForBookmaker(bookmaker1Final));
+                    }
 
-                try {
-                    var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1, calculated.fork().betInfo1()));
-                    realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
-                } catch (ExecutionException | TimeoutException e) {
-                    Logger.writeToLogSession("Не удалось поставить плечо - %s".formatted(calculated.fork().betInfo1().BK_name()));
+                    Logger.writeToLogSession("Не удалось поставить плечо(%s) - %s".formatted(isClosed ? "Сделали CashOut" : "Не сделали CashOut", calculatedFinal.fork().betInfo2().BK_name()));
                 }
             }
 
             executor.shutdownNow();
 
-            Context.forksCache.put(calculated.fork().forkId(), calculated.fork());
-
-            System.out.println("RealCf1 = " + realCf1);
-            System.out.println("RealCf2 = " + realCf2);
+            Context.forksCache.put(calculatedFinal.fork().forkId(), calculatedFinal.fork());
 
             var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
 
-            return buildCompleteBetsFork(calculated, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub);
+            return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub, isValue);
 
         } catch (InterruptedException e) {
             throw new InterruptedException();
@@ -129,6 +121,14 @@ public class BetMaker {
         } finally {
             executor.shutdownNow();
         }
+    }
+    private static MathUtils.CalculatedFork reverseCalculated(MathUtils.CalculatedFork calculated) {
+        var fork = reverseFork(calculated.fork());
+        return new MathUtils.CalculatedFork(fork, calculated.betCoef2(), calculated.betCoef1());
+    }
+    private static Parser.Fork reverseFork(Parser.Fork fork) {
+        return new Parser.Fork(fork.forkId(), fork.income(), fork.eventId(), fork.sport(), fork.isMiddles(), fork.betType(),
+            fork.betInfo2(), fork.betInfo1());
     }
 
     private static List<Integer> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
@@ -183,7 +183,7 @@ public class BetMaker {
     private static BetUtils.CompleteBetsFork buildCompleteBetsFork(MathUtils.CalculatedFork calculated,
                                                                    BigDecimal realCf1, BigDecimal realCf2,
                                                                    BigDecimal balance1Rub, BigDecimal balance2Rub,
-                                                                   BigDecimal bet1Rub, BigDecimal bet2Rub) {
+                                                                   BigDecimal bet1Rub, BigDecimal bet2Rub, boolean isValue) {
         String income;
         BigDecimal realRubBalance1;
         BigDecimal realRubBalance2;
@@ -199,11 +199,11 @@ public class BetMaker {
                 income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
                     .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub))).setScale(2, RoundingMode.DOWN).toString();
             }
-        } else if (isFirstForkFailAndSecondSuccess(realCf1, realCf2)) {
-            income = "Одно из плечей не было поставлено";
-            realRubBalance2 = balance2Rub.subtract(bet2Rub);
-            realRubBalance1 = balance1Rub;
-            bet1Rub = BigDecimal.ZERO;
+        } else if (isValue) {
+            income = "Был поставлен валуй";
+            realRubBalance1 = balance1Rub.subtract(bet1Rub);
+            realRubBalance2 = balance2Rub;
+            bet2Rub = BigDecimal.ZERO;
         } else if (isFirstForkSuccessAndSecondFail(realCf1, realCf2)) {
             income = "Одно из плечей не было поставлено";
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
@@ -218,10 +218,6 @@ public class BetMaker {
 
     private static boolean isSuccessFork(BigDecimal realCf1, BigDecimal realCf2) {
         return !realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO);
-    }
-
-    private static boolean isFirstForkFailAndSecondSuccess(BigDecimal realCf1, BigDecimal realCf2) {
-        return realCf1.equals(BigDecimal.ZERO) && !realCf2.equals(BigDecimal.ZERO);
     }
 
     private static boolean isFirstForkSuccessAndSecondFail(BigDecimal realCf1, BigDecimal realCf2) {

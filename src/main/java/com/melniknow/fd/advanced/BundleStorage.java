@@ -3,6 +3,7 @@ package com.melniknow.fd.advanced;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.melniknow.fd.Context;
+import com.melniknow.fd.domain.Bookmaker;
 
 import java.util.ArrayList;
 
@@ -18,6 +19,16 @@ public class BundleStorage {
         }
 
         bundleSettingArrayList.add(bundleSetting);
+    }
+
+    public BundleSetting get(Bookmaker bookmaker1, Bookmaker bookmaker2) {
+        for (BundleSetting bundleSetting : bundleSettingArrayList) {
+            if (bundleSetting.bk1().equals(bookmaker1) && bundleSetting.bk2().equals(bookmaker2) ||
+                bundleSetting.bk1().equals(bookmaker2) && bundleSetting.bk2().equals(bookmaker1))
+                return bundleSetting;
+        }
+
+        return null;
     }
 
     public void remove(BundleSetting bundleSetting) {

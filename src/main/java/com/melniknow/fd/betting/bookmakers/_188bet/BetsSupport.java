@@ -197,7 +197,7 @@ public class BetsSupport {
         }
     }
 
-    public static void cashOut(ChromeDriver driver) {
+    public static boolean cashOut(ChromeDriver driver) throws InterruptedException {
         var originalLines = curCashOutField.lines().toList();
         if (originalLines.size() < 4) {
             throw new RuntimeException("CashOut не поставлен");
@@ -214,7 +214,7 @@ public class BetsSupport {
             button.findElement(SeleniumSupport.buildLocalH4ByText("My Bets")).click();
             TimeUnit.SECONDS.sleep(2);
             var blocks = wait.until(driver1 -> driver1.findElements(
-                By.xpath("//span[contains(translate(text(),' ',''),'" + findStr.replaceAll("\\s+","") + "')]")));
+                By.xpath("//span[contains(translate(text(),' ',''),'" + findStr.replaceAll("\\s+", "") + "')]")));
 
             for (var t : blocks) {
                 var curLines = SeleniumSupport.getParentByDeep(t, 2).getText().lines().toList();
@@ -231,8 +231,12 @@ public class BetsSupport {
                     break;
                 }
             }
-        } catch (InterruptedException | RuntimeException e) {
-            throw new RuntimeException("CashOut не поставлен\n" + e.getMessage());
+
+            return true;
+        } catch (InterruptedException e) {
+            throw new InterruptedException();
+        } catch (Exception e) {
+            return false;
         }
     }
 }

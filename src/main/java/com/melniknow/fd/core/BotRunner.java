@@ -38,10 +38,6 @@ public class BotRunner implements Runnable {
                         var count = Context.eventIdToCountSuccessForks.get(eventId);
 
                         Context.eventIdToCountSuccessForks.put(eventId, count == null ? 1 : ++count);
-
-                        System.out.println(eventId);
-                        System.out.println(Context.eventIdToCountSuccessForks);
-                        System.out.println("Ставка");
                     }
                 }
             } catch (InterruptedException e) {
