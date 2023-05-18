@@ -71,7 +71,7 @@ public class MathUtils {
 
         return new CalculatedFork(fork, c1, c2);
     }
-    private static boolean checkException(ArrayList<Exception> ex, Sport sport, Parser.BetInfo betInfo, boolean isFirst, boolean isMiddles) {
+    private static boolean checkException(List<Exception> ex, Sport sport, Parser.BetInfo betInfo, boolean isFirst, boolean isMiddles) {
         try {
             if (ex == null) return true;
 

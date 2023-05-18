@@ -12,6 +12,7 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sport;
 import io.mikael.urlbuilder.UrlBuilder;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -41,52 +42,50 @@ public class Pinnacle implements IBookmaker {
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
-//        var bookmakerData = Context.betsParams.get(bookmaker);
-//        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
-//
-//        return getBalanceAsRub(auth, bookmakerData.proxyIp(),
-//            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
-        return BigDecimal.valueOf(10000L);
+        var bookmakerData = Context.betsParams.get(bookmaker);
+        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
+
+        return getBalanceAsRub(auth, bookmakerData.proxyIp(),
+            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
     }
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
-//        sumBet = sum;
-//
-//        var bookmakerData = Context.betsParams.get(bookmaker);
-//        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
-//
-//        var cf = getCf(auth, info, bookmakerData.proxyIp(),
-//            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
-//
-//        if (cf.compareTo(info.BK_cf()) < 0)
-//            throw new RuntimeException("Коэффициент изменился в худшую сторону [Pinnacle]: было - %s, стало - %s".formatted(info.BK_cf(), cf));
+        sumBet = sum;
+
+        var bookmakerData = Context.betsParams.get(bookmaker);
+        var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
+
+        var cf = getCf(auth, info, bookmakerData.proxyIp(),
+            bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
+
+        if (cf.compareTo(info.BK_cf()) < 0)
+            throw new RuntimeException("Коэффициент изменился в худшую сторону [Pinnacle]: было - %s, стало - %s".formatted(info.BK_cf(), cf));
     }
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
-//        try {
-//            var bookmakerData = Context.betsParams.get(bookmaker);
-//            var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
-//
-//            var betId = "";
-//            var count = 0;
-//
-//            while (betId.equals("") && !Thread.currentThread().isInterrupted() && count < 10) {
-//                count++;
-//                try {
-//                    betId = realPlaceBet(auth, bookmakerData.proxyIp(),
-//                        bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
-//                } catch (RuntimeException ignored) {
-//                    Logger.writeToLogSession("Pinnacle пытается поставить ставку");
-//                }
-//            }
-//
-//            return checkBetAndGetCf(betId, auth, bookmakerData.proxyIp(),
-//                bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException("Interrupt");
-//        }
-        return info.BK_cf();
+        try {
+            var bookmakerData = Context.betsParams.get(bookmaker);
+            var auth = new String(Base64.encodeBase64((bookmakerData.login() + ":" + bookmakerData.password()).getBytes()));
+
+            var betId = "";
+            var count = 0;
+
+            while (betId.equals("") && !Thread.currentThread().isInterrupted() && count < 10) {
+                count++;
+                try {
+                    betId = realPlaceBet(auth, bookmakerData.proxyIp(),
+                        bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword(), info);
+                } catch (RuntimeException ignored) {
+                    Logger.writeToLogSession("Pinnacle пытается поставить ставку");
+                }
+            }
+
+            return checkBetAndGetCf(betId, auth, bookmakerData.proxyIp(),
+                bookmakerData.proxyPort(), bookmakerData.proxyLogin(), bookmakerData.proxyPassword());
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupt");
+        }
     }
 
     private static BigDecimal getBalanceAsRub(String base64Auth, String proxyHost, int proxyPort, String proxyLogin, String proxyPasswd) {

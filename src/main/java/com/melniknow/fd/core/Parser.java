@@ -5,7 +5,14 @@ import com.google.gson.JsonParser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
+import io.mikael.urlbuilder.UrlBuilder;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,47 +39,46 @@ public class Parser {
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
 
-//        var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
-//            .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
-//            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
-//            .addParameter("is_middles", Integer.toString(params.middles))
-//            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
-//            .addParameter("min_cf", params.minCf.toPlainString())
-//            .addParameter("max_cf", params.maxCf.toPlainString())
-//            .addParameter("min_fi", params.minFi.toPlainString())
-//            .addParameter("max_fi", params.maxFi.toPlainString())
-//            .addParameter("alive_sec", params.forkLive.toPlainString())
-//            .addParameter("token", oddscorpToken)
-//            .toUri();
-//
-//        var stringForks = "";
-//
-//        var timeout = 2;
-//
-//        var config = RequestConfig.custom()
-//            .setConnectTimeout(timeout * 1000)
-//            .setConnectionRequestTimeout(timeout * 1000)
-//            .setSocketTimeout(timeout * 1000).build();
-//
-//        try (var httpClient = HttpClientBuilder.create()
-//            .setDefaultRequestConfig(config)
-//            .build()) {
-//            var request = new HttpGet(url);
-//            try (CloseableHttpResponse response = httpClient.execute(request)) {
-//                if (response.getStatusLine().getStatusCode() != 200) {
-//                    return null;
-//                }
-//                var entity = response.getEntity();
-//                if (entity != null) {
-//                    stringForks = EntityUtils.toString(entity);
-//                }
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        var jsonParser = JsonParser.parseString(stringForks);
-        var jsonParser = JsonParser.parseString(FakeServer.get());
+        var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
+            .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
+            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
+            .addParameter("is_middles", Integer.toString(params.middles))
+            .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
+            .addParameter("min_cf", params.minCf.toPlainString())
+            .addParameter("max_cf", params.maxCf.toPlainString())
+            .addParameter("min_fi", params.minFi.toPlainString())
+            .addParameter("max_fi", params.maxFi.toPlainString())
+            .addParameter("alive_sec", params.forkLive.toPlainString())
+            .addParameter("token", oddscorpToken)
+            .toUri();
+
+        var stringForks = "";
+
+        var timeout = 2;
+
+        var config = RequestConfig.custom()
+            .setConnectTimeout(timeout * 1000)
+            .setConnectionRequestTimeout(timeout * 1000)
+            .setSocketTimeout(timeout * 1000).build();
+
+        try (var httpClient = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config)
+            .build()) {
+            var request = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    return null;
+                }
+                var entity = response.getEntity();
+                if (entity != null) {
+                    stringForks = EntityUtils.toString(entity);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        var jsonParser = JsonParser.parseString(stringForks);
 
         var forks = new ArrayList<Fork>();
         if (!jsonParser.isJsonArray()) return null;
