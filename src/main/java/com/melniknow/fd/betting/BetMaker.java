@@ -116,12 +116,13 @@ public class BetMaker {
 
         } catch (InterruptedException e) {
             throw new InterruptedException();
-        } catch (Exception e) {
+        } catch (java.lang.Exception e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getMessage());
         } finally {
             executor.shutdownNow();
         }
     }
+
     private static MathUtils.CalculatedFork reverseCalculated(MathUtils.CalculatedFork calculated) {
         var fork = reverseFork(calculated.fork());
         return new MathUtils.CalculatedFork(fork, calculated.betCoef2(), calculated.betCoef1());

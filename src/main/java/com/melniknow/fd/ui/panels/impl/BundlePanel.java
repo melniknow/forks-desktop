@@ -114,7 +114,7 @@ public class BundlePanel implements IPanel {
 
                 Context.bundleStorage.add(bundle);
 
-                var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
+                var delButton = new Button(bundle.name() + " " + bundle.bk1() + "-" + bundle.bk2() +
                     " " + (bundle.isValue() ? "Валуй" : "Не валуй"));
 
                 delButton.setOnAction(ev -> {

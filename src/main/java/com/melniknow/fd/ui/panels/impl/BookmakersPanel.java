@@ -4,8 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.melniknow.fd.Context;
-import com.melniknow.fd.advanced.Rule;
-import com.melniknow.fd.advanced.RuleType;
+import com.melniknow.fd.advanced.Exception;
+import com.melniknow.fd.advanced.ExceptionType;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sport;
@@ -174,26 +174,26 @@ public class BookmakersPanel implements IPanel {
         saveButton.setPrefWidth(250);
         grid.add(saveButton, 0, ++y, 2, 1);
 
-        var rules = new Label("Правила и исключения спорта");
+        var rules = new Label("Исключения спорта");
         grid.add(rules, 0, ++y);
         var nameRulesField = new TextField();
         nameRulesField.setPrefHeight(40);
-        nameRulesField.setPromptText("Имя правила");
+        nameRulesField.setPromptText("Имя исключения");
         grid.add(nameRulesField, 1, y, 1, 1);
         var sportRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(Sport.values()).map(Enum::name).toList()));
         sportRulesField.setPrefHeight(40);
         grid.add(sportRulesField, 2, y++, 1, 1);
-        var typeRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(RuleType.values()).map(Enum::name).toList()));
+        var typeRulesField = new ComboBox<>(FXCollections.observableArrayList(Arrays.stream(ExceptionType.values()).map(Enum::name).toList()));
         typeRulesField.setPrefHeight(40);
         grid.add(typeRulesField, 1, y, 1, 1);
 
-        var addButton = new Button("Добавить правило");
+        var addButton = new Button("Добавить исключение");
         addButton.setPrefHeight(40);
         addButton.setDefaultButton(true);
         addButton.setPrefWidth(250);
         grid.add(addButton, 2, y, 1, 1);
 
-        var list = new Label("Список правил");
+        var list = new Label("Список исключений");
         grid.add(list, 0, ++y);
 
         y = loadRulesFromDb(grid, y, bookmaker);
@@ -204,16 +204,16 @@ public class BookmakersPanel implements IPanel {
                 if (nameRulesField.getText().isEmpty() || sportRulesField.getValue() == null ||
                     typeRulesField.getValue() == null) throw new RuntimeException();
 
-                var rule = new Rule(nameRulesField.getText(), Sport.valueOf(sportRulesField.getValue()),
-                    RuleType.valueOf(typeRulesField.getValue()));
+                var rule = new Exception(nameRulesField.getText(), Sport.valueOf(sportRulesField.getValue()),
+                    ExceptionType.valueOf(typeRulesField.getValue()));
 
-                var array = Context.rulesForBookmaker.get(bookmaker);
-                if (array == null) Context.rulesForBookmaker.put(bookmaker, new ArrayList<>() {{
+                var array = Context.exceptionForBookmaker.get(bookmaker);
+                if (array == null) Context.exceptionForBookmaker.put(bookmaker, new ArrayList<>() {{
                     add(rule);
                 }});
                 else {
-                    for (Rule rule1 : array) {
-                        if (rule1.name().equals(rule.name())) throw new RuntimeException();
+                    for (Exception exception1 : array) {
+                        if (exception1.name().equals(rule.name())) throw new RuntimeException();
                     }
                     array.add(rule);
                 }
@@ -221,14 +221,14 @@ public class BookmakersPanel implements IPanel {
                 var delButton = new Button(rule.name() + "_ " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
-                    Context.rulesForBookmaker.get(bookmaker).remove(rule);
+                    Context.exceptionForBookmaker.get(bookmaker).remove(rule);
                     grid.getChildren().remove(delButton);
-                    rulesToJsonAndSave(Context.rulesForBookmaker);
+                    rulesToJsonAndSave(Context.exceptionForBookmaker);
                 });
 
                 grid.add(delButton, 1, finalY.getAndIncrement(), 1, 1);
-                rulesToJsonAndSave(Context.rulesForBookmaker);
-            } catch (Exception e) {
+                rulesToJsonAndSave(Context.exceptionForBookmaker);
+            } catch (java.lang.Exception e) {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Ошибка добавления правила");
             }
         });
@@ -273,7 +273,7 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "screenSizeField", screenSizeField.getValue());
 
                 Context.profile.save();
-            } catch (Exception e) {
+            } catch (java.lang.Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);
                 Context.betsParams.remove(bookmaker);
@@ -289,14 +289,14 @@ public class BookmakersPanel implements IPanel {
         try {
             var array = Context.profile.json.getAsJsonObject("rules").getAsJsonArray(bookmaker.name());
             for (JsonElement jsonElement : array) {
-                var rule = new Rule(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
+                var rule = new Exception(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
                     Sport.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("sport").getAsString()),
-                    RuleType.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("type").getAsString()));
+                    ExceptionType.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("type").getAsString()));
 
-                if (Context.rulesForBookmaker.containsKey(bookmaker)) {
-                    Context.rulesForBookmaker.get(bookmaker).add(rule);
+                if (Context.exceptionForBookmaker.containsKey(bookmaker)) {
+                    Context.exceptionForBookmaker.get(bookmaker).add(rule);
                 } else {
-                    Context.rulesForBookmaker.put(bookmaker, new ArrayList<>() {{
+                    Context.exceptionForBookmaker.put(bookmaker, new ArrayList<>() {{
                         add(rule);
                     }});
                 }
@@ -304,20 +304,20 @@ public class BookmakersPanel implements IPanel {
                 var delButton = new Button(rule.name() + "_ " + rule.sport() + " " + rule.type());
 
                 delButton.setOnAction(ev -> {
-                    Context.rulesForBookmaker.get(bookmaker).remove(rule);
+                    Context.exceptionForBookmaker.get(bookmaker).remove(rule);
                     grid.getChildren().remove(delButton);
-                    rulesToJsonAndSave(Context.rulesForBookmaker);
+                    rulesToJsonAndSave(Context.exceptionForBookmaker);
                 });
 
                 grid.add(delButton, 1, y_++, 1, 1);
             }
 
-        } catch (Exception ignored) {
+        } catch (java.lang.Exception ignored) {
         }
 
         return y_;
     }
-    private static void rulesToJsonAndSave(ConcurrentMap<Bookmaker, ArrayList<Rule>> rulesForBookmaker) {
+    private static void rulesToJsonAndSave(ConcurrentMap<Bookmaker, ArrayList<Exception>> rulesForBookmaker) {
         var obj = new JsonObject();
 
         for (Bookmaker bookmaker : rulesForBookmaker.keySet()) {
@@ -345,13 +345,13 @@ public class BookmakersPanel implements IPanel {
             var data = json.getAsJsonPrimitive(name).getAsString();
             if (data != null)
                 screenSizeField.setValue(data);
-        } catch (Exception ignored) { }
+        } catch (java.lang.Exception ignored) { }
     }
 
     private static void setCurrency(String name, ComboBox<Currency> currencyField1) {
         try {
             var json = Context.profile.json;
             currencyField1.setValue(Currency.valueOf(json.getAsJsonPrimitive(name).getAsString()));
-        } catch (Exception ignored) { }
+        } catch (java.lang.Exception ignored) { }
     }
 }

@@ -27,7 +27,7 @@ public class Parser {
                           String BK_event_native_id) { }
 
     public record Fork(String forkId, BigDecimal income, BigDecimal eventId, Sport sport,
-                       int isMiddles, BetType betType, BetInfo betInfo1, BetInfo betInfo2) { }
+                       boolean isMiddles, BetType betType, BetInfo betInfo1, BetInfo betInfo2) { }
 
     public static List<Fork> getForks(ParserParams params) {
         if (params == null) return null;
@@ -99,7 +99,7 @@ public class Parser {
             forkObject.get("income").getAsBigDecimal(),
             forkObject.get("event_id").getAsBigDecimal(),
             Sport.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
-            Integer.parseInt(forkObject.get("is_middles").getAsString()),
+            forkObject.get("is_middles").getAsBoolean(),
             BetType.valueOf(forkObject.get("bet_type").getAsString()),
             new BetInfo(forkObject.get("BK1_name").getAsString(), forkObject.get("BK1_event_id").getAsString(),
                 BetType.valueOf(forkObject.get("BK1_bet_type").getAsString()), forkObject.get("BK1_bet").getAsString(), forkObject.get("BK1_href").getAsString(),
