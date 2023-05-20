@@ -14,7 +14,7 @@ public class Bet365 implements IBookmaker {
     }
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
-        return BigDecimal.valueOf(10000L);
+        return BigDecimal.valueOf(1_000_000_000L);
     }
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {

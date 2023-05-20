@@ -75,9 +75,6 @@ public class BetMaker {
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
 
-            System.out.println(bookmaker1Final + " " + bet1 + " " + balance1Rub);
-            System.out.println(bookmaker2Final + " " + bet2 + " " + balance2Rub);
-
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
             var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
 
