@@ -13,7 +13,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
         return BigDecimal.valueOf(10000L);
     }
     @Override
@@ -21,7 +21,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) throws InterruptedException {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
         return info.BK_cf();
     }
 }

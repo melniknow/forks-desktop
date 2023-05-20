@@ -6,7 +6,7 @@ import com.melniknow.fd.betting.bookmakers.pinnacle.Pinnacle;
 import com.melniknow.fd.betting.bookmakers._188bet._188Bet;
 
 public enum Bookmaker {
-    PINNACLE("pinnacle", "https://api.pinnacle.com", new Pinnacle(), true),
+    PINNACLE("pinnacle", "https://www.pinnacle.com", new Pinnacle(), false),
     BET365("bet365", "https://www.bet365.com", new Bet365(), false),
     _188BET("188bet", "https://www.188bedt.com/en-gb", new _188Bet(), false);
 

@@ -41,8 +41,8 @@ public class BetMaker {
             final var bookmaker2Final = bookmaker2;
             final var calculatedFinal = calculated;
 
-            var bkParams1 = Context.betsParams.get(bookmaker1);
-            var bkParams2 = Context.betsParams.get(bookmaker2);
+            var bkParams1 = Context.betsParams.get(bookmaker1Final);
+            var bkParams2 = Context.betsParams.get(bookmaker2Final);
 
             var realization1 = bookmaker1Final.realization;
             var realization2 = bookmaker2Final.realization;
@@ -74,6 +74,9 @@ public class BetMaker {
 
             var bet1 = BigDecimal.valueOf(bets.get(0));
             var bet2 = BigDecimal.valueOf(bets.get(1));
+
+            System.out.println(bookmaker1Final + " " + bet1 + " " + balance1Rub);
+            System.out.println(bookmaker2Final + " " + bet2 + " " + balance2Rub);
 
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
             var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
@@ -116,8 +119,10 @@ public class BetMaker {
 
         } catch (InterruptedException e) {
             throw new InterruptedException();
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
         } catch (java.lang.Exception e) {
-            throw new RuntimeException("Ошибка в постановке ставки - " + e.getMessage());
+            throw new RuntimeException("Ошибка в постановке ставки - " + e.getLocalizedMessage());
         } finally {
             executor.shutdownNow();
         }
@@ -137,7 +142,7 @@ public class BetMaker {
                                                    BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
                                                    BigDecimal calcCf2) {
         if (minSt1Rub.compareTo(balanceRub1) > 0 || minSt2Rub.compareTo(balanceRub2) > 0)
-            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
+            throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
         var data = new ArrayList<Integer>(2);
 
@@ -167,13 +172,13 @@ public class BetMaker {
         }
 
         if (rubValue1 == null)
-            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
+            throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
         var value1 = BigDecimal.valueOf(rubValue1).divide(Context.currencyToRubCourse.get(currency1), 0, RoundingMode.DOWN).intValue();
         var value2 = BigDecimal.valueOf(rubValue2).divide(Context.currencyToRubCourse.get(currency2), 0, RoundingMode.DOWN).intValue();
 
         if (value1 < 1 || value2 < 1)
-            throw new RuntimeException("Невозможно поставить ставку при текущих депозитах");
+            throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
         data.add(value1);
         data.add(value2);
@@ -194,13 +199,11 @@ public class BetMaker {
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
             realRubBalance2 = balance2Rub.subtract(bet2Rub);
 
-            if (realCf1.compareTo(calculated.fork().betInfo1().BK_cf()) < 0 ||
-                realCf2.compareTo(calculated.fork().betInfo2().BK_cf()) < 0) {
-                income = "Вилка была поставлена по изменённым в худшую сторону коэффициентам";
-            } else {
-                income = (((bet1Rub.multiply(realCf1)).add((bet2Rub.multiply(realCf2))))
-                    .divide(new BigDecimal("2"), 4, RoundingMode.DOWN)).subtract((bet1Rub.add(bet2Rub))).setScale(2, RoundingMode.DOWN).toString();
-            }
+            income = "1) %s₽. 2) %s₽".formatted(
+                bet1Rub.multiply(realCf1).subtract(bet1Rub).setScale(2, RoundingMode.DOWN),
+                bet2Rub.multiply(realCf2).subtract(bet2Rub).setScale(2, RoundingMode.DOWN)
+            );
+
         } else if (isValue) {
             income = "Был поставлен валуй";
             realRubBalance1 = balance1Rub.subtract(bet1Rub);

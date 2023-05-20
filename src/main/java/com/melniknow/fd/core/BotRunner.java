@@ -43,7 +43,7 @@ public class BotRunner implements Runnable {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (Exception e) {
-                Logger.writeToLogSession(e.getMessage());
+                Logger.writeToLogSession(e.getLocalizedMessage());
             }
         }
     }
