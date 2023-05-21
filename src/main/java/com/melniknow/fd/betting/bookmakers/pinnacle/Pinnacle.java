@@ -6,9 +6,13 @@ import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
+import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sport;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -20,12 +24,14 @@ public class Pinnacle implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
         driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
     }
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        removeAllPreviousWindows(driver);
+
         String marketName;
         String selectionName;
         if (info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
@@ -37,48 +43,107 @@ public class Pinnacle implements IBookmaker {
                 marketName = marketName.split(" - ")[0];
                 selectionName = marketName.split(" - ")[1];
             } else {
-                throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + "| sport: " + sport);
+                throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + " | sport: " + sport);
             }
         }
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+        System.out.println("info.BK_bet() = " + info.BK_bet());
+        System.out.println("marketName [pinnacle] = " + marketName);
+        System.out.println("selectionName [pinnacle] = " + selectionName);
+
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         String finalMarketName = marketName;
         var market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
 
-        var button = SeleniumSupport.findElementWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+        market = SeleniumSupport.getParentByDeep(market, 2);
+
+        WebElement button;
+        if (marketName.contains("Handicap") && selectionName.equals("0")) {
+            var buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            if (info.BK_bet().contains("P1")) {
+                button = buttons.get(0);
+            } else if (info.BK_bet().contains("P2")) {
+                button = buttons.get(1);
+            } else {
+                throw new RuntimeException("Don`t support [pinnacle]: " + info.BK_bet());
+            }
+        } else {
+            button = SeleniumSupport.findElementWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+        }
 
         wait.until(ExpectedConditions.elementToBeClickable(button)).click();
 
-        return new BigDecimal("0");
+        return getBalance(driver, Context.betsParams.get(bookmaker).currency());
     }
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        var curCfTest = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='SelectionDetails-Odds']")));
-        var currentCf = new BigDecimal(curCfTest.getText());
+        var currentCf = getCurrentCf(driver);
+
+        System.out.println("Current Cf [pinnacle] = " + currentCf);
 
         if (currentCf.compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
             throw new RuntimeException("betCoef is too low [pinnacle] - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
         }
 
-        if (sum.compareTo(new BigDecimal("50")) < 0) { // TODO
-            throw new RuntimeException("Very small min Bet [pinnacle]");
+        if (sum.compareTo(new BigDecimal("0.001")) < 0) {
+            throw new RuntimeException("Very small min Bet [pinnacle]; sum = " + sum);
         }
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']"))).sendKeys(sum.toString());
     }
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
-        return info.BK_cf();
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        var placeBet = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BETS")));
+        wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
+
+        // TODO wait is state is Ok
+
+        return getCurrentCf(driver);
+    }
+
+    private BigDecimal getCurrentCf(ChromeDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        var curCfTest = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='SelectionDetails-Odds']")));
+        System.out.println("curCfTest [pinnacle] = " + curCfTest);
+        return new BigDecimal(curCfTest.getText());
+    }
+
+    private void removeAllPreviousWindows(ChromeDriver driver) {
+        try {
+            var removeAll = driver.findElement(SeleniumSupport.buildGlobalSpanByText("Remove all"));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.elementToBeClickable(removeAll)).click();
+            var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));
+            wait.until(ExpectedConditions.elementToBeClickable(confirm)).click();
+        } catch (NoSuchElementException | TimeoutException ignored) {
+
+        }
+    }
+
+    private BigDecimal getBalance(ChromeDriver driver, Currency currency) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        var curBalanceText = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='QuickCashier-BankRoll']"))).getText();
+        System.out.println("curBalanceTest [pinnacle] = " + curBalanceText);
+        curBalanceText = curBalanceText.substring(4);
+        curBalanceText = curBalanceText.replace(",", "");
+        var balance = new BigDecimal(curBalanceText);
+        if (balance.equals(BigDecimal.ZERO)) {
+            throw new RuntimeException("Balance is zero [pinnacle]");
+        }
+        System.out.println("Balance from header " + currency + " : " + balance + " [pinnacle]");
+        return balance.multiply(Context.currencyToRubCourse.get(currency));
     }
 
     private String getSelectionName(Parser.BetInfo info, Sport sport) {
         var bkBet = info.BK_bet();
         if (bkBet.contains("WIN__P1")) {
-           return BetsSupport.getTeamFirstNameByTitle(info.BK_game());
+            return BetsSupport.getTeamFirstNameByTitle(info.BK_game());
         } else if (bkBet.contains("WIN__P2")) {
             return BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         } else if (bkBet.contains("WIN__PX")) {

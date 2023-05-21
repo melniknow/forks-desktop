@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SeleniumSupport {
@@ -50,6 +51,23 @@ public class SeleniumSupport {
             element.click();
             try {
                 res = wait.until(driver1 -> element.findElement(by));
+                return res;
+            } catch (TimeoutException e1) {
+                throw new RuntimeException("Button not found [pinnacle] with by: " + by);
+            }
+        }
+    }
+
+    public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement element, By by) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        List<WebElement> res;
+        try {
+            res = wait.until(driver1 -> element.findElements(by));
+            return res;
+        } catch (TimeoutException e) {
+            element.click();
+            try {
+                res = wait.until(driver1 -> element.findElements(by));
                 return res;
             } catch (TimeoutException e1) {
                 throw new RuntimeException("Button not found [pinnacle] with by: " + by);
