@@ -1,7 +1,14 @@
 package com.melniknow.fd.betting.bookmakers;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 public class SeleniumSupport {
     public static WebElement getParentByDeep(WebElement element, int deep) {
@@ -31,5 +38,22 @@ public class SeleniumSupport {
 
     public static By buildGlobalH4ByText(String text) {
         return By.xpath("//h4[text()='" + text + "']");
+    }
+
+    public static WebElement findElementWithClicking(ChromeDriver driver, WebElement element, By by) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        WebElement res;
+        try {
+            res = wait.until(driver1 -> element.findElement(by));
+            return res;
+        } catch (TimeoutException e) {
+            element.click();
+            try {
+                res = wait.until(driver1 -> element.findElement(by));
+                return res;
+            } catch (TimeoutException e1) {
+                throw new RuntimeException("Button not found [pinnacle] with by: " + by);
+            }
+        }
     }
 }
