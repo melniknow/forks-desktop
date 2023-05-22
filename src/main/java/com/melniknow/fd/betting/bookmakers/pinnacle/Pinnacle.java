@@ -98,15 +98,34 @@ public class Pinnacle implements IBookmaker {
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-//        var placeBet = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BET")));
-        var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
-        wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
-        WebDriverWait waitSuccess = new WebDriverWait(driver, Duration.ofSeconds(55));
-        waitSuccess.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
+        try {
+            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
+            wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
 
-        return getCurrentCf(driver);
+            waitLoop(driver);
+
+            return getCurrentCf(driver);
+        } catch (Exception e) {
+            throw new RuntimeException("bet not place [pinncale]");
+        }
+    }
+
+    private void waitLoop(ChromeDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        while (true) {
+            try {
+                wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
+                break;
+            } catch (TimeoutException e) {
+                try {
+                    var placeBet1 = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
+                    wait.until(ExpectedConditions.elementToBeClickable(placeBet1)).click();
+                } catch (TimeoutException ignored) {
+                }
+            }
+        }
     }
 
     private BigDecimal getCurrentCf(ChromeDriver driver) {
@@ -124,7 +143,7 @@ public class Pinnacle implements IBookmaker {
             var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));
             wait.until(ExpectedConditions.elementToBeClickable(confirm)).click();
         } catch (NoSuchElementException | TimeoutException ignored) {
-
+            // it`s possible that there are no previous windows
         }
     }
 
@@ -221,8 +240,15 @@ public class Pinnacle implements IBookmaker {
                     return "1st Half";
                 } else if (betType.contains("HALF_02__")) {
                     return "2nd Half";
+                } else if (betType.contains("SET_01__")) {
+                    return "1st Quarter";
+                } else if (betType.contains("SET_02__")) {
+                    return "2nd Quarter";
+                } else if (betType.contains("SET_03__")) {
+                    return "3rd Quarter";
+                } else if (betType.contains("SET_04__")) {
+                    return "4th Quarter";
                 }
-                // TODO: quarters ? - not found
             }
             case HOCKEY -> {
                 if (betType.contains("SET_01__")) {
