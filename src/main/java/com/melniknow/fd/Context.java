@@ -32,7 +32,7 @@ public class Context {
     public static volatile Profile profile;
 
     public static final LoadingCache<String, Parser.Fork> forksCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(30, TimeUnit.MINUTES)
+        .expireAfterAccess(150, TimeUnit.MINUTES)
         .build(
             new CacheLoader<>() {
                 @Override
