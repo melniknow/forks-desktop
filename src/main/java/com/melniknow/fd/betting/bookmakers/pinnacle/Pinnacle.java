@@ -34,8 +34,8 @@ public class Pinnacle implements IBookmaker {
 
         String marketName;
         String selectionName;
-        if (info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
-            marketName = getMarketName(info.BK_bet(), sport);
+        if (!info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
+            marketName = getMarketName(info.BK_bet(), sport, info.BK_href());
             selectionName = getSelectionName(info, sport);
         } else {
             marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
@@ -68,7 +68,8 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("Don`t support [pinnacle]: " + info.BK_bet());
             }
         } else {
-            button = SeleniumSupport.findElementWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            button = SeleniumSupport.findElementWithClicking(driver, market,
+                By.xpath(".//span[contains(text(), '" + selectionName + "')]"));
         }
 
         wait.until(ExpectedConditions.elementToBeClickable(button)).click();
@@ -87,7 +88,7 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("betCoef is too low [pinnacle] - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
         }
 
-        if (sum.compareTo(new BigDecimal("0.001")) < 0) {
+        if (sum.compareTo(new BigDecimal("1")) < 0) {
             throw new RuntimeException("Very small min Bet [pinnacle]; sum = " + sum);
         }
 
@@ -99,10 +100,11 @@ public class Pinnacle implements IBookmaker {
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        var placeBet = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BETS")));
+//        var placeBet = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BET")));
+        var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
         wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
-
-        // TODO wait is state is Ok
+        WebDriverWait waitSuccess = new WebDriverWait(driver, Duration.ofSeconds(55));
+        waitSuccess.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
 
         return getCurrentCf(driver);
     }
@@ -159,6 +161,10 @@ public class Pinnacle implements IBookmaker {
         } else if (bkBet.contains("__UNDER")) {
             return "Under " + digits;
         } else if (bkBet.contains("HANDICAP")) {
+            digits = info.BK_market_meta().getAsJsonObject().get("points").getAsString();
+            if (digits.equals("0.0") || digits.equals("-0.0") || digits.equals("+0.0")) {
+                return "0";
+            }
             if (digits.startsWith("-")) {
                 return digits;
             }
@@ -167,23 +173,25 @@ public class Pinnacle implements IBookmaker {
         throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + "| sport: " + sport);
     }
 
-    private String getMarketName(String betType, Sport sport) {
-        return getBetType(betType, sport) + " - " + getPartOfGame(betType, sport);
+    private String getMarketName(String betType, Sport sport, String ref) {
+        return getBetType(betType, sport, ref) + " – " + getPartOfGame(betType, sport);
     }
 
-    private String getBetType(String betType, Sport sport) {
-        var tennisSets = "";
-        if (sport.equals(Sport.TENNIS)) {
-            tennisSets = " (Sets)";
+    private String getBetType(String betType, Sport sport, String ref) {
+        var tennisSuffix = "";
+        if (sport.equals(Sport.TENNIS) && ref.contains("(games)")) {
+            tennisSuffix = " (Games)";
+        } else if (sport.equals(Sport.TENNIS)) {
+            tennisSuffix = " (Sets)";
         }
         if (betType.contains("WIN")) {
-            return "Money Line" + tennisSets;
+            return "Money Line" + tennisSuffix;
         } else if (betType.contains("TEAM_TOTALS")) {
-            return "Team Total" + tennisSets;
+            return "Team Total" + tennisSuffix;
         } else if (betType.contains("TOTALS")) {
-            return "Total" + tennisSets;
+            return "Total" + tennisSuffix;
         } else if (betType.contains("HANDICAP")) {
-            return "Handicap" + tennisSets;
+            return "Handicap" + tennisSuffix;
         }
         throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
     }
@@ -197,7 +205,7 @@ public class Pinnacle implements IBookmaker {
                     return "2nd Half";
                 }
             }
-            case TENNIS -> {
+            case TENNIS, VOLLEYBALL -> {
                 if (betType.contains("SET_01__")) {
                     return "1st Set";
                 } else if (betType.contains("SET_02__")) {
@@ -225,19 +233,13 @@ public class Pinnacle implements IBookmaker {
                     return "3rd Period";
                 }
             }
-            case VOLLEYBALL -> {
-                // TODO: not found
-            }
         }
         var isFullGame = betType.startsWith("WIN") || betType.startsWith("TEAM_TOTALS") || betType.startsWith("TOTALS") || betType.startsWith("HANDICAP");
         if (isFullGame) {
             switch (sport) {
-                case SOCCER, TENNIS, HANDBALL -> { return "Match"; }
+                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL -> { return "Match"; }
                 case BASKETBALL -> { return "Game"; }
                 case HOCKEY -> { return "Regulation Time"; }
-                case VOLLEYBALL -> {
-                    // TODO: not found
-                }
             }
         }
         throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
