@@ -164,4 +164,17 @@ public class MathUtils {
             return false;
         }
     }
+
+    public static BigDecimal calculateIncome(BigDecimal cf1, BigDecimal cf2) {
+        var mode = RoundingMode.DOWN;
+        var scale = 8;
+
+        var income1 = BigDecimal.ONE.divide(cf1, scale, mode);
+        var income2 = BigDecimal.ONE.divide(cf2, scale, mode);
+
+        var income = income1.add(income2);
+
+        var _100 = new BigDecimal("100");
+        return _100.subtract(income.multiply(_100));
+    }
 }

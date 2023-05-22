@@ -21,7 +21,7 @@ public class Bet365 implements IBookmaker {
 
     }
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info) {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
         return info.BK_cf();
     }
 }
