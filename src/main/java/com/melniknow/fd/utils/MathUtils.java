@@ -5,6 +5,7 @@ import com.melniknow.fd.advanced.Exception;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Sport;
+import javafx.util.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,6 +15,8 @@ import java.util.List;
 
 public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
+
+    public record ForkKey(String bookmaker, BigDecimal eventId, String BK_bet) { }
 
     public static CalculatedFork calculate(List<Parser.Fork> forks_) {
         if (forks_ == null || forks_.isEmpty()) return null;
@@ -37,25 +40,22 @@ public class MathUtils {
                     return checkException(ex1, fork.sport(), fork.betInfo1(), true, fork.isMiddles()) &&
                         checkException(ex2, fork.sport(), fork.betInfo2(), false, fork.isMiddles());
                 })
+                .filter(fork -> {
+                    if (!Context.parserParams.isRepeatFork()) {
+                        return !Context.forksCache.asMap().containsKey(new ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()))
+                            && !Context.forksCache.asMap().containsKey(new ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()));
+                    }
+                    return true;
+                })
                 .toList()
         );
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
-        Parser.Fork fork = null;
+        Parser.Fork fork = forks.get(0);
 
-        if (Context.parserParams.isRepeatFork()) {
-            fork = forks.get(0);
-        } else {
-            for (var curFork : forks) {
-                if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
-                    fork = curFork;
-                    break;
-                }
-            }
-            if (fork == null) {
-                return null;
-            }
+        if (fork == null) {
+            return null;
         }
 
         var mode = RoundingMode.DOWN;

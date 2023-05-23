@@ -13,6 +13,8 @@ import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.utils.BetUtils;
+import com.melniknow.fd.utils.MathUtils;
+import javafx.util.Pair;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,12 +36,12 @@ public class Context {
     // TODO
     public static BigDecimal maxMinus = new BigDecimal("-5");
 
-    public static final LoadingCache<String, Parser.Fork> forksCache = CacheBuilder.newBuilder()
+    public static final LoadingCache<MathUtils.ForkKey, Parser.Fork> forksCache = CacheBuilder.newBuilder()
         .expireAfterAccess(120, TimeUnit.MINUTES)
         .build(
             new CacheLoader<>() {
                 @Override
-                public Parser.Fork load(String s) {
+                public Parser.Fork load(MathUtils.ForkKey s) {
                     return null;
                 }
             });

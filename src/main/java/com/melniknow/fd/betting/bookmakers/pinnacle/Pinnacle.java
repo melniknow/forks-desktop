@@ -101,37 +101,50 @@ public class Pinnacle implements IBookmaker {
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-            waitLoop(driver, info.BK_cf(), cf1);
-            return getCurrentCf(driver);
+            return waitLoop(driver, info.BK_cf(), cf1);
         } catch (Exception e) {
             throw new RuntimeException("bet not place [pinncale]");
         }
     }
 
-    private void waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1) {
+    private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         while (true) {
-
             try {
                 var curCf = getCurrentCf(driver);
                 if (curCf.compareTo(oldCf) >= 0) {
                     var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
                     wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
                 } else {
-                    var income = MathUtils.calculateIncome(curCf, cf1);
-                    if (income.compareTo(Context.maxMinus) < 0) {
-                        throw new RuntimeException("Ставка не поставленаЖ максимальный минус - " + income);
+                    var newIncome = MathUtils.calculateIncome(curCf, cf1);
+                    if (newIncome.compareTo(Context.maxMinus) < 0) {
+                        throw new RuntimeException("Ставка не поставлена: Превышен максимальный минус: " + newIncome);
                     } else {
-                        // TODO
+                        var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
+                        wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
                     }
                 }
             } catch (TimeoutException ignored) {
+
+            }
+            while (betIsProcessing(driver)) {
+                // waiting
                 try {
                     wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
-                    break;
-                } catch (TimeoutException e) {
+                    return getCurrentCf(driver); // TODO change to realCf?
+                } catch (TimeoutException ignored) {
                 }
             }
+        }
+    }
+
+    private boolean betIsProcessing(ChromeDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        try {
+            wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']"))); // TODO change to span
+            return false;
+        } catch (NoSuchElementException | TimeoutException ignored) {
+            return true;
         }
     }
 

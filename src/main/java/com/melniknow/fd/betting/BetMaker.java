@@ -10,6 +10,7 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
+import javafx.util.Pair;
 import org.openqa.selenium.json.Json;
 
 import java.math.BigDecimal;
@@ -62,21 +63,21 @@ public class BetMaker {
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
             var balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
 
-            var bets = calculateBetsSize(
-                bkParams1.currency(),
-                bkParams2.currency(),
-                balance1Rub,
-                balance2Rub,
-                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.minBetSum()),
-                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
-                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
-                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
-                calculatedFinal.betCoef1(),
-                calculatedFinal.betCoef2()
-            );
-
-            var bet1 = BigDecimal.valueOf(bets.get(0));
-            var bet2 = BigDecimal.valueOf(bets.get(1));
+//            var bets = calculateBetsSize(
+//                bkParams1.currency(),
+//                bkParams2.currency(),
+//                balance1Rub,
+//                balance2Rub,
+//                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.minBetSum()),
+//                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
+//                Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
+//                Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
+//                calculatedFinal.betCoef1(),
+//                calculatedFinal.betCoef2()
+//            );
+//
+//            var bet1 = BigDecimal.valueOf(bets.get(0));
+//            var bet2 = BigDecimal.valueOf(bets.get(1));
 
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), new BigDecimal("1")));
             var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), new BigDecimal("1")));
@@ -111,10 +112,15 @@ public class BetMaker {
 
             executor.shutdownNow();
 
-            Context.forksCache.put(calculatedFinal.fork().forkId(), calculatedFinal.fork());
+            var fork = calculatedFinal.fork();
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()), fork);
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()), fork);
 
-            var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
-            var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
+//            var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
+//            var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
+
+            var bet1Rub = new BigDecimal("1");
+            var bet2Rub = new BigDecimal("1");
 
             return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub, isValue, isClosed);
 
@@ -220,6 +226,7 @@ public class BetMaker {
             throw new RuntimeException("Вилка не была поставлена");
         }
 
+        income = "TESTS | TESTS | TESTS";
         return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
     }
 
