@@ -101,6 +101,7 @@ public class _188Bet implements IBookmaker {
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        // The Line, Odds or Score has changed.
 //        try {
 //            while (!clickIfIsClickable(driver, byPlaceBet) && !Thread.currentThread().isInterrupted()) {
 //                if (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'

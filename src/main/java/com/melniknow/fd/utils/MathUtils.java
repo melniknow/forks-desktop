@@ -5,7 +5,6 @@ import com.melniknow.fd.advanced.Exception;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Sport;
-import javafx.util.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

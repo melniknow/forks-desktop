@@ -225,6 +225,8 @@ public class Pinnacle implements IBookmaker {
         }
         if (betType.contains("WIN")) {
             return "Money Line" + tennisSuffix;
+        } else if (betType.contains("GAME")) {
+            return "Money Line (Games)";
         } else if (betType.contains("TEAM_TOTALS")) {
             return "Team Total" + tennisSuffix;
         } else if (betType.contains("TOTALS")) {
@@ -253,6 +255,14 @@ public class Pinnacle implements IBookmaker {
                     return "3rd Set";
                 } else if (betType.contains("SET_04__")) {
                     return "4th Set";
+                } else if (betType.startsWith("GAME")) {
+                    betType = betType.substring(6);
+                    betType = removePrefix(betType);
+                    var set = Integer.parseInt(betType.split("_")[0]);
+                    betType = betType.substring(betType.indexOf("_") + 1);
+                    betType = removePrefix(betType);
+                    var game = Integer.parseInt(betType.split("_")[0]);
+                    return "SET " + set + " GAME " + game;
                 }
             }
             case BASKETBALL -> {
@@ -289,5 +299,13 @@ public class Pinnacle implements IBookmaker {
             }
         }
         throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
+    }
+
+    private static String removePrefix(String str) {
+        var newStr = str;
+        while (newStr.startsWith("_") || newStr.startsWith("0")) {
+            newStr = newStr.substring(1);
+        }
+        return newStr;
     }
 }
