@@ -14,7 +14,6 @@ import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
-import javafx.util.Pair;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

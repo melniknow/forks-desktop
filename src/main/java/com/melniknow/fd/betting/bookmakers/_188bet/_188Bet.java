@@ -108,13 +108,15 @@ public class _188Bet implements IBookmaker {
                     var curCf = BetsSupport.getCurrentCf(driver);
                     if (curCf.compareTo(info.BK_cf()) >= 0) {
                         clickIfIsClickable(driver, byPlaceBet);
-                    } else {
+                    } else if (!isFirst) {
                         var newIncome = MathUtils.calculateIncome(curCf, cf1);
                         if (newIncome.compareTo(Context.maxMinus) < 0) {
                             throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [188bet]: " + newIncome);
                         } else {
                             clickIfIsClickable(driver, byPlaceBet);
                         }
+                    } else {
+                        throw new RuntimeException("Cf на первом плече упал [188bet]");
                     }
                 } catch (NoSuchElementException | TimeoutException ignored) { }
 

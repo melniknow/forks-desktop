@@ -1,7 +1,5 @@
 package com.melniknow.fd.betting;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Logger;
@@ -10,8 +8,6 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
-import javafx.util.Pair;
-import org.openqa.selenium.json.Json;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

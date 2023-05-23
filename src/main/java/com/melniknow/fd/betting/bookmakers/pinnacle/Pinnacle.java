@@ -101,13 +101,13 @@ public class Pinnacle implements IBookmaker {
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-            return waitLoop(driver, info.BK_cf(), cf1);
+            return waitLoop(driver, info.BK_cf(), cf1, isFirst);
         } catch (Exception e) {
             throw new RuntimeException("bet not place [pinncale]");
         }
     }
 
-    private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1) {
+    private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         // Bet not accepted. Please try again or remove this selection from your Bet Slip.
         while (true) {
@@ -118,17 +118,19 @@ public class Pinnacle implements IBookmaker {
                     var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
                     wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
                     System.out.println("Place Bet 1");
-                } else {
+                } else if (!isFirst) {
                     var newIncome = MathUtils.calculateIncome(curCf, cf1);
                     System.out.println("New income = " + newIncome);
                     if (newIncome.compareTo(Context.maxMinus) < 0) {
                         System.out.println("MINUS!");
                         throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [pinnacle]: " + newIncome);
                     } else {
-                        var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
+                        var placeBet = wait.until(driver1 -> driver.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
                         wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
                         System.out.println("Place Bet 2");
                     }
+                } else {
+                    throw new RuntimeException("Cf на первом плече упал [pinnacle]");
                 }
             } catch (TimeoutException ignored) {
 
