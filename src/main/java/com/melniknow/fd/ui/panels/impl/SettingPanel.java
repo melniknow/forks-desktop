@@ -235,6 +235,10 @@ public class SettingPanel implements IPanel {
                 json.addProperty(sport + "setHandicap", isSetHandicap);
                 if (isSetHandicap) data.add(BetType.SET_HANDICAP);
 
+                var isSelectedGameWin = sportAndBetTypeToCheckbox.get(sport + "gameWin").isSelected();
+                json.addProperty(sport + "gameWin", isSelectedGameWin);
+                if (isSelectedGameWin) data.add(BetType.GAME_WIN);
+
                 if (data.isEmpty()) isError = true;
                 Context.sportToBetTypes.put(sport_, data);
             }
@@ -309,35 +313,38 @@ public class SettingPanel implements IPanel {
     }
     private int viewTypesForSport(String sport, GridPane grid, int y) {
         var wins = new CheckBox("WIN");
-        profileBooleanCheckAndPutHashMAp(sport + "wins", wins);
+        profileBooleanCheckAndPutHashMap(sport + "wins", wins);
         grid.add(wins, 2, y++);
         var setWin = new CheckBox("SET_WIN");
-        profileBooleanCheckAndPutHashMAp(sport + "setWin", setWin);
+        profileBooleanCheckAndPutHashMap(sport + "setWin", setWin);
         grid.add(setWin, 2, y++);
         var halfWin = new CheckBox("HALF_WIN");
-        profileBooleanCheckAndPutHashMAp(sport + "halfWin", halfWin);
+        profileBooleanCheckAndPutHashMap(sport + "halfWin", halfWin);
         grid.add(halfWin, 2, y++);
         var totals = new CheckBox("TOTALS");
-        profileBooleanCheckAndPutHashMAp(sport + "totals", totals);
+        profileBooleanCheckAndPutHashMap(sport + "totals", totals);
         grid.add(totals, 2, y++);
         var setTotals = new CheckBox("SET_TOTALS");
-        profileBooleanCheckAndPutHashMAp(sport + "setTotals", setTotals);
+        profileBooleanCheckAndPutHashMap(sport + "setTotals", setTotals);
         grid.add(setTotals, 2, y++);
         var halfTotals = new CheckBox("HALF_TOTALS");
-        profileBooleanCheckAndPutHashMAp(sport + "halfTotals", halfTotals);
+        profileBooleanCheckAndPutHashMap(sport + "halfTotals", halfTotals);
         grid.add(halfTotals, 2, y++);
         var handicaps = new CheckBox("HANDICAP");
-        profileBooleanCheckAndPutHashMAp(sport + "handicaps", handicaps);
+        profileBooleanCheckAndPutHashMap(sport + "handicaps", handicaps);
         grid.add(handicaps, 2, y++);
         var halfHandicap = new CheckBox("HALF_HANDICAP");
-        profileBooleanCheckAndPutHashMAp(sport + "halfHandicap", halfHandicap);
+        profileBooleanCheckAndPutHashMap(sport + "halfHandicap", halfHandicap);
         grid.add(halfHandicap, 2, y++);
         var setHandicap = new CheckBox("SET_HANDICAP");
-        profileBooleanCheckAndPutHashMAp(sport + "setHandicap", setHandicap);
+        profileBooleanCheckAndPutHashMap(sport + "setHandicap", setHandicap);
         grid.add(setHandicap, 2, y++);
+        var gameWin = new CheckBox("GAME_WIN");
+        profileBooleanCheckAndPutHashMap(sport + "gameWin", gameWin);
+        grid.add(gameWin, 2, y++);
         return y;
     }
-    private void profileBooleanCheckAndPutHashMAp(String name, CheckBox checkBox) {
+    private void profileBooleanCheckAndPutHashMap(String name, CheckBox checkBox) {
         sportAndBetTypeToCheckbox.put(name, checkBox);
         try {
             var json = Context.profile.json;

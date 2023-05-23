@@ -47,7 +47,7 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + " | sport: " + sport);
             }
         }
-
+        // 438
         System.out.println("info.BK_bet() = " + info.BK_bet());
         System.out.println("marketName [pinnacle] = " + marketName);
         System.out.println("selectionName [pinnacle] = " + selectionName);
@@ -109,42 +109,55 @@ public class Pinnacle implements IBookmaker {
 
     private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        // Bet not accepted. Please try again or remove this selection from your Bet Slip.
         while (true) {
             try {
                 var curCf = getCurrentCf(driver);
+                System.out.println("Get CurCf = " + curCf);
                 if (curCf.compareTo(oldCf) >= 0) {
                     var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
                     wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
+                    System.out.println("Place Bet 1");
                 } else {
                     var newIncome = MathUtils.calculateIncome(curCf, cf1);
+                    System.out.println("New income = " + newIncome);
                     if (newIncome.compareTo(Context.maxMinus) < 0) {
-                        throw new RuntimeException("Ставка не поставлена: Превышен максимальный минус: " + newIncome);
+                        System.out.println("MINUS!");
+                        throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [pinnacle]: " + newIncome);
                     } else {
                         var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
                         wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
+                        System.out.println("Place Bet 2");
                     }
                 }
             } catch (TimeoutException ignored) {
 
             }
-            while (betIsProcessing(driver)) {
-                // waiting
+            while (true) {
                 try {
-                    wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
-                    return getCurrentCf(driver); // TODO change to realCf?
+                    System.out.println("Waiting");
+                    new WebDriverWait(driver, Duration.ofSeconds(10))
+                        .until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
+                    return getCurrentCf(driver);
                 } catch (TimeoutException ignored) {
+                    System.out.println("Not found Bet Accepted");
+                    if (windowContains(driver, By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']"))) {
+                        System.out.println("Break");
+                        break;
+                    }
                 }
             }
         }
     }
 
-    private boolean betIsProcessing(ChromeDriver driver) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+    private static boolean windowContains(ChromeDriver driver, By by) {
         try {
-            wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']"))); // TODO change to span
-            return false;
-        } catch (NoSuchElementException | TimeoutException ignored) {
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            wait.until(
+                driver1 -> driver1.findElement(by));
             return true;
+        } catch (Exception ignored) {
+            return false;
         }
     }
 
@@ -189,6 +202,10 @@ public class Pinnacle implements IBookmaker {
             return BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         } else if (bkBet.contains("WIN__PX")) {
             return "Draw";
+        } else if (bkBet.contains("GAME") && bkBet.contains("P1")) {
+            return BetsSupport.getTeamFirstNameByTitle(info.BK_game());
+        } else if (bkBet.contains("GAME") && bkBet.contains("P2")) {
+            return BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         }
 
         String digits = bkBet;
@@ -262,7 +279,7 @@ public class Pinnacle implements IBookmaker {
                     betType = betType.substring(betType.indexOf("_") + 1);
                     betType = removePrefix(betType);
                     var game = Integer.parseInt(betType.split("_")[0]);
-                    return "SET " + set + " GAME " + game;
+                    return "Set " + set + " Game " + game;
                 }
             }
             case BASKETBALL -> {

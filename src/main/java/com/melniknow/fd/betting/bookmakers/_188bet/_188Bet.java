@@ -5,6 +5,7 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
+import com.melniknow.fd.utils.MathUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoSuchElementException;
@@ -56,7 +57,7 @@ public class _188Bet implements IBookmaker {
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
 //        switch (info.BK_bet_type()) {
-//            case WIN, SET_WIN, HALF_WIN ->
+//            case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
 //                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
 //            case TOTALS, SET_TOTALS, HALF_TOTALS ->
 //                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
@@ -100,22 +101,41 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        // The Line, Odds or Score has changed.
+//        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 //        try {
-//            while (!clickIfIsClickable(driver, byPlaceBet) && !Thread.currentThread().isInterrupted()) {
-//                if (!clickIfIsClickable(driver, byAccepChanges) && !Thread.currentThread().isInterrupted()) { // trying to click on 'Accept Changes'
+//            var isDone = false;
+//            while (true) {
+//                try {
+//                    var curCf = BetsSupport.getCurrentCf(driver);
+//                    if (curCf.compareTo(info.BK_cf()) >= 0) {
+//                        clickIfIsClickable(driver, byPlaceBet);
+//                    } else {
+//                        var newIncome = MathUtils.calculateIncome(curCf, cf1);
+//                        if (newIncome.compareTo(Context.maxMinus) < 0) {
+//                            throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [188bet]: " + newIncome);
+//                        } else {
+//                            clickIfIsClickable(driver, byPlaceBet);
+//                        }
+//                    }
+//                } catch (NoSuchElementException | TimeoutException ignored) { }
+//
+//                // waiting
+//                while (!windowContains(driver, byAccepChanges) && !windowContains(driver, byPlaceBet)) {
 //                    try {
-//                        driver.findElement(By.xpath("//h4[text()='One or more of your selections are closed for betting.']"));
-//                        throw new RuntimeException("Bet is closed");
-//                    } catch (NoSuchElementException ignored) { }
+//                        new WebDriverWait(driver, Duration.ofSeconds(10)).until(
+//                            driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
+//                        isDone = true;
+//                        break;
+//                    } catch (TimeoutException ignored) { }
 //                }
-//                TimeUnit.MILLISECONDS.sleep(1000);
+//                if (isDone) {
+//                    break;
+//                }
+//                if (windowContains(driver, byAccepChanges)) {
+//                    clickIfIsClickable(driver, byAccepChanges);
+//                    TimeUnit.MILLISECONDS.sleep(1000);
+//                }
 //            }
-//
-//            new WebDriverWait(driver, Duration.ofSeconds(55)).until(
-//                driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
-//
 //            var realCf = BetsSupport.getCurrentCf(driver);
 //            BetsSupport.closeAfterSuccessfulBet(driver);
 //            System.out.println("Final cf = " + realCf);
@@ -140,6 +160,17 @@ public class _188Bet implements IBookmaker {
             driver.executeScript("arguments[0].click();", button);
             return true;
         } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean windowContains(ChromeDriver driver, By by) {
+        try {
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            wait.until(
+                driver1 -> driver1.findElement(by));
+            return true;
+        } catch (TimeoutException | NoSuchElementException ignored) {
             return false;
         }
     }
