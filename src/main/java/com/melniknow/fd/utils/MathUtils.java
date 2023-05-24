@@ -89,6 +89,18 @@ public class MathUtils {
 
             for (Exception exception : exForSport) {
                 switch (exception.type()) {
+                    case ИСКЛ_ЕСЛИ_ТБ -> {
+                        if ((betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
+                            || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("OVER")) {
+                            return false;
+                        }
+                    }
+                    case ИСКЛ_ЕСЛИ_ТМ -> {
+                        if ((betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
+                            || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("UNDER")) {
+                            return false;
+                        }
+                    }
                     case ИСКЛ_ЕСЛИ_ПЕРВАЯ_ТМ -> {
                         if (isFirst && (betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
                             || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("UNDER")) {
