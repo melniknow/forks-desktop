@@ -98,9 +98,6 @@ public class SettingPanel implements IPanel {
         var _188Bet = new CheckBox("_188BET");
         profileBooleanCheck("_188Bet", _188Bet);
         grid.add(_188Bet, 1, y++);
-        var bet365 = new CheckBox("BET365");
-        profileBooleanCheck("bet365", bet365);
-        grid.add(bet365, 1, y++);
 
         var middles = new Label("Коридоры *");
         grid.add(middles, 0, y);
@@ -164,7 +161,6 @@ public class SettingPanel implements IPanel {
             var bookmakersData = new ArrayList<CheckBox>() {{
                 add(pinnacle);
                 add(_188Bet);
-                add(bet365);
             }};
 
             var sportsData = new ArrayList<CheckBox>() {{
@@ -293,7 +289,6 @@ public class SettingPanel implements IPanel {
             json.addProperty("countForkField", countForkField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());
             json.addProperty("_188Bet", _188Bet.isSelected());
-            json.addProperty("bet365", bet365.isSelected());
             json.addProperty("middlesField", middlesField.getText());
             json.addProperty("forkLiveField", forkLiveField.getText());
             json.addProperty("soccer", soccer.isSelected());
