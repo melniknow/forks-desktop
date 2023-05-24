@@ -78,7 +78,7 @@ public class SettingPanel implements IPanel {
         grid.add(minusDeal, 0, y);
         var minusDealField = new TextField();
         profileTextCheck("minusDealField", minusDealField);
-        minusDealField.setPromptText("6");
+        minusDealField.setPromptText("-6");
         minusDealField.setPrefHeight(40);
         grid.add(minusDealField, 1, y++);
 
