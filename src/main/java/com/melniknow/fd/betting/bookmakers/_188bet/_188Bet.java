@@ -6,10 +6,7 @@ import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.utils.MathUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -98,64 +95,82 @@ public class _188Bet implements IBookmaker {
         }
     }
 
+    private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
+    private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
+    private static final By byClosedBet = By.xpath("//h4[text()='One or more of your selections are closed for betting.']");
+    private static final By bySuccessBet = By.xpath("//h4[text()='Your bet has been successfully placed.']");
+
+
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
-            var isDone = false;
-            while (true) {
-                try {
-                    var curCf = BetsSupport.getCurrentCf(driver);
-                    if (curCf.compareTo(info.BK_cf()) >= 0) {
-                        clickIfIsClickable(driver, byPlaceBet);
-                    } else if (!isFirst) {
-                        var newIncome = MathUtils.calculateIncome(curCf, cf1);
-                        if (newIncome.compareTo(Context.maxMinus) < 0) {
-                            throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [188bet]: " + newIncome);
-                        } else {
-                            clickIfIsClickable(driver, byPlaceBet);
-                        }
-                    } else {
-                        throw new RuntimeException("Cf на первом плече упал [188bet]");
-                    }
-                } catch (NoSuchElementException | TimeoutException ignored) { }
+            waitLoop(driver, info.BK_cf(), cf1, isFirst);
 
-                while (true) {
-                    try {
-                        new WebDriverWait(driver, Duration.ofSeconds(10)).until(
-                            driver1 -> driver1.findElement(By.xpath("//h4[text()='Your bet has been successfully placed.']")));
-                        isDone = true;
-                        break;
-                    } catch (TimeoutException ignored) {
-                        System.out.println("Not found Bet Accepted [188bet]");
-                        if (windowContains(driver, byAccepChanges) || windowContains(driver, byPlaceBet)) {
-                            break;
-                        }
-                    }
-                }
-                if (isDone) {
-                    break;
-                }
-                if (windowContains(driver, byAccepChanges)) {
-                    clickIfIsClickable(driver, byAccepChanges);
-                    TimeUnit.MILLISECONDS.sleep(1000);
-                }
-            }
             var realCf = BetsSupport.getCurrentCf(driver);
             BetsSupport.closeAfterSuccessfulBet(driver);
-            System.out.println("Final cf = " + realCf);
+            System.out.println("[188bet] Final cf = " + realCf);
             return realCf;
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
-            System.out.println("Don`t Place Bet");
+            System.out.println("Don`t Place Bet [188bet]");
             throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException();
         }
     }
 
-    private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
-    private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
+    private void waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) throws InterruptedException {
+        while (true) {
+            updateOdds(driver, oldCf, cf1, isFirst);
+            if (waitSuccess(driver)) {
+                return;
+            }
+        }
+    }
+
+    private boolean waitSuccess(ChromeDriver driver) {
+        while (true) {
+            try {
+                System.out.println("Wait.... [188bet]");
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+                wait.until(driver1 -> driver1.findElement(bySuccessBet));
+                return true;
+            } catch (Exception e) {
+                if (windowContains(driver, byAccepChanges) || windowContains(driver, byPlaceBet)) {
+                    System.out.println("Exit from wait [188bet]");
+                    return false;
+                }
+            }
+        }
+    }
+
+    private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) throws InterruptedException {
+        if (clickIfIsClickable(driver, byAccepChanges)) {
+            System.out.println("Click byAccepChanges [188bet]");
+            TimeUnit.SECONDS.sleep(1);
+        }
+        if (windowContains(driver, byClosedBet)) {
+            System.out.println("Bet is closed =( [188bet]");
+            throw new RuntimeException("Bet is closed =( [188bet]");
+        }
+        var curCf = BetsSupport.getCurrentCf(driver);
+        if (curCf.compareTo(oldCf) >= 0) {
+            System.out.println("Click Place 1 [188bet]");
+            clickIfIsClickable(driver, byPlaceBet);
+        } else if (!isFirst) {
+            var newIncome = MathUtils.calculateIncome(curCf, cf1);
+            System.out.println("[188bet] newIncome = " + newIncome);
+            if (newIncome.compareTo(Context.maxMinus) < 0) {
+                throw new RuntimeException("Max minus [188bet]: newIncome = " + newIncome);
+            } else {
+                System.out.println("Click Place 2 [188bet]");
+                clickIfIsClickable(driver, byPlaceBet);
+            }
+        } else {
+            throw new RuntimeException("Коэфициент на первом плече упал [188bet]");
+        }
+    }
 
     private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));

@@ -51,11 +51,11 @@ public class MathUtils {
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
-        Parser.Fork fork = forks.get(0);
-
-        if (fork == null) {
+        if (forks.isEmpty()) {
             return null;
         }
+
+        Parser.Fork fork = forks.get(0);
 
         var mode = RoundingMode.DOWN;
         var scale = 8;

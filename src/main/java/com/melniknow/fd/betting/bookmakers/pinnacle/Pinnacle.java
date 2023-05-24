@@ -103,52 +103,64 @@ public class Pinnacle implements IBookmaker {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
             return waitLoop(driver, info.BK_cf(), cf1, isFirst);
         } catch (Exception e) {
-            throw new RuntimeException("bet not place [pinncale]");
+            throw new RuntimeException("bet not place [pinncale]" + e.getMessage());
         }
     }
 
+    private static final By byPlaceBet = By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']");
+    private static final By byPlaceBetSpan = SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BET");
+    private static final By byOddsChanges = SeleniumSupport.buildGlobalSpanByText("Odds changed:");
+    private static final By byBetSuccess = SeleniumSupport.buildGlobalSpanByText("Bet Accepted");
+    private static final By byBetClosed = SeleniumSupport.buildGlobalSpanByText("Bet not accepted. Please try again or remove this selection from your Bet Slip.");
+
     private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        // Bet not accepted. Please try again or remove this selection from your Bet Slip.
+        while (true) {
+            updateOdds(driver, oldCf, cf1, isFirst);
+            if (waitSuccess(driver)) {
+                return getCurrentCf(driver);
+            }
+        }
+    }
+
+    private boolean waitSuccess(ChromeDriver driver) {
         while (true) {
             try {
-                var curCf = getCurrentCf(driver);
-                System.out.println("Get CurCf = " + curCf);
-                if (curCf.compareTo(oldCf) >= 0) {
-                    var placeBet = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
-                    wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
-                    System.out.println("Place Bet 1");
-                } else if (!isFirst) {
-                    var newIncome = MathUtils.calculateIncome(curCf, cf1);
-                    System.out.println("New income = " + newIncome);
-                    if (newIncome.compareTo(Context.maxMinus) < 0) {
-                        System.out.println("MINUS!");
-                        throw new RuntimeException("Плечо не поставлено: Превышен максимальный минус [pinnacle]: " + newIncome);
-                    } else {
-                        var placeBet = wait.until(driver1 -> driver.findElement(By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']")));
-                        wait.until(ExpectedConditions.elementToBeClickable(placeBet)).click();
-                        System.out.println("Place Bet 2");
-                    }
-                } else {
-                    throw new RuntimeException("Cf на первом плече упал [pinnacle]");
+                System.out.println("Wait....");
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+                wait.until(driver1 -> driver1.findElement(byBetSuccess));
+                return true;
+            } catch (Exception e) {
+                if (windowContains(driver, byOddsChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byBetClosed)) {
+                    System.out.println("Exit from wait");
+                    return false;
                 }
-            } catch (TimeoutException ignored) {
+            }
+        }
+    }
 
+    private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
+        if (windowContains(driver, byBetClosed)) {
+            throw new RuntimeException("Ставка закрыта [pinnacle]");
+        }
+        if (!isActivePlaceBet(driver)) {
+            System.out.println("Is not active");
+            return;
+        }
+        var curCf = getCurrentCf(driver);
+        if (curCf.compareTo(oldCf) >= 0) {
+            System.out.println("Click Place 1");
+            clickIfIsClickable(driver, byPlaceBetSpan);
+        } else if (!isFirst) {
+            var newIncome = MathUtils.calculateIncome(curCf, cf1);
+            System.out.println("newIncome = " + newIncome);
+            if (newIncome.compareTo(Context.maxMinus) < 0) {
+                throw new RuntimeException("Max minus [pinnale]: newIncome = " + newIncome);
+            } else {
+                System.out.println("Click Place 2");
+                clickIfIsClickable(driver, byPlaceBetSpan);
             }
-            while (true) {
-                try {
-                    System.out.println("Waiting");
-                    new WebDriverWait(driver, Duration.ofSeconds(10))
-                        .until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Bet Accepted")));
-                    return getCurrentCf(driver);
-                } catch (TimeoutException ignored) {
-                    System.out.println("Not found Bet Accepted");
-                    if (windowContains(driver, By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']"))) {
-                        System.out.println("Break");
-                        break;
-                    }
-                }
-            }
+        } else {
+            throw new RuntimeException("Коэфициент на первом плече упал [pinnacle]");
         }
     }
 
@@ -159,6 +171,27 @@ public class Pinnacle implements IBookmaker {
                 driver1 -> driver1.findElement(by));
             return true;
         } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private static boolean isActivePlaceBet(ChromeDriver driver) {
+        try {
+            var bt = driver.findElement(byPlaceBet);
+            return bt.isEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        try {
+            var button = wait.until(driver_ -> driver_.findElement(by));
+            wait.until(ExpectedConditions.elementToBeClickable(button));
+            driver.executeScript("arguments[0].click();", button);
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }
