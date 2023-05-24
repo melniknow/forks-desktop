@@ -74,6 +74,14 @@ public class SettingPanel implements IPanel {
         countForkField.setPrefHeight(40);
         grid.add(countForkField, 1, y++);
 
+        var minusDeal = new Label("Максимальный минус при перекрытии *");
+        grid.add(minusDeal, 0, y);
+        var minusDealField = new TextField();
+        profileTextCheck("minusDealField", minusDealField);
+        minusDealField.setPromptText("6");
+        minusDealField.setPrefHeight(40);
+        grid.add(minusDealField, 1, y++);
+
         var bookmakers = new Label("Букмекеры *");
         grid.add(bookmakers, 0, y);
         var pinnacle = new CheckBox("PINNACLE");
@@ -161,7 +169,7 @@ public class SettingPanel implements IPanel {
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
                 pauseAfterSuccessField.getText().isEmpty() ||
-                countForkField.getText().isEmpty()) {
+                countForkField.getText().isEmpty() || minusDealField.getText().isEmpty()) {
 
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
@@ -249,7 +257,8 @@ public class SettingPanel implements IPanel {
                     sportsType,
                     new BigDecimal(pauseAfterSuccessField.getText()),
                     new BigDecimal(countForkField.getText()),
-                    isRepeatForkCheckBox.isSelected()
+                    isRepeatForkCheckBox.isSelected(),
+                    new BigDecimal(minusDealField.getText())
                 );
 
                 if (!noChangeBookmakers) {
@@ -266,6 +275,7 @@ public class SettingPanel implements IPanel {
             json.addProperty("maximumField", maximumField.getText());
             json.addProperty("pauseAfterSuccessField", pauseAfterSuccessField.getText());
             json.addProperty("countForkField", countForkField.getText());
+            json.addProperty("minusDealField", minusDealField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());
             json.addProperty("_188Bet", _188Bet.isSelected());
             json.addProperty("middlesField", middlesField.getText());
