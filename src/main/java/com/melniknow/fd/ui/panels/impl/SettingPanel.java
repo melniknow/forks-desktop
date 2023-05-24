@@ -191,57 +191,60 @@ public class SettingPanel implements IPanel {
             var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sport.valueOf(n.getText().toUpperCase())).toList();
             var json = Context.profile.json;
             Context.sportToBetTypes.clear();
-            var isError = false;
-
-            for (Sport sport_ : Sport.values()) {
-                if (!sportsType.contains(sport_)) continue;
-
-                var sport = sport_.name().toLowerCase();
-                var data = new ArrayList<BetType>();
-
-                var isWins = sportAndBetTypeToCheckbox.get(sport + "wins").isSelected();
-                json.addProperty(sport + "wins", isWins);
-                if (isWins) data.add(BetType.WIN);
-
-                var isSetWin = sportAndBetTypeToCheckbox.get(sport + "setWin").isSelected();
-                json.addProperty(sport + "setWin", isSetWin);
-                if (isSetWin) data.add(BetType.SET_WIN);
-
-                var isHalfWin = sportAndBetTypeToCheckbox.get(sport + "halfWin").isSelected();
-                json.addProperty(sport + "halfWin", isHalfWin);
-                if (isHalfWin) data.add(BetType.HALF_WIN);
-
-                var isTotals = sportAndBetTypeToCheckbox.get(sport + "totals").isSelected();
-                json.addProperty(sport + "totals", isTotals);
-                if (isTotals) data.add(BetType.TOTALS);
-
-                var isSetTotals = sportAndBetTypeToCheckbox.get(sport + "setTotals").isSelected();
-                json.addProperty(sport + "setTotals", isSetTotals);
-                if (isSetTotals) data.add(BetType.SET_TOTALS);
-
-                var isHalfTotals = sportAndBetTypeToCheckbox.get(sport + "halfTotals").isSelected();
-                json.addProperty(sport + "halfTotals", isHalfTotals);
-                if (isHalfTotals) data.add(BetType.HALF_TOTALS);
-
-                var isHandicap = sportAndBetTypeToCheckbox.get(sport + "handicaps").isSelected();
-                json.addProperty(sport + "handicaps", isHandicap);
-                if (isHandicap) data.add(BetType.HANDICAP);
-
-                var isHalfHandicap = sportAndBetTypeToCheckbox.get(sport + "halfHandicap").isSelected();
-                json.addProperty(sport + "halfHandicap", isHalfHandicap);
-                if (isHalfHandicap) data.add(BetType.HALF_HANDICAP);
-
-                var isSetHandicap = sportAndBetTypeToCheckbox.get(sport + "setHandicap").isSelected();
-                json.addProperty(sport + "setHandicap", isSetHandicap);
-                if (isSetHandicap) data.add(BetType.SET_HANDICAP);
-
-                if (data.isEmpty()) isError = true;
-                Context.sportToBetTypes.put(sport_, data);
-            }
 
             try {
+                for (Sport sport_ : Sport.values()) {
+                    var sport = sport_.name().toLowerCase();
+                    var data = new ArrayList<BetType>();
+
+                    var isWins = sportAndBetTypeToCheckbox.get(sport + "wins").isSelected();
+                    json.addProperty(sport + "wins", isWins);
+                    if (isWins) data.add(BetType.WIN);
+
+                    var isSetWin = sportAndBetTypeToCheckbox.get(sport + "setWin").isSelected();
+                    json.addProperty(sport + "setWin", isSetWin);
+                    if (isSetWin) data.add(BetType.SET_WIN);
+
+                    var isHalfWin = sportAndBetTypeToCheckbox.get(sport + "halfWin").isSelected();
+                    json.addProperty(sport + "halfWin", isHalfWin);
+                    if (isHalfWin) data.add(BetType.HALF_WIN);
+
+                    var isTotals = sportAndBetTypeToCheckbox.get(sport + "totals").isSelected();
+                    json.addProperty(sport + "totals", isTotals);
+                    if (isTotals) data.add(BetType.TOTALS);
+
+                    var isSetTotals = sportAndBetTypeToCheckbox.get(sport + "setTotals").isSelected();
+                    json.addProperty(sport + "setTotals", isSetTotals);
+                    if (isSetTotals) data.add(BetType.SET_TOTALS);
+
+                    var isHalfTotals = sportAndBetTypeToCheckbox.get(sport + "halfTotals").isSelected();
+                    json.addProperty(sport + "halfTotals", isHalfTotals);
+                    if (isHalfTotals) data.add(BetType.HALF_TOTALS);
+
+                    var isHandicap = sportAndBetTypeToCheckbox.get(sport + "handicaps").isSelected();
+                    json.addProperty(sport + "handicaps", isHandicap);
+                    if (isHandicap) data.add(BetType.HANDICAP);
+
+                    var isHalfHandicap = sportAndBetTypeToCheckbox.get(sport + "halfHandicap").isSelected();
+                    json.addProperty(sport + "halfHandicap", isHalfHandicap);
+                    if (isHalfHandicap) data.add(BetType.HALF_HANDICAP);
+
+                    var isSetHandicap = sportAndBetTypeToCheckbox.get(sport + "setHandicap").isSelected();
+                    json.addProperty(sport + "setHandicap", isSetHandicap);
+                    if (isSetHandicap) data.add(BetType.SET_HANDICAP);
+
+                    if (!sportsType.contains(sport_) && !data.isEmpty() ||
+                        sportsType.contains(sport_) && data.isEmpty())
+                        throw new RuntimeException();
+
+                    if (data.isEmpty()) continue;
+
+                    Context.sportToBetTypes.put(sport_, data);
+                }
+
+
                 var middlesParse = Integer.parseInt(middlesField.getText());
-                if (middlesParse > 1 || middlesParse < -1 || isError) throw new RuntimeException();
+                if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
                 var setBetTypes = new HashSet<BetType>();
 

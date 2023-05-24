@@ -1,5 +1,6 @@
 package com.melniknow.fd.core;
 
+import com.melniknow.fd.ui.panels.impl.ProfileTab;
 import com.melniknow.fd.utils.BetUtils;
 import io.mikael.urlbuilder.UrlBuilder;
 
@@ -28,6 +29,7 @@ public class TelegramSender {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
+                "<i>ID сессии:</i> <b>" + ProfileTab.sessionId + "</b>" + "\n" +
                 "<i>Спорт:</i> <b>" + fork.sport() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betType() + "</b>" + "\n\n" +
 
@@ -60,9 +62,9 @@ public class TelegramSender {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
             "-----------------------------------------------------------------------------\n" +
-            "--------------------------- NEW FORK --------------------------------\n" +
-            "-----------------------------------------------------------------------------\n" +
-            "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
+                "--------------------------- NEW FORK --------------------------------\n" +
+                "-----------------------------------------------------------------------------\n" +
+                "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "Спорт: " + fork.sport() + "\n" +
                 "Тип ставки: " + fork.betType() + "\n\n" +
 

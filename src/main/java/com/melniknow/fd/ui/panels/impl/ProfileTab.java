@@ -7,6 +7,8 @@ import com.melniknow.fd.profile.Database;
 import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.ui.Controller;
 import com.melniknow.fd.ui.panels.IPanel;
+import com.melniknow.fd.utils.PanelUtils;
+import javafx.collections.FXCollections;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,17 +17,22 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.melniknow.fd.ui.Controller.*;
 
 public class ProfileTab implements IPanel {
+    public static final UUID sessionId = UUID.randomUUID();
+
     @Override
     public ScrollPane getNode() {
         var grid = new GridPane();
+
+        var y = 0;
+
+        var session = new Label("ID сессии: " + sessionId);
+        grid.add(session, 0, y++, 2, 1);
+        GridPane.setHalignment(session, HPos.CENTER);
 
         grid.setAlignment(Pos.BASELINE_CENTER);
         grid.setPadding(new Insets(20, 20, 20, 20));
@@ -40,14 +47,19 @@ public class ProfileTab implements IPanel {
 
         grid.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
 
-        var y = 0;
-
         var profile = new Label("Введите имя профиля");
-        grid.add(profile, 0, y);
+        grid.add(profile, 0, ++y);
         var profileField = new TextField();
         profileField.setPrefHeight(40);
         profileField.setPromptText("MyProfile");
         grid.add(profileField, 1, y++);
+
+        var listLabel = new Label("Или выберете здесь");
+        grid.add(listLabel, 0, ++y);
+        var profileList = new ComboBox<>(FXCollections.observableArrayList(Database.getAllProfiles()));
+        grid.add(profileList, 1, y);
+
+        y++;
 
         var saveButton = new Button("Далее");
         saveButton.setPrefHeight(40);
@@ -57,8 +69,10 @@ public class ProfileTab implements IPanel {
         GridPane.setHalignment(saveButton, HPos.CENTER);
 
         saveButton.setOnAction(event -> {
-            if (profileField.getText() != null && !profileField.getText().equals("")) {
-                var profileName = profileField.getText();
+            if ((profileField.getText() != null && !profileField.getText().equals("")) || profileList.getValue() != null) {
+                var profileName = profileField.getText() != null && !profileField.getText().equals("")
+                    ? profileField.getText()
+                    : profileList.getValue();
                 var jsonString = Database.getJsonByProfileName(profileName);
 
                 if (jsonString == null) {
@@ -69,6 +83,9 @@ public class ProfileTab implements IPanel {
                 var jsonData = JsonParser.parseString(Objects.requireNonNull(jsonString));
                 Context.profile = new Profile(profileName, jsonData);
                 Context.profile.save();
+            } else {
+                PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните данные");
+                return;
             }
 
             Context.bundleStorage.clear();
