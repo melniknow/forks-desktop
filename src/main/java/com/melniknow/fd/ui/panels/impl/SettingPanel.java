@@ -58,22 +58,6 @@ public class SettingPanel implements IPanel {
         maximumField.setPrefHeight(40);
         grid.add(maximumField, 1, y++);
 
-        var minimumRatio = new Label("Минимальный коэффициент в вилке *");
-        grid.add(minimumRatio, 0, y);
-        var minimumRatioField = new TextField();
-        profileTextCheck("minimumRatioField", minimumRatioField);
-        minimumRatioField.setPromptText("1");
-        minimumRatioField.setPrefHeight(40);
-        grid.add(minimumRatioField, 1, y++);
-
-        var maximumRatio = new Label("Максимальный коэффициент в вилке *");
-        grid.add(maximumRatio, 0, y);
-        var maximumRatioField = new TextField();
-        profileTextCheck("maximumRatioField", maximumRatioField);
-        maximumRatioField.setPromptText("100");
-        maximumRatioField.setPrefHeight(40);
-        grid.add(maximumRatioField, 1, y++);
-
         var pauseAfterSuccess = new Label("Пауза после успешно проставленной вилки (сек) *");
         grid.add(pauseAfterSuccess, 0, y);
         var pauseAfterSuccessField = new TextField();
@@ -173,7 +157,6 @@ public class SettingPanel implements IPanel {
             }};
 
             if (maximumField.getText().isEmpty() || minimumField.getText().isEmpty() ||
-                minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() ||
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
@@ -259,8 +242,6 @@ public class SettingPanel implements IPanel {
                 Context.parserParams = new Parser.ParserParams(
                     new BigDecimal(minimumField.getText()),
                     new BigDecimal(maximumField.getText()),
-                    new BigDecimal(minimumRatioField.getText()),
-                    new BigDecimal(maximumRatioField.getText()),
                     middlesParse,
                     bookmakersParse,
                     setBetTypes.stream().toList(),
@@ -283,8 +264,6 @@ public class SettingPanel implements IPanel {
 
             json.addProperty("minimumField", minimumField.getText());
             json.addProperty("maximumField", maximumField.getText());
-            json.addProperty("minimumRatioField", minimumRatioField.getText());
-            json.addProperty("maximumRatioField", maximumRatioField.getText());
             json.addProperty("pauseAfterSuccessField", pauseAfterSuccessField.getText());
             json.addProperty("countForkField", countForkField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());

@@ -11,7 +11,8 @@ public class BetUtils {
                              BigDecimal maxBetSum,
                              String userAgent, String proxyIp, Integer proxyPort,
                              String proxyLogin, String proxyPassword, String screenSize,
-                             String lang, String login, String password) { }
+                             String lang, BigDecimal minCf,
+                             BigDecimal maxCf) { }
 
     public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String income,
                                    BigDecimal betRubBalance1,
