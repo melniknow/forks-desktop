@@ -41,8 +41,8 @@ public class Pinnacle implements IBookmaker {
         } else {
             marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
             if (marketName.contains(" | ")) {
-                marketName = marketName.split(" - ")[0];
-                selectionName = marketName.split(" - ")[1];
+                marketName = marketName.split(" | ")[0];
+                selectionName = marketName.split(" | ")[1];
             } else {
                 throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + " | sport: " + sport);
             }
