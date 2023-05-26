@@ -30,9 +30,15 @@ public class ClickSportsWin {
         System.out.println("[188bet] partOfGame = " + partOfGame);
         System.out.println("[188bet] selectionName = " + selectionName);
 
-        // Winner - Set 2, Game 4
+        // Winner - Set 2, Game 4 ???
         if (!info.BK_bet().contains("GAME__")) {
             marketName = marketName.split(" - ")[0];
+        }
+
+        if (info.BK_bet().contains("WIN__2X") || info.BK_bet().contains("WIN__1X") || info.BK_bet().contains("WIN__12")) {
+            marketName = info.BK_market_meta().get("marketName").getAsString();
+            selectionName = info.BK_market_meta().get("selectionName").getAsString();
+            partOfGame = "";
         }
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
