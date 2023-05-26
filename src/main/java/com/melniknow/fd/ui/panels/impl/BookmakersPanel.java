@@ -74,22 +74,6 @@ public class BookmakersPanel implements IPanel {
         profileTextCheck(bookmaker.name() + "linkField", linkField);
         grid.add(linkField, 1, y++);
 
-        var login = new Label("Логин");
-        grid.add(login, 0, y);
-        var loginField = new TextField();
-        profileTextCheck(bookmaker.name() + "loginField", loginField);
-        loginField.setPrefHeight(40);
-        loginField.setPromptText("login");
-        grid.add(loginField, 1, y++);
-
-        var password = new Label("Пароль");
-        grid.add(password, 0, y);
-        var passwordField = new TextField();
-        profileTextCheck(bookmaker.name() + "passwordField", passwordField);
-        passwordField.setPrefHeight(40);
-        passwordField.setPromptText("password");
-        grid.add(passwordField, 1, y++);
-
         var currency = new Label("Валюта *");
         grid.add(currency, 0, y);
         var currencyField = new ComboBox<>(FXCollections.observableArrayList(Context.currencyToRubCourse.keySet()));
@@ -112,6 +96,22 @@ public class BookmakersPanel implements IPanel {
         maximumField.setPrefHeight(40);
         maximumField.setPromptText("В указанной валюте");
         grid.add(maximumField, 1, y++);
+
+        var minimumRatio = new Label("Минимальный коэффициент в вилке *");
+        grid.add(minimumRatio, 0, y);
+        var minimumRatioField = new TextField();
+        profileTextCheck(bookmaker.name() + "minimumRatioField", minimumRatioField);
+        minimumRatioField.setPromptText("1.1");
+        minimumRatioField.setPrefHeight(40);
+        grid.add(minimumRatioField, 1, y++);
+
+        var maximumRatio = new Label("Максимальный коэффициент в вилке *");
+        grid.add(maximumRatio, 0, y);
+        var maximumRatioField = new TextField();
+        profileTextCheck(bookmaker.name() + "maximumRatioField", maximumRatioField);
+        maximumRatioField.setPromptText("100");
+        maximumRatioField.setPrefHeight(40);
+        grid.add(maximumRatioField, 1, y++);
 
         var screenSize = new Label("Разрешение");
         grid.add(screenSize, 0, y);
@@ -239,7 +239,8 @@ public class BookmakersPanel implements IPanel {
 
         saveButton.setOnAction(event -> {
             try {
-                if (currencyField.getValue() == null || minimumField.getText().isEmpty() || maximumField.getText().isEmpty())
+                if (currencyField.getValue() == null || minimumField.getText().isEmpty() || maximumField.getText().isEmpty() ||
+                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty())
                     throw new RuntimeException();
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
@@ -248,7 +249,9 @@ public class BookmakersPanel implements IPanel {
                     new BigDecimal(minimumField.getText()), new BigDecimal(maximumField.getText()),
                     agentField.getText(), proxyIpField.getText(), port,
                     proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(), langField.getText(),
-                    loginField.getText(), passwordField.getText()));
+                    new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText())));
+
+                System.out.println(Context.betsParams);
 
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
@@ -258,10 +261,10 @@ public class BookmakersPanel implements IPanel {
 
                 var json = Context.profile.json;
                 json.addProperty(bookmaker.name() + "linkField", linkField.getText());
-                json.addProperty(bookmaker.name() + "loginField", loginField.getText());
-                json.addProperty(bookmaker.name() + "passwordField", passwordField.getText());
                 json.addProperty(bookmaker.name() + "minimumField", minimumField.getText());
                 json.addProperty(bookmaker.name() + "maximumField", maximumField.getText());
+                json.addProperty(bookmaker.name() + "minimumRatioField", minimumRatioField.getText());
+                json.addProperty(bookmaker.name() + "maximumRatioField", maximumRatioField.getText());
                 json.addProperty(bookmaker.name() + "agentField", agentField.getText());
                 json.addProperty(bookmaker.name() + "langField", langField.getText());
                 json.addProperty(bookmaker.name() + "proxyIpField", proxyIpField.getText());

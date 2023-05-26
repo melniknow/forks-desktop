@@ -2,6 +2,8 @@ package com.melniknow.fd.profile;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
     private static final String url = "jdbc:mysql://151.248.119.228:3306/u2028999_forks_desktop";
@@ -47,5 +49,21 @@ public class Database {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> getAllProfiles() {
+        var profiles = new ArrayList<String>();
+
+        try (var connection = DriverManager.getConnection(url, user, password);
+             var preparedStatement = connection.prepareStatement(Query.GET_ALL_PROFILES.text)) {
+
+            var set = preparedStatement.executeQuery();
+
+            while (set.next()) profiles.add(set.getString("profile_name"));
+        } catch (SQLException e) {
+            throw new RuntimeException("getAllProfiles Error");
+        }
+
+        return profiles;
     }
 }

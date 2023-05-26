@@ -21,11 +21,10 @@ import java.util.stream.Stream;
 
 public class Parser {
     public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
-    public record ParserParams(BigDecimal minFi, BigDecimal maxFi, BigDecimal minCf,
-                               BigDecimal maxCf, int middles, List<Bookmaker> bookmakers,
+    public record ParserParams(BigDecimal minFi, BigDecimal maxFi, int middles, List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive, List<Sport> sports,
                                BigDecimal pauseAfterSuccess,
-                               BigDecimal countFork, boolean isRepeatFork) { }
+                               BigDecimal countFork, boolean isRepeatFork, BigDecimal maxMinus) { }
 
     public record BetInfo(String BK_name, String BK_event_id, BetType BK_bet_type, String BK_bet,
                           String BK_href,
@@ -44,8 +43,8 @@ public class Parser {
             .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
-            .addParameter("min_cf", params.minCf.toPlainString())
-            .addParameter("max_cf", params.maxCf.toPlainString())
+            .addParameter("min_cf", "1.01")
+            .addParameter("max_cf", "100")
             .addParameter("min_fi", params.minFi.toPlainString())
             .addParameter("max_fi", params.maxFi.toPlainString())
             .addParameter("alive_sec", params.forkLive.toPlainString())

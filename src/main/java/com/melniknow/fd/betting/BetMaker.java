@@ -200,8 +200,8 @@ public class BetMaker {
             realRubBalance2 = balance2Rub.subtract(bet2Rub);
 
             income = "1) %s₽. 2) %s₽".formatted(
-                bet1Rub.multiply(realCf1).subtract(bet1Rub).setScale(2, RoundingMode.DOWN),
-                bet2Rub.multiply(realCf2).subtract(bet2Rub).setScale(2, RoundingMode.DOWN)
+                bet1Rub.multiply(realCf1).setScale(2, RoundingMode.DOWN),
+                bet2Rub.multiply(realCf2).setScale(2, RoundingMode.DOWN)
             );
 
         } else if (isValue) {

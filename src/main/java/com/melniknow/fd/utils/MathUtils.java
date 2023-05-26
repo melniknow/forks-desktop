@@ -46,6 +46,15 @@ public class MathUtils {
                     }
                     return true;
                 })
+                .filter(fork -> {
+                    var params1 = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(fork.betInfo1().BK_name()));
+                    var params2 = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(fork.betInfo2().BK_name()));
+
+                    return params1.maxCf().compareTo(fork.betInfo1().BK_cf()) >= 0 &&
+                        params1.minCf().compareTo(fork.betInfo1().BK_cf()) <= 0 &&
+                        params2.maxCf().compareTo(fork.betInfo2().BK_cf()) >= 0 &&
+                        params2.minCf().compareTo(fork.betInfo2().BK_cf()) <= 0;
+                })
                 .toList()
         );
 
@@ -79,6 +88,18 @@ public class MathUtils {
 
             for (Exception exception : exForSport) {
                 switch (exception.type()) {
+                    case ИСКЛ_ЕСЛИ_ТБ -> {
+                        if ((betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
+                            || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("OVER")) {
+                            return false;
+                        }
+                    }
+                    case ИСКЛ_ЕСЛИ_ТМ -> {
+                        if ((betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
+                            || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("UNDER")) {
+                            return false;
+                        }
+                    }
                     case ИСКЛ_ЕСЛИ_ПЕРВАЯ_ТМ -> {
                         if (isFirst && (betInfo.BK_bet_type().equals(BetType.TOTALS) || betInfo.BK_bet_type().equals(BetType.HALF_TOTALS)
                             || betInfo.BK_bet_type().equals(BetType.SET_TOTALS)) && betInfo.BK_bet().contains("UNDER")) {

@@ -58,22 +58,6 @@ public class SettingPanel implements IPanel {
         maximumField.setPrefHeight(40);
         grid.add(maximumField, 1, y++);
 
-        var minimumRatio = new Label("Минимальный коэффициент в вилке *");
-        grid.add(minimumRatio, 0, y);
-        var minimumRatioField = new TextField();
-        profileTextCheck("minimumRatioField", minimumRatioField);
-        minimumRatioField.setPromptText("1");
-        minimumRatioField.setPrefHeight(40);
-        grid.add(minimumRatioField, 1, y++);
-
-        var maximumRatio = new Label("Максимальный коэффициент в вилке *");
-        grid.add(maximumRatio, 0, y);
-        var maximumRatioField = new TextField();
-        profileTextCheck("maximumRatioField", maximumRatioField);
-        maximumRatioField.setPromptText("100");
-        maximumRatioField.setPrefHeight(40);
-        grid.add(maximumRatioField, 1, y++);
-
         var pauseAfterSuccess = new Label("Пауза после успешно проставленной вилки (сек) *");
         grid.add(pauseAfterSuccess, 0, y);
         var pauseAfterSuccessField = new TextField();
@@ -90,6 +74,14 @@ public class SettingPanel implements IPanel {
         countForkField.setPrefHeight(40);
         grid.add(countForkField, 1, y++);
 
+        var minusDeal = new Label("Максимальный минус при перекрытии *");
+        grid.add(minusDeal, 0, y);
+        var minusDealField = new TextField();
+        profileTextCheck("minusDealField", minusDealField);
+        minusDealField.setPromptText("-6");
+        minusDealField.setPrefHeight(40);
+        grid.add(minusDealField, 1, y++);
+
         var bookmakers = new Label("Букмекеры *");
         grid.add(bookmakers, 0, y);
         var pinnacle = new CheckBox("PINNACLE");
@@ -98,9 +90,6 @@ public class SettingPanel implements IPanel {
         var _188Bet = new CheckBox("_188BET");
         profileBooleanCheck("_188Bet", _188Bet);
         grid.add(_188Bet, 1, y++);
-        var bet365 = new CheckBox("BET365");
-        profileBooleanCheck("bet365", bet365);
-        grid.add(bet365, 1, y++);
 
         var middles = new Label("Коридоры *");
         grid.add(middles, 0, y);
@@ -164,7 +153,6 @@ public class SettingPanel implements IPanel {
             var bookmakersData = new ArrayList<CheckBox>() {{
                 add(pinnacle);
                 add(_188Bet);
-                add(bet365);
             }};
 
             var sportsData = new ArrayList<CheckBox>() {{
@@ -177,12 +165,11 @@ public class SettingPanel implements IPanel {
             }};
 
             if (maximumField.getText().isEmpty() || minimumField.getText().isEmpty() ||
-                minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() ||
                 middlesField.getText().isEmpty() ||
                 bookmakersData.stream().filter(CheckBox::isSelected).count() < 2 ||
                 forkLiveField.getText().isEmpty() || sportsData.stream().noneMatch(CheckBox::isSelected) ||
                 pauseAfterSuccessField.getText().isEmpty() ||
-                countForkField.getText().isEmpty()) {
+                countForkField.getText().isEmpty() || minusDealField.getText().isEmpty()) {
 
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;
@@ -191,61 +178,64 @@ public class SettingPanel implements IPanel {
             var sportsType = sportsData.stream().filter(CheckBox::isSelected).map(n -> Sport.valueOf(n.getText().toUpperCase())).toList();
             var json = Context.profile.json;
             Context.sportToBetTypes.clear();
-            var isError = false;
-
-            for (Sport sport_ : Sport.values()) {
-                if (!sportsType.contains(sport_)) continue;
-
-                var sport = sport_.name().toLowerCase();
-                var data = new ArrayList<BetType>();
-
-                var isWins = sportAndBetTypeToCheckbox.get(sport + "wins").isSelected();
-                json.addProperty(sport + "wins", isWins);
-                if (isWins) data.add(BetType.WIN);
-
-                var isSetWin = sportAndBetTypeToCheckbox.get(sport + "setWin").isSelected();
-                json.addProperty(sport + "setWin", isSetWin);
-                if (isSetWin) data.add(BetType.SET_WIN);
-
-                var isHalfWin = sportAndBetTypeToCheckbox.get(sport + "halfWin").isSelected();
-                json.addProperty(sport + "halfWin", isHalfWin);
-                if (isHalfWin) data.add(BetType.HALF_WIN);
-
-                var isTotals = sportAndBetTypeToCheckbox.get(sport + "totals").isSelected();
-                json.addProperty(sport + "totals", isTotals);
-                if (isTotals) data.add(BetType.TOTALS);
-
-                var isSetTotals = sportAndBetTypeToCheckbox.get(sport + "setTotals").isSelected();
-                json.addProperty(sport + "setTotals", isSetTotals);
-                if (isSetTotals) data.add(BetType.SET_TOTALS);
-
-                var isHalfTotals = sportAndBetTypeToCheckbox.get(sport + "halfTotals").isSelected();
-                json.addProperty(sport + "halfTotals", isHalfTotals);
-                if (isHalfTotals) data.add(BetType.HALF_TOTALS);
-
-                var isHandicap = sportAndBetTypeToCheckbox.get(sport + "handicaps").isSelected();
-                json.addProperty(sport + "handicaps", isHandicap);
-                if (isHandicap) data.add(BetType.HANDICAP);
-
-                var isHalfHandicap = sportAndBetTypeToCheckbox.get(sport + "halfHandicap").isSelected();
-                json.addProperty(sport + "halfHandicap", isHalfHandicap);
-                if (isHalfHandicap) data.add(BetType.HALF_HANDICAP);
-
-                var isSetHandicap = sportAndBetTypeToCheckbox.get(sport + "setHandicap").isSelected();
-                json.addProperty(sport + "setHandicap", isSetHandicap);
-                if (isSetHandicap) data.add(BetType.SET_HANDICAP);
-
-                var isSelectedGameWin = sportAndBetTypeToCheckbox.get(sport + "gameWin").isSelected();
-                json.addProperty(sport + "gameWin", isSelectedGameWin);
-                if (isSelectedGameWin) data.add(BetType.GAME_WIN);
-
-                if (data.isEmpty()) isError = true;
-                Context.sportToBetTypes.put(sport_, data);
-            }
 
             try {
+                for (Sport sport_ : Sport.values()) {
+                    var sport = sport_.name().toLowerCase();
+                    var data = new ArrayList<BetType>();
+
+                    var isWins = sportAndBetTypeToCheckbox.get(sport + "wins").isSelected();
+                    json.addProperty(sport + "wins", isWins);
+                    if (isWins) data.add(BetType.WIN);
+
+                    var isSetWin = sportAndBetTypeToCheckbox.get(sport + "setWin").isSelected();
+                    json.addProperty(sport + "setWin", isSetWin);
+                    if (isSetWin) data.add(BetType.SET_WIN);
+
+                    var isHalfWin = sportAndBetTypeToCheckbox.get(sport + "halfWin").isSelected();
+                    json.addProperty(sport + "halfWin", isHalfWin);
+                    if (isHalfWin) data.add(BetType.HALF_WIN);
+
+                    var isTotals = sportAndBetTypeToCheckbox.get(sport + "totals").isSelected();
+                    json.addProperty(sport + "totals", isTotals);
+                    if (isTotals) data.add(BetType.TOTALS);
+
+                    var isSetTotals = sportAndBetTypeToCheckbox.get(sport + "setTotals").isSelected();
+                    json.addProperty(sport + "setTotals", isSetTotals);
+                    if (isSetTotals) data.add(BetType.SET_TOTALS);
+
+                    var isHalfTotals = sportAndBetTypeToCheckbox.get(sport + "halfTotals").isSelected();
+                    json.addProperty(sport + "halfTotals", isHalfTotals);
+                    if (isHalfTotals) data.add(BetType.HALF_TOTALS);
+
+                    var isHandicap = sportAndBetTypeToCheckbox.get(sport + "handicaps").isSelected();
+                    json.addProperty(sport + "handicaps", isHandicap);
+                    if (isHandicap) data.add(BetType.HANDICAP);
+
+                    var isHalfHandicap = sportAndBetTypeToCheckbox.get(sport + "halfHandicap").isSelected();
+                    json.addProperty(sport + "halfHandicap", isHalfHandicap);
+                    if (isHalfHandicap) data.add(BetType.HALF_HANDICAP);
+
+                    var isSetHandicap = sportAndBetTypeToCheckbox.get(sport + "setHandicap").isSelected();
+                    json.addProperty(sport + "setHandicap", isSetHandicap);
+                    if (isSetHandicap) data.add(BetType.SET_HANDICAP);
+
+                    var isSelectedGameWin = sportAndBetTypeToCheckbox.get(sport + "gameWin").isSelected();
+                    json.addProperty(sport + "gameWin", isSelectedGameWin);
+                    if (isSelectedGameWin) data.add(BetType.GAME_WIN);
+
+                    if (!sportsType.contains(sport_) && !data.isEmpty() ||
+                        sportsType.contains(sport_) && data.isEmpty())
+                        throw new RuntimeException();
+
+                    if (data.isEmpty()) continue;
+
+                    Context.sportToBetTypes.put(sport_, data);
+                }
+
+
                 var middlesParse = Integer.parseInt(middlesField.getText());
-                if (middlesParse > 1 || middlesParse < -1 || isError) throw new RuntimeException();
+                if (middlesParse > 1 || middlesParse < -1) throw new RuntimeException();
 
                 var setBetTypes = new HashSet<BetType>();
 
@@ -264,8 +254,6 @@ public class SettingPanel implements IPanel {
                 Context.parserParams = new Parser.ParserParams(
                     new BigDecimal(minimumField.getText()),
                     new BigDecimal(maximumField.getText()),
-                    new BigDecimal(minimumRatioField.getText()),
-                    new BigDecimal(maximumRatioField.getText()),
                     middlesParse,
                     bookmakersParse,
                     setBetTypes.stream().toList(),
@@ -273,7 +261,8 @@ public class SettingPanel implements IPanel {
                     sportsType,
                     new BigDecimal(pauseAfterSuccessField.getText()),
                     new BigDecimal(countForkField.getText()),
-                    isRepeatForkCheckBox.isSelected()
+                    isRepeatForkCheckBox.isSelected(),
+                    new BigDecimal(minusDealField.getText())
                 );
 
                 if (!noChangeBookmakers) {
@@ -288,13 +277,11 @@ public class SettingPanel implements IPanel {
 
             json.addProperty("minimumField", minimumField.getText());
             json.addProperty("maximumField", maximumField.getText());
-            json.addProperty("minimumRatioField", minimumRatioField.getText());
-            json.addProperty("maximumRatioField", maximumRatioField.getText());
             json.addProperty("pauseAfterSuccessField", pauseAfterSuccessField.getText());
             json.addProperty("countForkField", countForkField.getText());
+            json.addProperty("minusDealField", minusDealField.getText());
             json.addProperty("pinnacle", pinnacle.isSelected());
             json.addProperty("_188Bet", _188Bet.isSelected());
-            json.addProperty("bet365", bet365.isSelected());
             json.addProperty("middlesField", middlesField.getText());
             json.addProperty("forkLiveField", forkLiveField.getText());
             json.addProperty("soccer", soccer.isSelected());

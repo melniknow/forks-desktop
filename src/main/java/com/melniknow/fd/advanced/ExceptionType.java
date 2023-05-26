@@ -1,6 +1,8 @@
 package com.melniknow.fd.advanced;
 
 public enum ExceptionType {
+    ИСКЛ_ЕСЛИ_ТБ,
+    ИСКЛ_ЕСЛИ_ТМ,
     ИСКЛ_ЕСЛИ_ПЕРВАЯ_ТМ,
     ИСКЛ_ЕСЛИ_ПЕРВАЯ_ТБ,
     ИСКЛ_ЕСЛИ_НЕ_КОР,
