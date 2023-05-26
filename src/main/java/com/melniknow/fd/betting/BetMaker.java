@@ -85,7 +85,7 @@ public class BetMaker {
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1()));
+                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), true, new BigDecimal("0")));
                 realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException | TimeoutException e) {
                 throw new RuntimeException("Не удалось поставить вилку");
@@ -94,7 +94,8 @@ public class BetMaker {
             var isClosed = false;
             if (!isValue) {
                 try {
-                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2()));
+                    BigDecimal finalRealCf = realCf1;
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), false, finalRealCf));
                     realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
                     if (bookmaker1Final.equals(Bookmaker._188BET)) {
@@ -107,7 +108,9 @@ public class BetMaker {
 
             executor.shutdownNow();
 
-            Context.forksCache.put(calculatedFinal.fork().forkId(), calculatedFinal.fork());
+            var fork = calculatedFinal.fork();
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()), fork);
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()), fork);
 
             var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
@@ -216,6 +219,7 @@ public class BetMaker {
             throw new RuntimeException("Вилка не была поставлена");
         }
 
+        income += " TESTS";
         return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
     }
 

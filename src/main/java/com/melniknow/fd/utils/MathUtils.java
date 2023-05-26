@@ -15,6 +15,8 @@ import java.util.List;
 public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
 
+    public record ForkKey(String bookmaker, BigDecimal eventId, String BK_bet) { }
+
     public static CalculatedFork calculate(List<Parser.Fork> forks_) {
         if (forks_ == null || forks_.isEmpty()) return null;
 
@@ -38,6 +40,13 @@ public class MathUtils {
                         checkException(ex2, fork.sport(), fork.betInfo2(), false, fork.isMiddles());
                 })
                 .filter(fork -> {
+                    if (!Context.parserParams.isRepeatFork()) {
+                        return !Context.forksCache.asMap().containsKey(new ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()))
+                            && !Context.forksCache.asMap().containsKey(new ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()));
+                    }
+                    return true;
+                })
+                .filter(fork -> {
                     var params1 = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(fork.betInfo1().BK_name()));
                     var params2 = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(fork.betInfo2().BK_name()));
 
@@ -51,21 +60,11 @@ public class MathUtils {
 
         forks.sort(Comparator.comparing(Parser.Fork::income).reversed());
 
-        Parser.Fork fork = null;
-
-        if (Context.parserParams.isRepeatFork()) {
-            fork = forks.get(0);
-        } else {
-            for (var curFork : forks) {
-                if (!Context.forksCache.asMap().containsKey(curFork.forkId())) {
-                    fork = curFork;
-                    break;
-                }
-            }
-            if (fork == null) {
-                return null;
-            }
+        if (forks.isEmpty()) {
+            return null;
         }
+
+        Parser.Fork fork = forks.get(0);
 
         var mode = RoundingMode.DOWN;
         var scale = 8;
@@ -184,5 +183,18 @@ public class MathUtils {
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    public static BigDecimal calculateIncome(BigDecimal cf1, BigDecimal cf2) {
+        var mode = RoundingMode.DOWN;
+        var scale = 8;
+
+        var income1 = BigDecimal.ONE.divide(cf1, scale, mode);
+        var income2 = BigDecimal.ONE.divide(cf2, scale, mode);
+
+        var income = income1.add(income2);
+
+        var _100 = new BigDecimal("100");
+        return _100.subtract(income.multiply(_100));
     }
 }
