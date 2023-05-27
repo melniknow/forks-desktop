@@ -32,9 +32,6 @@ public class Context {
     public static final ScreenManager screenManager = new ScreenManager();
     public static volatile Profile profile;
 
-    // TODO
-    public static BigDecimal maxMinus = new BigDecimal("-5");
-
     public static final LoadingCache<MathUtils.ForkKey, Parser.Fork> forksCache = CacheBuilder.newBuilder()
         .expireAfterAccess(120, TimeUnit.MINUTES)
         .build(

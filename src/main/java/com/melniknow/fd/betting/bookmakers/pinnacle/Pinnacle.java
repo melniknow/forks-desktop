@@ -153,7 +153,7 @@ public class Pinnacle implements IBookmaker {
         } else if (!isFirst) {
             var newIncome = MathUtils.calculateIncome(curCf, cf1);
             System.out.println("newIncome = " + newIncome);
-            if (newIncome.compareTo(Context.maxMinus) < 0) {
+            if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("Max minus [pinnale]: newIncome = " + newIncome);
             } else {
                 System.out.println("Click Place 2");
