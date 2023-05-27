@@ -20,6 +20,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.List;
 
 public class Pinnacle implements IBookmaker {
     @Override
@@ -60,7 +61,15 @@ public class Pinnacle implements IBookmaker {
 
         WebElement button;
         if (marketName.contains("Handicap") && selectionName.equals("0")) {
-            var buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            List<WebElement> buttons;
+            try {
+                buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            } catch (NoSuchElementException ignored) {
+                throw new RuntimeException("Button not found [pinnacle]");
+            }
+            if (buttons.isEmpty()) {
+                throw new RuntimeException("Button not found [pinnacle]");
+            }
             if (info.BK_bet().contains("P1")) {
                 button = buttons.get(0);
             } else if (info.BK_bet().contains("P2")) {
@@ -77,6 +86,7 @@ public class Pinnacle implements IBookmaker {
 
         return getBalance(driver, Context.betsParams.get(bookmaker).currency());
     }
+
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
@@ -114,16 +124,17 @@ public class Pinnacle implements IBookmaker {
     private static final By byBetClosed = SeleniumSupport.buildGlobalSpanByText("Bet not accepted. Please try again or remove this selection from your Bet Slip.");
 
     private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
-        while (true) {
+        for (int i = 0; i < 10; ++i) {
             updateOdds(driver, oldCf, cf1, isFirst);
             if (waitSuccess(driver)) {
                 return getCurrentCf(driver);
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
     }
 
     private boolean waitSuccess(ChromeDriver driver) {
-        while (true) {
+        for (int i = 0; i < 10; ++i) {
             try {
                 System.out.println("Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
@@ -136,6 +147,7 @@ public class Pinnacle implements IBookmaker {
                 }
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
     }
 
     private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
@@ -146,6 +158,7 @@ public class Pinnacle implements IBookmaker {
             System.out.println("Is not active");
             return;
         }
+
         var curCf = getCurrentCf(driver);
         if (curCf.compareTo(oldCf) >= 0) {
             System.out.println("Click Place 1");
@@ -153,7 +166,7 @@ public class Pinnacle implements IBookmaker {
         } else if (!isFirst) {
             var newIncome = MathUtils.calculateIncome(curCf, cf1);
             System.out.println("newIncome = " + newIncome);
-            if (newIncome.compareTo(Context.maxMinus) < 0) {
+            if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("Max minus [pinnale]: newIncome = " + newIncome);
             } else {
                 System.out.println("Click Place 2");
@@ -360,4 +373,5 @@ public class Pinnacle implements IBookmaker {
         }
         return newStr;
     }
+
 }

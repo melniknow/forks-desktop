@@ -127,16 +127,17 @@ public class _188Bet implements IBookmaker {
     }
 
     private void waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) throws InterruptedException {
-        while (true) {
+        for (int i = 0; i < 15; ++i) {
             updateOdds(driver, oldCf, cf1, isFirst);
             if (waitSuccess(driver)) {
                 return;
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [188bet]");
     }
 
     private boolean waitSuccess(ChromeDriver driver) {
-        while (true) {
+        for (int i = 0; i < 15; ++i) {
             try {
                 System.out.println("Wait.... [188bet]");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
@@ -149,6 +150,7 @@ public class _188Bet implements IBookmaker {
                 }
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [188bet]");
     }
 
     private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) throws InterruptedException {
@@ -167,7 +169,7 @@ public class _188Bet implements IBookmaker {
         } else if (!isFirst) {
             var newIncome = MathUtils.calculateIncome(curCf, cf1);
             System.out.println("[188bet] newIncome = " + newIncome);
-            if (newIncome.compareTo(Context.maxMinus) < 0) {
+            if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("Max minus [188bet]: newIncome = " + newIncome);
             } else {
                 System.out.println("Click Place 2 [188bet]");
