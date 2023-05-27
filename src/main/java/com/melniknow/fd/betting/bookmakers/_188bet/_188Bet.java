@@ -5,14 +5,11 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
-
 import com.melniknow.fd.utils.MathUtils;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
-
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -105,6 +102,7 @@ public class _188Bet implements IBookmaker {
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
     private static final By byClosedBet = By.xpath("//h4[text()='One or more of your selections are closed for betting.']");
     private static final By bySuccessBet = By.xpath("//h4[text()='Your bet has been successfully placed.']");
+                                                                               // Your bet has been successfully placed.
 
 
     @Override
@@ -119,7 +117,7 @@ public class _188Bet implements IBookmaker {
             return realCf;
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
-            System.out.println("Don`t Place Bet [188bet]");
+            System.out.println("Don`t Place Bet [188bet]" + e.getMessage());
             throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException();

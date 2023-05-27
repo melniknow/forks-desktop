@@ -23,13 +23,13 @@ public class PinnacleParser implements IParser {
         if (info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
             var marketNameTmp = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
             if (marketName.contains(" | ")) {
-                return new ClickBox(marketNameTmp.split(" | ")[0], marketNameTmp.split(" | ")[1]);
+                return new ClickBox(marketNameTmp.split(" \\| ")[0], "", marketNameTmp.split(" \\| ")[1]);
             } else {
                 throw new RuntimeException("Don`t support BetType [pinnacle]: BK_bet = " + info.BK_bet() + " | sport: " + sport);
             }
         }
         parseImpl();
-        return new ClickBox(marketName + " – " + partOfGame, selectionName);
+        return new ClickBox(marketName, partOfGame, selectionName);
     }
 
 
