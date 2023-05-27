@@ -51,7 +51,7 @@ public class SeleniumSupport {
                 res = wait.until(driver1 -> element.findElement(by));
                 return res;
             } catch (TimeoutException e1) {
-                throw new RuntimeException("Button not found [pinnacle] with by: " + by);
+                throw new RuntimeException("Коэффициенты события изменились [pinnacle]: " + by);
             }
         }
     }

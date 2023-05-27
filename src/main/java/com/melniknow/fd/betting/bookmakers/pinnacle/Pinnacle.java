@@ -65,10 +65,10 @@ public class Pinnacle implements IBookmaker {
             try {
                 buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
             } catch (NoSuchElementException ignored) {
-                throw new RuntimeException("Button not found [pinnacle]");
+                throw new RuntimeException("Коэффициенты события изменились [pinnacle]");
             }
-            if (buttons.isEmpty()) {
-                throw new RuntimeException("Button not found [pinnacle]");
+            if (buttons.size() != 2) {
+                throw new RuntimeException("Коэффициенты события изменились [pinnacle]");
             }
             if (info.BK_bet().contains("P1")) {
                 button = buttons.get(0);
