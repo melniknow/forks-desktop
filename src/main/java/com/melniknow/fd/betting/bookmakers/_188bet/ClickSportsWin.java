@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -26,10 +27,6 @@ public class ClickSportsWin {
             partOfGame = "";
         }
 
-        System.out.println("[188bet] MarketName = " + marketName);
-        System.out.println("[188bet] partOfGame = " + partOfGame);
-        System.out.println("[188bet] selectionName = " + selectionName);
-
         if (!info.BK_bet().contains("GAME__")) {
             marketName = marketName.split(" - ")[0];
         }
@@ -40,10 +37,17 @@ public class ClickSportsWin {
             partOfGame = "";
         }
 
+        System.out.println("[188bet] MarketName = " + marketName);
+        System.out.println("[188bet] partOfGame = " + partOfGame);
+        System.out.println("[188bet] selectionName = " + selectionName);
+
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
+        if (selectionName == null) throw new RuntimeException("selectionName is null");
+
         try {
-            var button = BetsSupport.findElementWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName));
+            var button = BetsSupport.findElementWithClicking(market,
+                By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"));
             driver.executeScript("arguments[0].click();", button);
         } catch (NoSuchElementException e) {
             throw new RuntimeException("Button not found! [188bet]");
