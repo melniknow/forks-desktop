@@ -219,7 +219,6 @@ public class BetMaker {
             throw new RuntimeException("Вилка не была поставлена");
         }
 
-        income += " TESTS";
         return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
     }
 
