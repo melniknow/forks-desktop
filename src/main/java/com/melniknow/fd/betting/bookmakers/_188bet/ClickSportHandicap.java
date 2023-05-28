@@ -38,11 +38,21 @@ public class ClickSportHandicap {
 
         try {
             var button = Objects.requireNonNull(buttons.stream().filter(
-                b -> BetsSupport.getTotalsByStr(b.getText()).contains(line)).findAny().orElse(null));
+                b -> isGoodLine(BetsSupport.getTotalsByStr(b.getText()), line)).findAny().orElse(null));
 
             driver.executeScript("arguments[0].click();", button);
         } catch (NullPointerException e) {
             throw new RuntimeException("Button not found! [188bet]");
         }
+    }
+
+    private static boolean isGoodLine(String title, String line) {
+        if (line.startsWith("-")) {
+            return title.equals(line);
+        }
+        if (title.startsWith("+")) {
+            title = title.substring(1);
+        }
+        return title.equals(line);
     }
 }

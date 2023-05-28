@@ -8,9 +8,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class ClickSportsWin {
     static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
         var selectionName = "";
-        if (info.BK_bet().contains("WIN__P1") || (info.BK_bet().contains("GAME__") && info.BK_bet().contains("P1"))) {
+        if (info.BK_bet().contains("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
-        } else if (info.BK_bet().contains("WIN__P2") || (info.BK_bet().contains("GAME__") && info.BK_bet().contains("P2"))) {
+        } else if (info.BK_bet().contains("WIN__P2")) {
             selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         } else if (info.BK_bet().contains("WIN__PX")) {
             selectionName = "Draw";
@@ -30,7 +30,6 @@ public class ClickSportsWin {
         System.out.println("[188bet] partOfGame = " + partOfGame);
         System.out.println("[188bet] selectionName = " + selectionName);
 
-        // Winner - Set 2, Game 4 ???
         if (!info.BK_bet().contains("GAME__")) {
             marketName = marketName.split(" - ")[0];
         }

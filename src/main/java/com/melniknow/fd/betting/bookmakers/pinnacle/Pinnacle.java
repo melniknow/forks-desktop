@@ -20,6 +20,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.List;
 
 public class Pinnacle implements IBookmaker {
     @Override
@@ -41,8 +42,8 @@ public class Pinnacle implements IBookmaker {
         } else {
             marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
             if (marketName.contains(" | ")) {
-                marketName = marketName.split(" | ")[0];
-                selectionName = marketName.split(" | ")[1];
+                marketName = marketName.split(" \\| ")[0];
+                selectionName = marketName.split(" \\| ")[1];
             } else {
                 throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + " | sport: " + sport);
             }
@@ -60,7 +61,15 @@ public class Pinnacle implements IBookmaker {
 
         WebElement button;
         if (marketName.contains("Handicap") && selectionName.equals("0")) {
-            var buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            List<WebElement> buttons;
+            try {
+                buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+            } catch (NoSuchElementException ignored) {
+                throw new RuntimeException("Коэффициенты события изменились [pinnacle]");
+            }
+            if (buttons.size() != 2) {
+                throw new RuntimeException("Коэффициенты события изменились [pinnacle]");
+            }
             if (info.BK_bet().contains("P1")) {
                 button = buttons.get(0);
             } else if (info.BK_bet().contains("P2")) {
@@ -77,6 +86,7 @@ public class Pinnacle implements IBookmaker {
 
         return getBalance(driver, Context.betsParams.get(bookmaker).currency());
     }
+
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
@@ -114,16 +124,17 @@ public class Pinnacle implements IBookmaker {
     private static final By byBetClosed = SeleniumSupport.buildGlobalSpanByText("Bet not accepted. Please try again or remove this selection from your Bet Slip.");
 
     private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
-        while (true) {
+        for (int i = 0; i < 10; ++i) {
             updateOdds(driver, oldCf, cf1, isFirst);
             if (waitSuccess(driver)) {
                 return getCurrentCf(driver);
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
     }
 
     private boolean waitSuccess(ChromeDriver driver) {
-        while (true) {
+        for (int i = 0; i < 10; ++i) {
             try {
                 System.out.println("Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
@@ -136,6 +147,7 @@ public class Pinnacle implements IBookmaker {
                 }
             }
         }
+        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
     }
 
     private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
@@ -146,6 +158,7 @@ public class Pinnacle implements IBookmaker {
             System.out.println("Is not active");
             return;
         }
+
         var curCf = getCurrentCf(driver);
         if (curCf.compareTo(oldCf) >= 0) {
             System.out.println("Click Place 1");
@@ -247,6 +260,7 @@ public class Pinnacle implements IBookmaker {
         digits = digits.substring(digits.indexOf("(") + 1);
         digits = digits.substring(0, digits.indexOf(")"));
 
+        //  Don`t support BetType [pinnacle]:HANDICAP__P1(0) | sport: SOCCER
         if (bkBet.contains("__OVER")) {
             return "Over " + digits;
         } else if (bkBet.contains("__UNDER")) {
@@ -261,7 +275,7 @@ public class Pinnacle implements IBookmaker {
             }
             return "+" + digits;
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]:" + info.BK_bet() + "| sport: " + sport);
+        throw new RuntimeException("Don`t support BetType [pinnacle]: " + info.BK_bet() + "| sport: " + sport);
     }
 
     private String getMarketName(String betType, Sport sport, String ref) {
@@ -360,4 +374,5 @@ public class Pinnacle implements IBookmaker {
         }
         return newStr;
     }
+
 }
