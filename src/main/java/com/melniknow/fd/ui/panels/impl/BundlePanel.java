@@ -77,7 +77,8 @@ public class BundlePanel implements IPanel {
         addButton.setOnAction(event -> {
             try {
                 if (nameRulesField.getText().isEmpty() || bk1Field.getValue() == null ||
-                    bk2Field.getValue() == null || bk2Field.getValue().equals(bk1Field.getValue()))
+                    bk2Field.getValue() == null || bk2Field.getValue().equals(bk1Field.getValue()) ||
+                    (isValue.isSelected() && isVerifiedValue.isSelected()))
                     throw new RuntimeException();
 
                 var bundle = new BundleSetting(nameRulesField.getText(), isValue.isSelected(),
