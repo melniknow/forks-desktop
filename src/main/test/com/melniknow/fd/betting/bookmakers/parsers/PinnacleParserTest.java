@@ -32,7 +32,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Total – Match", res.marketName());
+        assertEquals("Total – Match", res.marketName() + " – " + res.partOfGame());
         assertEquals("Under 2.25", res.selectionName());
 
         info = new Parser.BetInfo("", "", BetType.TOTALS, "TOTALS__OVER(2.25)",
@@ -42,7 +42,7 @@ class PinnacleParserTest {
 
         res = parser.parse();
 
-        assertEquals("Total – Match", res.marketName());
+        assertEquals("Total – Match", res.marketName() + " – " + res.partOfGame());
         assertEquals("Over 2.25", res.selectionName());
     }
 
@@ -56,7 +56,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Money Line (Games) – Set 2 Game 3", res.marketName());
+        assertEquals("Money Line (Games) – Set 2 Game 3", res.marketName()  + " – " + res.partOfGame());
         assertEquals("Pidor1", res.selectionName());
         // ---- P2 -----
         info = new Parser.BetInfo("", "", BetType.TOTALS, "GAME__02_03__P2",
@@ -66,7 +66,7 @@ class PinnacleParserTest {
 
         res = parser.parse();
 
-        assertEquals("Money Line (Games) – Set 2 Game 3", res.marketName());
+        assertEquals("Money Line (Games) – Set 2 Game 3", res.marketName() + " – " + res.partOfGame());
         assertEquals("Pidor2", res.selectionName());
     }
 
@@ -80,7 +80,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Total – 1st Half", res.marketName());
+        assertEquals("Total – 1st Half", res.marketName() + " – " + res.partOfGame());
         assertEquals("Over 1.75", res.selectionName());
 
         // ---- Half 2 -----
@@ -92,7 +92,7 @@ class PinnacleParserTest {
 
         res = parser.parse();
 
-        assertEquals("Total – 2nd Half", res.marketName());
+        assertEquals("Total – 2nd Half", res.marketName() + " – " + res.partOfGame());
         assertEquals("Under 1.75", res.selectionName());
     }
 
@@ -109,7 +109,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Handicap – 1st Half", res.marketName());
+        assertEquals("Handicap – 1st Half", res.marketName() + " – " + res.partOfGame());
         assertEquals("-0.75", res.selectionName());
     }
 
@@ -126,7 +126,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Handicap – Game", res.marketName());
+        assertEquals("Handicap – Game", res.marketName() + " – " + res.partOfGame());
         assertEquals("+4", res.selectionName());
     }
 
@@ -143,7 +143,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Money Line – Match", res.marketName());
+        assertEquals("Money Line – Match", res.marketName() + " – " + res.partOfGame());
         assertEquals("Draw", res.selectionName());
     }
 
@@ -160,7 +160,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Money Line – Match", res.marketName());
+        assertEquals("Money Line – Match", res.marketName() + " – " + res.partOfGame());
         assertEquals("Pidor1", res.selectionName());
 
         info = new Parser.BetInfo("", "", BetType.TOTALS, "WIN__P2",
@@ -170,7 +170,7 @@ class PinnacleParserTest {
 
         res = parser.parse();
 
-        assertEquals("Money Line – Match", res.marketName());
+        assertEquals("Money Line – Match", res.marketName() + " – " + res.partOfGame());
         assertEquals("Pidor2", res.selectionName());
     }
 
@@ -187,7 +187,7 @@ class PinnacleParserTest {
 
         var res = parser.parse();
 
-        assertEquals("Handicap (Games) – 1st Set", res.marketName());
+        assertEquals("Handicap (Games) – 1st Set", res.marketName() + " – " + res.partOfGame());
         assertEquals("-3.5", res.selectionName());
     }
 }
