@@ -48,16 +48,24 @@ public class BetMaker {
             var realization2 = bookmaker2Final.realization;
 
             var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1()));
-            var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
+
+            if (!isValue) {
+                var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
+                openLink2.get(30, TimeUnit.SECONDS);
+            }
 
             openLink1.get(30, TimeUnit.SECONDS);
-            openLink2.get(30, TimeUnit.SECONDS);
 
             var futureBalance1 = executor.submit(() -> realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport()));
-            var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
+
+            var balance2Rub = new BigDecimal("1000000000");
+
+            if (!isValue) {
+                var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
+                balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
+            }
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
-            var balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
@@ -76,10 +84,13 @@ public class BetMaker {
             var bet2 = BigDecimal.valueOf(bets.get(1));
 
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
-            var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
+
+            if (!isValue) {
+                var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
+                enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
+            }
 
             enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
-            enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
 
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
