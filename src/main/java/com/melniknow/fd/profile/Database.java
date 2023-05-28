@@ -61,7 +61,7 @@ public class Database {
 
             while (set.next()) profiles.add(set.getString("profile_name"));
         } catch (SQLException e) {
-            throw new RuntimeException("getAllProfiles Error");
+            throw new RuntimeException(e);
         }
 
         return profiles;

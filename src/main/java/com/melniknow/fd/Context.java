@@ -18,6 +18,7 @@ import com.melniknow.fd.utils.MathUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.concurrent.*;
+import java.util.logging.Logger;
 
 public class Context {
     public static volatile Parser.ParserParams parserParams;
@@ -32,7 +33,7 @@ public class Context {
     public static final ScreenManager screenManager = new ScreenManager();
     public static volatile Profile profile;
 
-    public static final java.util.logging.Logger log = java.util.logging.Logger.getLogger("mainLogger");
+    public static final Logger log = Logger.getLogger("mainLogger");
 
     public static final LoadingCache<MathUtils.ForkKey, Parser.Fork> forksCache = CacheBuilder.newBuilder()
         .expireAfterAccess(120, TimeUnit.MINUTES)

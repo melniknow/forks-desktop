@@ -30,6 +30,7 @@ public class BetMaker {
 
             var isReversed = bundle != null && !bundle.bk1().equals(bookmaker1);
             var isValue = bundle != null && bundle.isValue();
+            var isVerifiedValue = bundle != null && bundle.isVerifiedValue();
 
             if (isReversed) {
                 calculated = reverseCalculated(calculated);
@@ -103,7 +104,7 @@ public class BetMaker {
             }
 
             var isClosed = false;
-            if (!isValue) {
+            if (!isValue && !isVerifiedValue) {
                 try {
                     BigDecimal finalRealCf = realCf1;
                     var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), false, finalRealCf));
@@ -113,7 +114,10 @@ public class BetMaker {
                         isClosed = BetsSupport.cashOut(Context.screenManager.getScreenForBookmaker(bookmaker1Final));
                     }
 
-                    Logger.writeToLogSession("Не удалось поставить плечо(%s) - %s".formatted(isClosed ? "Сделали CashOut" : "Не сделали CashOut", calculatedFinal.fork().betInfo2().BK_name()));
+                    Logger.writeToLogSession("Не удалось поставить плечо(%s) - %s".formatted(
+                        isClosed ? "Сделали CashOut" : "Не сделали CashOut",
+                        calculatedFinal.fork().betInfo2().BK_name())
+                    );
                 }
             }
 
@@ -132,7 +136,7 @@ public class BetMaker {
             throw new InterruptedException();
         } catch (ExecutionException e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getLocalizedMessage());
         } finally {
             executor.shutdownNow();

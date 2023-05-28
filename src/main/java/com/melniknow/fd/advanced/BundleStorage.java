@@ -44,6 +44,7 @@ public class BundleStorage {
             obj.addProperty("isValue", bundleSetting.isValue());
             obj.addProperty("bk1", bundleSetting.bk1().name());
             obj.addProperty("bk2", bundleSetting.bk2().name());
+            obj.addProperty("isVerifiedValue", bundleSetting.isVerifiedValue());
 
             array.add(obj);
         }

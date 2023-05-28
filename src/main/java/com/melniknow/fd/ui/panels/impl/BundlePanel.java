@@ -47,6 +47,9 @@ public class BundlePanel implements IPanel {
         var isValue = new CheckBox("Валуй");
         grid.add(isValue, 2, y.getAndIncrement(), 1, 1);
 
+        var isVerifiedValue = new CheckBox("Проверенный валуй");
+        grid.add(isVerifiedValue, 2, y.getAndIncrement(), 1, 1);
+
         grid.add(new Label("Первое плечо"), 1, y.get());
         var bk1Field = new ComboBox<>(FXCollections.observableArrayList(Bookmaker.values()));
         bk1Field.setPrefHeight(40);
@@ -78,13 +81,14 @@ public class BundlePanel implements IPanel {
                     throw new RuntimeException();
 
                 var bundle = new BundleSetting(nameRulesField.getText(), isValue.isSelected(),
+                    isVerifiedValue.isSelected(),
                     bk1Field.getValue(), bk2Field.getValue());
 
                 Context.bundleStorage.add(bundle);
                 Context.bundleStorage.saveToDb();
 
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
-                    " " + (bundle.isValue() ? "Валуй" : "Не валуй"));
+                    " " + (bundle.isValue() || bundle.isVerifiedValue() ? "Валуй" : "Не валуй"));
 
                 GridPane.setHalignment(delButton, HPos.CENTER);
 
@@ -109,13 +113,14 @@ public class BundlePanel implements IPanel {
             for (JsonElement jsonElement : array) {
                 var bundle = new BundleSetting(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
                     jsonElement.getAsJsonObject().getAsJsonPrimitive("isValue").getAsBoolean(),
+                    jsonElement.getAsJsonObject().getAsJsonPrimitive("isVerifiedValue").getAsBoolean(),
                     Bookmaker.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("bk1").getAsString()),
                     Bookmaker.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("bk2").getAsString()));
 
                 Context.bundleStorage.add(bundle);
 
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + "-" + bundle.bk2() +
-                    " " + (bundle.isValue() ? "Валуй" : "Не валуй"));
+                    " " + (bundle.isValue() || bundle.isVerifiedValue() ? "Валуй" : "Не валуй"));
 
                 delButton.setOnAction(ev -> {
                     Context.bundleStorage.remove(bundle);

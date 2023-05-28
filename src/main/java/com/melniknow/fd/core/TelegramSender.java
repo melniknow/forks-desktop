@@ -31,6 +31,7 @@ public class TelegramSender {
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "<i>ID сессии:</i> <b>" + ProfileTab.sessionId + "</b>" + "\n" +
                 "<i>Спорт:</i> <b>" + fork.sport() + "</b>" + "\n" +
+                "<i>Доход:</i> <b>" + fork.income() + "%</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betType() + "</b>" + "\n\n" +
 
                 "Букмекер 1\n" +

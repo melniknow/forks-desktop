@@ -28,8 +28,6 @@ public class ScreenManager {
     }
 
     public synchronized void createScreenForBookmaker(Bookmaker bookmaker) {
-        if (bookmaker.isApi) return;
-
         var params = Context.betsParams.get(bookmaker);
         var link = params.link();
 

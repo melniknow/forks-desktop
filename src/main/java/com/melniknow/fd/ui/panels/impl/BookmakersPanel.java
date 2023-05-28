@@ -69,7 +69,7 @@ public class BookmakersPanel implements IPanel {
         grid.add(link, 0, y);
         var linkField = new TextField();
         linkField.setPrefHeight(40);
-        linkField.setEditable(!bookmaker.isApi);
+        linkField.setEditable(true);
         linkField.setText(bookmaker.link);
         profileTextCheck(bookmaker.name() + "linkField", linkField);
         grid.add(linkField, 1, y++);
@@ -251,7 +251,7 @@ public class BookmakersPanel implements IPanel {
                     proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(), langField.getText(),
                     new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText())));
 
-                System.out.println(Context.betsParams);
+                Context.log.info(Context.betsParams.toString());
 
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
