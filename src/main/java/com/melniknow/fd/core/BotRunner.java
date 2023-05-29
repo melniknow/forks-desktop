@@ -4,6 +4,7 @@ import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.BetMaker;
 import com.melniknow.fd.utils.MathUtils;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class BotRunner implements Runnable {
@@ -44,6 +45,7 @@ public class BotRunner implements Runnable {
                 throw new RuntimeException(e);
             } catch (Exception e) {
                 Logger.writeToLogSession(e.getLocalizedMessage());
+                Context.log.info(Arrays.toString(e.getStackTrace()));
             }
         }
     }

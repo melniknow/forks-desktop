@@ -22,17 +22,13 @@ import java.util.*;
 import static com.melniknow.fd.ui.Controller.*;
 
 public class ProfileTab implements IPanel {
-    public static final UUID sessionId = UUID.randomUUID();
+    public static String profileSessionName;
 
     @Override
     public ScrollPane getNode() {
         var grid = new GridPane();
 
         var y = 0;
-
-        var session = new Label("ID сессии: " + sessionId);
-        grid.add(session, 0, y++, 2, 1);
-        GridPane.setHalignment(session, HPos.CENTER);
 
         grid.setAlignment(Pos.BASELINE_CENTER);
         grid.setPadding(new Insets(20, 20, 20, 20));
@@ -81,6 +77,9 @@ public class ProfileTab implements IPanel {
                 }
 
                 var jsonData = JsonParser.parseString(Objects.requireNonNull(jsonString));
+
+                profileSessionName = profileName;
+
                 Context.profile = new Profile(profileName, jsonData);
                 Context.profile.save();
             } else {

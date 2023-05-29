@@ -113,6 +113,13 @@ public class BookmakersPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
+        var rounding = new Label("Точность округления *");
+        grid.add(rounding, 0, y);
+        var roundingField = new ComboBox<>(FXCollections.observableArrayList("10", "1", "0.1", "0.01"));
+        setString(bookmaker.name() + "roundingField", roundingField);
+        roundingField.setPrefHeight(40);
+        grid.add(roundingField, 1, y++);
+
         var screenSize = new Label("Разрешение");
         grid.add(screenSize, 0, y);
         var screenSizeField = new ComboBox<>(FXCollections.observableArrayList("1920/1200", "1920/1080", "1600/900", "1440/900"));
@@ -240,7 +247,7 @@ public class BookmakersPanel implements IPanel {
         saveButton.setOnAction(event -> {
             try {
                 if (currencyField.getValue() == null || minimumField.getText().isEmpty() || maximumField.getText().isEmpty() ||
-                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty())
+                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() || roundingField.getValue() == null)
                     throw new RuntimeException();
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
@@ -249,7 +256,8 @@ public class BookmakersPanel implements IPanel {
                     new BigDecimal(minimumField.getText()), new BigDecimal(maximumField.getText()),
                     agentField.getText(), proxyIpField.getText(), port,
                     proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(), langField.getText(),
-                    new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText())));
+                    new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText()),
+                    new BigDecimal(roundingField.getValue())));
 
                 Context.log.info(Context.betsParams.toString());
 
@@ -274,8 +282,10 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "proxyPasswordField", proxyPasswordField.getText());
                 json.addProperty(bookmaker.name() + "currencyField", currencyField.getValue().name());
                 json.addProperty(bookmaker.name() + "screenSizeField", screenSizeField.getValue());
+                json.addProperty(bookmaker.name() + "roundingField", roundingField.getValue());
 
                 Context.profile.save();
+                System.out.println(Context.betsParams);
             } catch (java.lang.Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);
