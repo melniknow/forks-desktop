@@ -21,7 +21,8 @@ import java.util.stream.Stream;
 
 public class Parser {
     public static final String oddscorpToken = "c9af132a2632cb74c1f59d524dbbb5b2";
-    public record ParserParams(BigDecimal minFi, BigDecimal maxFi, int middles, List<Bookmaker> bookmakers,
+    public record ParserParams(BigDecimal minFi, BigDecimal maxFi, int middles,
+                               List<Bookmaker> bookmakers,
                                List<BetType> types, BigDecimal forkLive, List<Sport> sports,
                                BigDecimal pauseAfterSuccess,
                                BigDecimal countFork, boolean isRepeatFork, BigDecimal maxMinus) { }
@@ -53,31 +54,32 @@ public class Parser {
 
         var stringForks = "";
 
-        var timeout = 2;
-
-        var config = RequestConfig.custom()
-            .setConnectTimeout(timeout * 1000)
-            .setConnectionRequestTimeout(timeout * 1000)
-            .setSocketTimeout(timeout * 1000).build();
-
-        try (var httpClient = HttpClientBuilder.create()
-            .setDefaultRequestConfig(config)
-            .build()) {
-            var request = new HttpGet(url);
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    return null;
-                }
-                var entity = response.getEntity();
-                if (entity != null) {
-                    stringForks = EntityUtils.toString(entity);
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        var jsonParser = JsonParser.parseString(stringForks);
+//        var timeout = 2;
+//
+//        var config = RequestConfig.custom()
+//            .setConnectTimeout(timeout * 1000)
+//            .setConnectionRequestTimeout(timeout * 1000)
+//            .setSocketTimeout(timeout * 1000).build();
+//
+//        try (var httpClient = HttpClientBuilder.create()
+//            .setDefaultRequestConfig(config)
+//            .build()) {
+//            var request = new HttpGet(url);
+//            try (CloseableHttpResponse response = httpClient.execute(request)) {
+//                if (response.getStatusLine().getStatusCode() != 200) {
+//                    return null;
+//                }
+//                var entity = response.getEntity();
+//                if (entity != null) {
+//                    stringForks = EntityUtils.toString(entity);
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        var jsonParser = JsonParser.parseString(stringForks);
+        var jsonParser = JsonParser.parseString(FakeServer.get());
 
         var forks = new ArrayList<Fork>();
         if (!jsonParser.isJsonArray()) return null;

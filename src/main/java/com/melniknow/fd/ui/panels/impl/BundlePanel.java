@@ -47,7 +47,7 @@ public class BundlePanel implements IPanel {
         var isValue = new CheckBox("Валуй");
         grid.add(isValue, 2, y.getAndIncrement(), 1, 1);
 
-        var isVerifiedValue = new CheckBox("Проверенный валуй");
+        var isVerifiedValue = new CheckBox("Проверяемый валуй");
         grid.add(isVerifiedValue, 2, y.getAndIncrement(), 1, 1);
 
         grid.add(new Label("Первое плечо"), 1, y.get());
@@ -89,7 +89,10 @@ public class BundlePanel implements IPanel {
                 Context.bundleStorage.saveToDb();
 
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
-                    " " + (bundle.isValue() || bundle.isVerifiedValue() ? "Валуй" : "Не валуй"));
+                    " " + (
+                    bundle.isValue() ? "Валуй" :
+                        bundle.isVerifiedValue() ? "Проверяемый валуй" : "Не валуй")
+                );
 
                 GridPane.setHalignment(delButton, HPos.CENTER);
 
@@ -121,7 +124,9 @@ public class BundlePanel implements IPanel {
                 Context.bundleStorage.add(bundle);
 
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + "-" + bundle.bk2() +
-                    " " + (bundle.isValue() || bundle.isVerifiedValue() ? "Валуй" : "Не валуй"));
+                    " " + (
+                    bundle.isValue() ? "Валуй" :
+                        bundle.isVerifiedValue() ? "Проверяемый валуй" : "Не валуй"));
 
                 delButton.setOnAction(ev -> {
                     Context.bundleStorage.remove(bundle);

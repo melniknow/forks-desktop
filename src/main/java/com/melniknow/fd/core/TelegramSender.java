@@ -30,7 +30,7 @@ public class TelegramSender {
         return String.format(
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "<i>Имя профиля:</i> <b>" + ProfileTab.profileSessionName + "</b>" + "\n" +
-                "<i>Доход:</i> <b>" + fork.income() + "%</b>" + "\n" +
+                "<i>Доход:</i> <b>" + fork.income() + "</b>" + "\n" +
                 "<i>Спорт:</i> <b>" + fork.sport() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betType() + "</b>" + "\n\n" +
 

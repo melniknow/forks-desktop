@@ -285,7 +285,6 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "roundingField", roundingField.getValue());
 
                 Context.profile.save();
-                System.out.println(Context.betsParams);
             } catch (java.lang.Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);

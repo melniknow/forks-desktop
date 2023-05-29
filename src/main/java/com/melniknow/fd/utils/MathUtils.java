@@ -9,7 +9,6 @@ import java.util.List;
 
 public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
-
     public record ForkKey(String bookmaker, BigDecimal eventId, String BK_bet) { }
 
     public static CalculatedFork calculate(List<Parser.Fork> forks_) {
@@ -39,7 +38,7 @@ public class MathUtils {
     }
 
     public static BigDecimal calculateIncome(BigDecimal cf1, BigDecimal cf2) {
-        var mode = RoundingMode.UP;
+        var mode = RoundingMode.DOWN;
         var scale = 10;
 
         var income1 = BigDecimal.ONE.divide(cf1, scale, mode);
@@ -47,7 +46,14 @@ public class MathUtils {
 
         var income = income1.add(income2);
 
-        var _100 = new BigDecimal("100");
+        var _100 = new BigDecimal("100.00");
         return _100.subtract(income.multiply(_100));
+    }
+
+    public static void main(String[] args) {
+        var cf1 = new BigDecimal("2.042");
+        var cf2 = new BigDecimal("2.1");
+
+        System.out.println(calculateIncome(cf1, cf2)); // Должно быть 3.53 - мы точно ошибаемся
     }
 }
