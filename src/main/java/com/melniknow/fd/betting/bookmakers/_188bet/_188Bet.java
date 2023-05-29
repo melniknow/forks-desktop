@@ -122,7 +122,7 @@ public class _188Bet implements IBookmaker {
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet [188bet]" + e.getMessage());
-            throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException();
         }

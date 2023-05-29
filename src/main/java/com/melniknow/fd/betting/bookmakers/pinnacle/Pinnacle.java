@@ -118,7 +118,7 @@ public class Pinnacle implements IBookmaker {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
             return waitLoop(driver, info.BK_cf(), cf1, isFirst);
         } catch (Exception e) {
-            throw new RuntimeException("bet not place [pinncale]" + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 

@@ -107,7 +107,7 @@ public class BetMaker {
                 var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), true, new BigDecimal("0")));
                 realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException | TimeoutException e) {
-                throw new RuntimeException("Не удалось поставить вилку");
+                throw new RuntimeException("Не удалось поставить вилку" + e.getMessage());
             }
 
             var isClosed = false;
