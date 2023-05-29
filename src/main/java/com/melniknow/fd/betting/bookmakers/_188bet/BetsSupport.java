@@ -200,11 +200,11 @@ public class BetsSupport {
     public static boolean cashOut(ChromeDriver driver) throws InterruptedException {
         var originalLines = curCashOutField.lines().toList();
         if (originalLines.size() < 4) {
-            throw new RuntimeException("CashOut не поставлен");
+            return false;
         }
         var findStr = getFirstNameForCashOut(originalLines.get(1));
         if (findStr == null) {
-            throw new RuntimeException("CashOut не поставлен");
+            return false;
         }
 
         try {
@@ -228,11 +228,10 @@ public class BetsSupport {
                     TimeUnit.MILLISECONDS.sleep(1000);
                     var finalButton2 = finalBlock.findElement(SeleniumSupport.buildLocalH4ByText("Confirm Cash Out"));
                     driver.executeScript("arguments[0].click();", finalButton2);
-                    break;
+                    return true;
                 }
             }
-
-            return true;
+            return false;
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (Exception e) {
