@@ -23,6 +23,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
+        Context.log.info("Call openLink _188Bet");
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
@@ -56,6 +57,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
+        Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
                 ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
@@ -70,6 +72,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
+        Context.log.info("Call enterSumAndCheckCf _188Bet");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
         try {
@@ -107,6 +110,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
+        Context.log.info("Call placeBetAndGetRealCf _188Bet");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             waitLoop(driver, info.BK_cf(), cf1, isFirst);
@@ -118,7 +122,7 @@ public class _188Bet implements IBookmaker {
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             System.out.println("Don`t Place Bet [188bet]" + e.getMessage());
-            throw new RuntimeException("Don`t Place Bet [188bet]\n Error:" + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException();
         }
