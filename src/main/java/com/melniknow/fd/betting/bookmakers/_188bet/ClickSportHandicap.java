@@ -25,7 +25,10 @@ public class ClickSportHandicap {
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        var buttons = BetsSupport.findElementsWithClicking(market, SeleniumSupport.buildLocalDivByText(selectionName))
+        if (selectionName == null) throw new RuntimeException("selectionName is null");
+
+        var buttons = BetsSupport.findElementsWithClicking(market,
+                By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))
             .stream()
             .map(e -> e.findElement(By.xpath("./..")))
             .toList();

@@ -15,8 +15,6 @@ public class ClickSportsWin {
             selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         } else if (info.BK_bet().contains("WIN__PX")) {
             selectionName = "Draw";
-        } else {
-            throw new RuntimeException("Not supported Win [188Bet]");
         }
 
         var marketName = info.BK_market_meta().get("marketName").getAsString();
@@ -43,7 +41,7 @@ public class ClickSportsWin {
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
-        if (selectionName == null) throw new RuntimeException("selectionName is null");
+        if (selectionName == null) throw new RuntimeException("selectionName is null WIN [188bet]");
 
         try {
             var button = BetsSupport.findElementWithClicking(market,

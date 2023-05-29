@@ -21,16 +21,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Pinnacle implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
+        Context.log.info("Call openLink Pinnacle");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
     }
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
+        Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub Pinnacle");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         removeAllPreviousWindows(driver);
 
@@ -49,9 +52,9 @@ public class Pinnacle implements IBookmaker {
             }
         }
         // 438
-        System.out.println("info.BK_bet() = " + info.BK_bet());
-        System.out.println("marketName [pinnacle] = " + marketName);
-        System.out.println("selectionName [pinnacle] = " + selectionName);
+        Context.log.info("info.BK_bet() = " + info.BK_bet());
+        Context.log.info("marketName [pinnacle] = " + marketName);
+        Context.log.info("selectionName [pinnacle] = " + selectionName);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         String finalMarketName = marketName;
@@ -89,11 +92,12 @@ public class Pinnacle implements IBookmaker {
 
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
+        Context.log.info("Call enterSumAndCheckCf Pinnacle");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
         var currentCf = getCurrentCf(driver);
 
-        System.out.println("Current Cf [pinnacle] = " + currentCf);
+        Context.log.info("Current Cf [pinnacle] = " + currentCf);
 
         if (currentCf.compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
             throw new RuntimeException("betCoef is too low [pinnacle] - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
@@ -109,6 +113,7 @@ public class Pinnacle implements IBookmaker {
 
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) {
+        Context.log.info("Call placeBetAndGetRealCf Pinnacle");
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
             return waitLoop(driver, info.BK_cf(), cf1, isFirst);
@@ -136,13 +141,13 @@ public class Pinnacle implements IBookmaker {
     private boolean waitSuccess(ChromeDriver driver) {
         for (int i = 0; i < 10; ++i) {
             try {
-                System.out.println("Wait....");
+                Context.log.info("Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
                 wait.until(driver1 -> driver1.findElement(byBetSuccess));
                 return true;
             } catch (Exception e) {
                 if (windowContains(driver, byOddsChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byBetClosed)) {
-                    System.out.println("Exit from wait");
+                    Context.log.info("Exit from wait");
                     return false;
                 }
             }
@@ -155,21 +160,22 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("Ставка закрыта [pinnacle]");
         }
         if (!isActivePlaceBet(driver)) {
-            System.out.println("Is not active");
+            Context.log.info("Is not active");
             return;
         }
 
         var curCf = getCurrentCf(driver);
         if (curCf.compareTo(oldCf) >= 0) {
-            System.out.println("Click Place 1");
+            Context.log.info("Click Place 1");
             clickIfIsClickable(driver, byPlaceBetSpan);
         } else if (!isFirst) {
             var newIncome = MathUtils.calculateIncome(curCf, cf1);
-            System.out.println("newIncome = " + newIncome);
+            Context.log.info("newIncome = " + newIncome);
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
+                Context.log.info("Max minus [pinnale]: newIncome = " + newIncome);
                 throw new RuntimeException("Max minus [pinnale]: newIncome = " + newIncome);
             } else {
-                System.out.println("Click Place 2");
+                Context.log.info("Click Place 2");
                 clickIfIsClickable(driver, byPlaceBetSpan);
             }
         } else {
@@ -212,7 +218,7 @@ public class Pinnacle implements IBookmaker {
     private BigDecimal getCurrentCf(ChromeDriver driver) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         var curCfTest = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='SelectionDetails-Odds']")));
-        System.out.println("curCfTest [pinnacle] = " + curCfTest);
+        Context.log.info("curCfTest [pinnacle] = " + curCfTest);
         return new BigDecimal(curCfTest.getText());
     }
 
@@ -231,14 +237,14 @@ public class Pinnacle implements IBookmaker {
     private BigDecimal getBalance(ChromeDriver driver, Currency currency) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         var curBalanceText = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='QuickCashier-BankRoll']"))).getText();
-        System.out.println("curBalanceTest [pinnacle] = " + curBalanceText);
+        Context.log.info("curBalanceTest [pinnacle] = " + curBalanceText);
         curBalanceText = curBalanceText.substring(4);
         curBalanceText = curBalanceText.replace(",", "");
         var balance = new BigDecimal(curBalanceText);
         if (balance.equals(BigDecimal.ZERO)) {
             throw new RuntimeException("Balance is zero [pinnacle]");
         }
-        System.out.println("Balance from header " + currency + " : " + balance + " [pinnacle]");
+        Context.log.info("Balance from header " + currency + " : " + balance + " [pinnacle]");
         return balance.multiply(Context.currencyToRubCourse.get(currency));
     }
 
@@ -260,7 +266,6 @@ public class Pinnacle implements IBookmaker {
         digits = digits.substring(digits.indexOf("(") + 1);
         digits = digits.substring(0, digits.indexOf(")"));
 
-        //  Don`t support BetType [pinnacle]:HANDICAP__P1(0) | sport: SOCCER
         if (bkBet.contains("__OVER")) {
             return "Over " + digits;
         } else if (bkBet.contains("__UNDER")) {
