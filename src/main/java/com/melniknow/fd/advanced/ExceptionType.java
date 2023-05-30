@@ -1,5 +1,6 @@
 package com.melniknow.fd.advanced;
 
+// Типы возможных исключений (не Java exception!)
 public enum ExceptionType {
     ИСКЛ_ЕСЛИ_ТБ,
     ИСКЛ_ЕСЛИ_ТМ,

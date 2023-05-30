@@ -20,14 +20,17 @@ public class BotRunner implements Runnable {
                     TimeUnit.MILLISECONDS.sleep(1000);
                 }
 
+                // Получаем все вилки по нашим параметрам
                 var forks = Parser.getForks(Context.parserParams);
 
                 if (forks == null) {
                     Logger.writeToLogSession("Ошибка при получении вилок с сервера");
                 } else if (!forks.isEmpty()) {
+                    // Фильтруем вилки, находим вилку с лучшей доходностью и проводим для неё расчёты
                     var calculated = MathUtils.calculate(forks);
 
                     if (calculated != null) {
+                        // Ставим ставки
                         var completed = BetMaker.make(calculated);
 
                         Logger.writePrettyMessageAboutFork(completed);

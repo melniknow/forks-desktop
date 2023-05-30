@@ -9,6 +9,7 @@ import java.util.List;
 
 public record Exception(String name, Sport sport, ExceptionType type) {
     public static boolean checkException(List<Exception> ex, Sport sport, Parser.BetInfo betInfo, boolean isFirst, boolean isMiddles) {
+        // Логика для каждого исключения
         try {
             if (ex == null) return true;
 

@@ -3,6 +3,7 @@ package com.melniknow.fd.profile;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+// Объект для хранения json по имени профиля
 public class Profile {
     private final String profileName;
     public final JsonObject json;

@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 public class BetUtils {
+    // Параметры для букмекера
     public record BetsParams(String link, Currency currency, BigDecimal minBetSum,
                              BigDecimal maxBetSum,
                              String userAgent, String proxyIp, Integer proxyPort,
@@ -14,6 +15,7 @@ public class BetUtils {
                              String lang, BigDecimal minCf,
                              BigDecimal maxCf, BigDecimal accuracy) { }
 
+    // Поставленная вилка
     public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String income,
                                    BigDecimal betRubBalance1,
                                    BigDecimal betRubBalance2,

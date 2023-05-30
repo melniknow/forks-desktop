@@ -89,6 +89,8 @@ public class ProfileTab implements IPanel {
 
             Context.bundleStorage.clear();
 
+            // Здесь вся логика создания нашего UI
+
             var settingTab = tabConstructor("Настройки", new SettingPanel());
             var currencyTab = tabConstructor("Валюты", new CurrencyPanel());
             var bookmakersTab = tabConstructor("Букмекеры", new BookmakersPanel());

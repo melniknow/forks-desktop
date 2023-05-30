@@ -10,6 +10,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 public class Security {
+    // Антиполупокерская защита
     public static void PolypokerCheck() {
         Context.parsingPool.submit(() -> {
             var uri = "http://nepolypoker.ru/flag.json";

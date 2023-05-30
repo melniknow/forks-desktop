@@ -52,6 +52,7 @@ public class ScreenManager {
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
+                        // Финт ушами с созданием файла и чтением из него (а мы блять не умеем из jar архива читать)
                         var stream = Objects.requireNonNull(App.class.getResourceAsStream("proxy.crx"));
                         var file = new File(UUID.randomUUID().toString());
                         if (!file.createNewFile())

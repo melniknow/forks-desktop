@@ -23,41 +23,45 @@ public class BetMaker {
         var executor = Executors.newFixedThreadPool(2);
 
         try {
-
             Context.log.info(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
             Context.log.info(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
 
-//            Logger.writeToLogSession(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
-//            Logger.writeToLogSession(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
-
+            // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
             var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
 
+            // Получаем настройку связки для этой пары бк (или null если нет такой)
             var bundle = Context.bundleStorage.get(bookmaker1, bookmaker2);
 
+            // Проверяем перевёрнут ли порядок в связке
             var isReversed = bundle != null && !bundle.bk1().equals(bookmaker1);
+
             var isValue = bundle != null && bundle.isValue();
             var isVerifiedValue = bundle != null && bundle.isVerifiedValue();
 
+            // Если порядок перевёрнут, то мы должны поменять порядок очерёдности букмекеров
             if (isReversed) {
                 calculated = reverseCalculated(calculated);
                 bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
                 bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());
             }
 
+            // Idea немного ебанулась и хочет здесь final
             final var bookmaker1Final = bookmaker1;
             final var bookmaker2Final = bookmaker2;
             final var calculatedFinal = calculated;
 
+            // Получаем параметры от наших бк
             var bkParams1 = Context.betsParams.get(bookmaker1Final);
             var bkParams2 = Context.betsParams.get(bookmaker2Final);
 
+            // Берём реализацию для наших бк
             var realization1 = bookmaker1Final.realization;
             var realization2 = bookmaker2Final.realization;
 
             var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1()));
 
-            if (!isValue) {
+            if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
                 var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
                 openLink2.get(30, TimeUnit.SECONDS);
             }
@@ -68,9 +72,12 @@ public class BetMaker {
 
             var balance2Rub = new BigDecimal("1000000000");
 
-            if (!isValue) {
+            if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
                 var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
                 balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
+                if (isVerifiedValue) { // Если это проверяемый валуй, то мы проверив баланс, перезаписываем его на большое число
+                    balance2Rub = new BigDecimal("1000000000");
+                }
             }
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
@@ -85,11 +92,14 @@ public class BetMaker {
                 Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.maxBetSum()),
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.maxBetSum()),
                 calculatedFinal.betCoef1(),
-                calculatedFinal.betCoef2()
+                calculatedFinal.betCoef2(),
+                bkParams1.accuracy().intValue(),
+                bkParams2.accuracy().intValue()
             );
 
-            var bet1 = BigDecimal.valueOf(bets.get(0));
-            var bet2 = BigDecimal.valueOf(bets.get(1));
+            // Получаем размеры ставок с учётом округления и валют на бк
+            var bet1 = bets.get(0);
+            var bet2 = bets.get(1);
 
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
 
@@ -111,13 +121,13 @@ public class BetMaker {
             }
 
             var isClosed = false;
-            if (!isValue && !isVerifiedValue) {
+            if (!isValue && !isVerifiedValue) { // Сюда заходим только если вилка
                 try {
                     BigDecimal finalRealCf = realCf1;
                     var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), false, finalRealCf));
                     realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
-                    if (bookmaker1Final.equals(Bookmaker._188BET)) {
+                    if (bookmaker1Final.equals(Bookmaker._188BET)) { // Пытаемся сделать кешаут из 188bet
                         isClosed = BetsSupport.cashOut(Context.screenManager.getScreenForBookmaker(bookmaker1Final));
                     }
 
@@ -128,8 +138,9 @@ public class BetMaker {
                 }
             }
 
-            executor.shutdownNow();
+            executor.shutdownNow(); // Убиваем потоки
 
+            // Сохраняем вилку в кеш
             var fork = calculatedFinal.fork();
             Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()), fork);
             Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()), fork);
@@ -150,32 +161,34 @@ public class BetMaker {
     }
 
     private static MathUtils.CalculatedFork reverseCalculated(MathUtils.CalculatedFork calculated) {
+        // Переворачиваем betCoef-ы
         var fork = reverseFork(calculated.fork());
         return new MathUtils.CalculatedFork(fork, calculated.betCoef2(), calculated.betCoef1());
     }
     private static Parser.Fork reverseFork(Parser.Fork fork) {
+        // Переворачиваем betInfo
         return new Parser.Fork(fork.forkId(), fork.income(), fork.eventId(), fork.sport(), fork.isMiddles(), fork.betType(),
             fork.betInfo2(), fork.betInfo1());
     }
 
-    private static List<Integer> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
-                                                   BigDecimal balanceRub2, BigDecimal minSt1Rub, BigDecimal minSt2Rub,
-                                                   BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
-                                                   BigDecimal calcCf2) {
+    private static List<BigDecimal> calculateBetsSize(Currency currency1, Currency currency2, BigDecimal balanceRub1,
+                                                      BigDecimal balanceRub2, BigDecimal minSt1Rub, BigDecimal minSt2Rub,
+                                                      BigDecimal maxSt1Rub, BigDecimal maxSt2Rub, BigDecimal calcCf1,
+                                                      BigDecimal calcCf2, int scale1, int scale2) {
         if (minSt1Rub.compareTo(balanceRub1) > 0 || minSt2Rub.compareTo(balanceRub2) > 0)
             throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
-        var data = new ArrayList<Integer>(2);
+        var data = new ArrayList<BigDecimal>(2);
 
         Integer rubValue1 = null;
         Integer rubValue2 = null;
 
-        if (calcCf1.compareTo(calcCf2) > 0) {
+        if (calcCf1.compareTo(calcCf2) > 0) { // Идём от максимально возможной ставки на плече с минимальным коэффициентом
             for (int s1 = maxSt1Rub.intValue(); s1 >= minSt1Rub.intValue(); s1--) {
                 var tempRubValue2 = calcCf2.multiply(BigDecimal.valueOf(s1)).divide(calcCf1, 0, RoundingMode.DOWN).intValue();
                 if (s1 <= balanceRub1.intValue() && tempRubValue2 <= balanceRub2.intValue()
                     && tempRubValue2 >= minSt2Rub.intValue() && tempRubValue2 <= maxSt2Rub.intValue()) {
-                    rubValue1 = s1;
+                    rubValue1 = s1; // Берём первое значение, которое подходит под все ограничения
                     rubValue2 = tempRubValue2;
                     break;
                 }
@@ -195,10 +208,10 @@ public class BetMaker {
         if (rubValue1 == null)
             throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
-        var value1 = BigDecimal.valueOf(rubValue1).divide(Context.currencyToRubCourse.get(currency1), 0, RoundingMode.DOWN).intValue();
-        var value2 = BigDecimal.valueOf(rubValue2).divide(Context.currencyToRubCourse.get(currency2), 0, RoundingMode.DOWN).intValue();
+        var value1 = BigDecimal.valueOf(rubValue1).divide(Context.currencyToRubCourse.get(currency1), 3, RoundingMode.DOWN).setScale(scale1, RoundingMode.DOWN);
+        var value2 = BigDecimal.valueOf(rubValue2).divide(Context.currencyToRubCourse.get(currency2), 3, RoundingMode.DOWN).setScale(scale2, RoundingMode.DOWN);
 
-        if (value1 < 1 || value2 < 1)
+        if (value1.compareTo(BigDecimal.ONE) < 0 || value2.compareTo(BigDecimal.ONE) < 0)
             throw new RuntimeException("Невозможно поставить ставку при текущих настройках");
 
         data.add(value1);

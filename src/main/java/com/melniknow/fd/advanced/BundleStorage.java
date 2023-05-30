@@ -7,11 +7,12 @@ import com.melniknow.fd.domain.Bookmaker;
 
 import java.util.ArrayList;
 
+// Объект, который хранит в себе все настройки связок
 public class BundleStorage {
     private final ArrayList<BundleSetting> bundleSettingArrayList = new ArrayList<>();
 
     public void add(BundleSetting bundleSetting) {
-        for (BundleSetting setting : bundleSettingArrayList) {
+        for (BundleSetting setting : bundleSettingArrayList) { // Проверка на то что нет повторов (и зеркальных повторов) у связок
             if (bundleSetting.name().equals(setting.name()) ||
                 setting.bk1().equals(bundleSetting.bk1()) && setting.bk2().equals(bundleSetting.bk2()) ||
                 setting.bk1().equals(bundleSetting.bk2()) && setting.bk2().equals(bundleSetting.bk1()))
@@ -22,7 +23,7 @@ public class BundleStorage {
     }
 
     public BundleSetting get(Bookmaker bookmaker1, Bookmaker bookmaker2) {
-        for (BundleSetting bundleSetting : bundleSettingArrayList) {
+        for (BundleSetting bundleSetting : bundleSettingArrayList) { // Возвращает связку (или зеркальную связку) - мы же не знаем порядок
             if (bundleSetting.bk1().equals(bookmaker1) && bundleSetting.bk2().equals(bookmaker2) ||
                 bundleSetting.bk1().equals(bookmaker2) && bundleSetting.bk2().equals(bookmaker1))
                 return bundleSetting;

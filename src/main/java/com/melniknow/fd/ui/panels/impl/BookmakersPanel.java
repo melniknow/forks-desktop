@@ -113,9 +113,9 @@ public class BookmakersPanel implements IPanel {
         maximumRatioField.setPrefHeight(40);
         grid.add(maximumRatioField, 1, y++);
 
-        var rounding = new Label("Точность округления *");
+        var rounding = new Label("Точность округления (кол-во знаков после запятой) *");
         grid.add(rounding, 0, y);
-        var roundingField = new ComboBox<>(FXCollections.observableArrayList("10", "1", "0.1", "0.01"));
+        var roundingField = new ComboBox<>(FXCollections.observableArrayList("0", "1", "2"));
         setString(bookmaker.name() + "roundingField", roundingField);
         roundingField.setPrefHeight(40);
         grid.add(roundingField, 1, y++);
