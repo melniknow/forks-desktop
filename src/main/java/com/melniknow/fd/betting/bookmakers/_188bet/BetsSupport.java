@@ -170,11 +170,17 @@ public class BetsSupport {
     }
 
     public static BigDecimal getCurrentCf(ChromeDriver driver) {
-        WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
-            .until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
-
-        var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
-        return new BigDecimal(title.substring(title.indexOf("@") + 1));
+        try {
+            // @ - разделяет название события и коэфициент
+            WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
+                .until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
+            // сама @ нам не нужна, выходим на один уровень вверх, чтобы взять всю строку(в конце которой коэффициент)
+            var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
+            // берём всё, что после @ - наш коэффициент
+            return new BigDecimal(title.substring(title.indexOf("@") + 1));
+        } catch (TimeoutException e) {
+            throw new RuntimeException("[188bet]: коэффициент события не нейден");
+        }
     }
 
     public static void closeAfterSuccessfulBet(ChromeDriver driver) {
@@ -182,6 +188,7 @@ public class BetsSupport {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             var tmpButton = wait.until(driver_ -> driver_.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
 
+            // Очент важно! На случай кешайту сохраняем строчки, с помощью которых мы будем искать блок
             var tmp = tmpButton;
             tmp = SeleniumSupport.getParentByDeep(tmp, 2);
             curCashOutField = tmp.getText();

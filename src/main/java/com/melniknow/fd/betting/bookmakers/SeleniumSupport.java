@@ -39,6 +39,9 @@ public class SeleniumSupport {
         return By.xpath("//h4[text()='" + text + "']");
     }
 
+    /***
+     * @return нужную кнопку, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопку
+     */
     public static WebElement findElementWithClicking(ChromeDriver driver, WebElement element, By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         WebElement res;
@@ -56,6 +59,9 @@ public class SeleniumSupport {
         }
     }
 
+    /***
+     * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
+     */
     public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement element, By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         List<WebElement> res;
