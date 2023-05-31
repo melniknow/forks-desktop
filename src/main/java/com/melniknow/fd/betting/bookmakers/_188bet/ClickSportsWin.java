@@ -3,6 +3,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -48,9 +49,8 @@ public class ClickSportsWin {
             var button = BetsSupport.findElementWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"));
             driver.executeScript("arguments[0].click();", button);
-        } catch (NoSuchElementException e) {
-            throw new RuntimeException("Button not found!");
-        } catch (StaleElementReferenceException e) {
+        } catch (NoSuchElementException | StaleElementReferenceException |
+                 ElementNotInteractableException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
     }

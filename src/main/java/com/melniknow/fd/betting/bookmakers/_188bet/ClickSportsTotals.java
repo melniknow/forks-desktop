@@ -3,6 +3,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -35,9 +36,8 @@ public class ClickSportsTotals {
                 b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null));
 
             driver.executeScript("arguments[0].click();", button);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("[188bet]: Событие не найдено");
-        } catch (StaleElementReferenceException e) {
+        } catch (NullPointerException | StaleElementReferenceException |
+                 ElementNotInteractableException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
     }

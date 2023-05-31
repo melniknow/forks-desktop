@@ -88,7 +88,7 @@ public class Pinnacle implements IBookmaker {
 
         try {
             wait.until(ExpectedConditions.elementToBeClickable(button)).click();
-        }  catch (StaleElementReferenceException e) {
+        }  catch (StaleElementReferenceException | ElementNotInteractableException e) {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
         }
         return getBalance(driver, Context.betsParams.get(bookmaker).currency());
@@ -250,7 +250,7 @@ public class Pinnacle implements IBookmaker {
             // Подтверждаем удаление предыдущих окон - Confirm
             var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));
             wait.until(ExpectedConditions.elementToBeClickable(confirm)).click();
-        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException ignored) {
+        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException | ElementNotInteractableException ignored) {
             // it`s possible that there are no previous windows
         }
     }
