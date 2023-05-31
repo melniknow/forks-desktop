@@ -67,9 +67,13 @@ public class BetsSupport {
             res = element.findElement(by);
             return res;
         } catch (NoSuchElementException e) {
-            element.click();
-            TimeUnit.MILLISECONDS.sleep(300);
-            return element.findElement(by);
+            try {
+                element.click();
+                TimeUnit.MILLISECONDS.sleep(300);
+                return element.findElement(by);
+            } catch (StaleElementReferenceException e1) {
+                throw new RuntimeException("[188bet]: Блок с событиями пропал со страницы");
+            }
         }
     }
 
@@ -82,9 +86,13 @@ public class BetsSupport {
             res = element.findElements(by);
             return res;
         } catch (NoSuchElementException e) {
-            element.click();
-            TimeUnit.MILLISECONDS.sleep(500);
-            return element.findElements(by);
+            try {
+                element.click();
+                TimeUnit.MILLISECONDS.sleep(500);
+                return element.findElements(by);
+            } catch (StaleElementReferenceException e1) {
+                throw new RuntimeException("[188bet]: Блок с событиями пропал со страницы");
+            }
         }
     }
 
@@ -167,7 +175,7 @@ public class BetsSupport {
             TimeUnit.MILLISECONDS.sleep(500);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(500);
-        } catch (NoSuchElementException ignored) {
+        } catch (NoSuchElementException | StaleElementReferenceException ignored) {
         } catch (InterruptedException | TimeoutException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -181,7 +189,7 @@ public class BetsSupport {
             var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             // Нужно нажать на крестик - он "Брат" нашей строки - таким образо получаем следующий элемент в иерархии
             tmp.findElement(By.xpath(".//following::div[1]")).click();
-        } catch (NoSuchElementException | TimeoutException e) {
+        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException e) {
             System.out.println("[188bet]: Не закрыли окошко с купоном");
         }
     }
@@ -234,7 +242,7 @@ public class BetsSupport {
             } catch (NoSuchElementException e) {
                 tmpButton.findElement(SeleniumSupport.buildLocalH4ByText("Ok")).click();
             }
-        } catch (TimeoutException | NoSuchElementException e) {
+        } catch (TimeoutException | NoSuchElementException | StaleElementReferenceException e) {
             System.out.println("Not Close mini-window after success betting!  [188bet]");
         }
     }

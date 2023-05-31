@@ -9,10 +9,7 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.utils.MathUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -89,8 +86,11 @@ public class Pinnacle implements IBookmaker {
                 By.xpath(".//span[contains(text(), '" + selectionName + "')]"));
         }
 
-        wait.until(ExpectedConditions.elementToBeClickable(button)).click();
-
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(button)).click();
+        }  catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
+        }
         return getBalance(driver, Context.betsParams.get(bookmaker).currency());
     }
 
@@ -250,7 +250,7 @@ public class Pinnacle implements IBookmaker {
             // Подтверждаем удаление предыдущих окон - Confirm
             var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));
             wait.until(ExpectedConditions.elementToBeClickable(confirm)).click();
-        } catch (NoSuchElementException | TimeoutException ignored) {
+        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException ignored) {
             // it`s possible that there are no previous windows
         }
     }
