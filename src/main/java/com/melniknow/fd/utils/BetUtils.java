@@ -20,7 +20,9 @@ public class BetUtils {
                                    BigDecimal betRubBalance1,
                                    BigDecimal betRubBalance2,
                                    BigDecimal bet1Rub,
-                                   BigDecimal bet2Rub) { }
+                                   BigDecimal bet2Rub,
+                                   BigDecimal realCf1,
+                                   BigDecimal realCf2) { }
 
     public record Proxy(String ip, String port, String username, String password) { }
 

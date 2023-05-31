@@ -40,6 +40,7 @@ public class TelegramSender {
                 "<i>Тип ставки:</i> <b>" + fork.betInfo1().BK_bet() + "</b>" + "\n" +
                 "<i>Ссылка:</i> <b>" + fork.betInfo1().BK_href() + "</b>" + "\n" +
                 "<i>Коэффициент:</i> <b>" + fork.betInfo1().BK_cf() + "</b>" + "\n" +
+                "<i>Реальный коэффициент:</i> <b>" + completedFork.realCf1() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betInfo1().BK_bet_type() + "</b>" + "\n\n" +
                 "<i>Сумма ставки:</i> <b>" + completedFork.bet1Rub() + "руб</b>" + "\n\n" +
                 "<i>Баланс:</i> <b>" + completedFork.betRubBalance1().setScale(2, RoundingMode.DOWN) + "руб</b>" + "\n\n" +
@@ -50,6 +51,7 @@ public class TelegramSender {
                 "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet() + "</b>" + "\n" +
                 "<i>Ссылка:</i> <b>" + fork.betInfo2().BK_href() + "</b>" + "\n" +
                 "<i>Коэффициент:</i> <b>" + fork.betInfo2().BK_cf() + "</b>" + "\n" +
+                "<i>Реальный коэффициент:</i> <b>" + completedFork.realCf2() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betInfo2().BK_bet_type() + "</b>" + "\n\n" +
                 "<i>Сумма ставки:</i> <b>" + completedFork.bet2Rub() + "руб</b>" + "\n\n" +
                 "<i>Баланс:</i> <b>" + completedFork.betRubBalance2().setScale(2, RoundingMode.DOWN) + "руб</b>" + "\n\n" +

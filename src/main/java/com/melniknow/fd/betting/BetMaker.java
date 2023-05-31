@@ -263,7 +263,7 @@ public class BetMaker {
             throw new RuntimeException("Вилка не была поставлена");
         }
 
-        return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub);
+        return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub, realCf1, realCf2);
     }
 
     private static boolean isSuccessFork(BigDecimal realCf1, BigDecimal realCf2) {
