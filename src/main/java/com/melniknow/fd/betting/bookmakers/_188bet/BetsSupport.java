@@ -132,17 +132,21 @@ public class BetsSupport {
                 // находим всё, что может нам подойти (Handicap, Handicap\n1st Half)
                 List<WebElement> visibleMarkets = driver.findElements(byName);
                 for (var market : visibleMarkets) {
-                    // чтобы иметь доступ к части матча, выйдем на 2
-                    var parent = SeleniumSupport.getParentByDeep(market, 2);
-                    // чекаем - это наш маркет?
-                    if (isCorrectMarket(parent, partOfGame)) {
-                        // Это ответ, но нужно выйти ещё на 3, чтобы иметь доступ ко всем кнопкам
-                        var result = SeleniumSupport.getParentByDeep(parent, 3);
-                        // Проскроллим ещё немного, чтобы ввести внопки на экран, тк они ниже маркет, вдруг мы до них не долистали
-                        if (result.getLocation().y > scroll / 2)
-                            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
-                        TimeUnit.MILLISECONDS.sleep(300);
-                        return result;
+                    try {
+                        // чтобы иметь доступ к части матча, выйдем на 2
+                        var parent = SeleniumSupport.getParentByDeep(market, 2);
+                        // чекаем - это наш маркет?
+                        if (isCorrectMarket(parent, partOfGame)) {
+                            // Это ответ, но нужно выйти ещё на 3, чтобы иметь доступ ко всем кнопкам
+                            var result = SeleniumSupport.getParentByDeep(parent, 3);
+                            // Проскроллим ещё немного, чтобы ввести внопки на экран, тк они ниже маркет, вдруг мы до них не долистали
+                            if (result.getLocation().y > scroll / 2)
+                                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
+                            TimeUnit.MILLISECONDS.sleep(300);
+                            return result;
+                        }
+                    } catch (StaleElementReferenceException e) {
+                        throw new RuntimeException("[188bet]: Событие пропало со страницы");
                     }
                 }
             } catch (NoSuchElementException ignored) { } // Ничего не нашли - скроллим дальше
@@ -161,7 +165,7 @@ public class BetsSupport {
             // находим "Bet Slip", а над ним число окошек, поэтому getParentByDeep
             button = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalH4ByText("Bet Slip")));
             button = SeleniumSupport.getParentByDeep(button, 1);
-        } catch (TimeoutException e) {
+        } catch (TimeoutException | StaleElementReferenceException e) {
             throw new RuntimeException("[188bet]: не получилось закрыть предыдущие окна, страница прогрузилась не полностью");
         }
 
@@ -221,7 +225,7 @@ public class BetsSupport {
             var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
             // берём всё, что после @ - наш коэффициент
             return new BigDecimal(title.substring(title.indexOf("@") + 1));
-        } catch (TimeoutException e) {
+        } catch (TimeoutException | StaleElementReferenceException e) {
             throw new RuntimeException("[188bet]: коэффициент события не нейден");
         }
     }

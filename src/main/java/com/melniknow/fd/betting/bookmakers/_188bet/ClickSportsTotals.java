@@ -22,7 +22,13 @@ public class ClickSportsTotals {
         var buttons = BetsSupport.findElementsWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))
             .stream()
-            .map(e -> e.findElement(By.xpath("./..")))
+            .map(e -> {
+                try {
+                    return e.findElement(By.xpath("./.."));
+                } catch (StaleElementReferenceException e1) {
+                    throw new RuntimeException("[188bet]: Событие пропало со страницы");
+                }
+            })
             .toList();
 
         var line = info.BK_market_meta().get("line").getAsString();

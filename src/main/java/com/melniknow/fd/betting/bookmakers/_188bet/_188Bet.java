@@ -92,7 +92,12 @@ public class _188Bet implements IBookmaker {
             var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             // окошко для ввода суммы
             var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
-            enterSnake.sendKeys(sum.toString());
+            enterSnake.sendKeys(sum.toPlainString());
+
+            var factSum = driver.findElement(By.xpath("//input[@placeholder='Enter Stake']")).getAttribute("value");
+            if (!factSum.equals(sum.toPlainString())) {
+                throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");
+            }
 
         } catch (TimeoutException e) {
             BetsSupport.closeBetWindow(driver);
@@ -139,6 +144,7 @@ public class _188Bet implements IBookmaker {
         for (int i = 0; i < 15; ++i) {
             updateOdds(driver, oldCf, cf1, isFirst);
             if (waitSuccess(driver)) {
+                Context.log.info("188BET SUCCESS");
                 return;
             }
         }
