@@ -93,7 +93,9 @@ public class _188Bet implements IBookmaker {
             // окошко для ввода суммы
             var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
             enterSnake.sendKeys(sum.toPlainString());
+//            driver.executeScript("arguments[0].value = " + sum.toPlainString(), enterSnake);
 
+            // защита от ебанутого бага
             var factSum = driver.findElement(By.xpath("//input[@placeholder='Enter Stake']")).getAttribute("value");
             if (!factSum.equals(sum.toPlainString())) {
                 throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");

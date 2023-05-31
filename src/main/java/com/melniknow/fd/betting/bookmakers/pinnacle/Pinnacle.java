@@ -73,6 +73,7 @@ public class Pinnacle implements IBookmaker {
         if (marketName.contains("Handicap") && selectionName.equals("0")) {
             List<WebElement> buttons;
             try {
+                // забираем эти 2 нуля
                 buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
             } catch (NoSuchElementException ignored) {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
@@ -80,6 +81,7 @@ public class Pinnacle implements IBookmaker {
             if (buttons.size() != 2) {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
             }
+            // первый в списке это команда слева, второй - справа
             if (info.BK_bet().contains("P1")) {
                 button = buttons.get(0);
             } else if (info.BK_bet().contains("P2")) {
@@ -125,7 +127,9 @@ public class Pinnacle implements IBookmaker {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             // вводим сумму
-            wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']"))).sendKeys(sum.toPlainString());
+            var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
+            send.sendKeys(sum.toPlainString());
+//            driver.executeScript("arguments[0].value = " + sum.toPlainString(), send);
 
             // защита от ебанутого бага
             var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
