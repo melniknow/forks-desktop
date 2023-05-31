@@ -46,14 +46,9 @@ public class MathUtils {
 
         var income = income1.add(income2);
 
-        var _100 = new BigDecimal("100.00");
-        return _100.subtract(income.multiply(_100));
-    }
-
-    public static void main(String[] args) {
-        var cf1 = new BigDecimal("2.042");
-        var cf2 = new BigDecimal("2.1");
-
-        System.out.println(calculateIncome(cf1, cf2)); // Должно быть 3.53 - мы точно ошибаемся
+        return BigDecimal.ONE.divide(income, scale, mode)
+            .subtract(BigDecimal.ONE)
+            .multiply(new BigDecimal("100"))
+            .setScale(2, RoundingMode.DOWN);
     }
 }

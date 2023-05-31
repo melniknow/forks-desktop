@@ -101,6 +101,11 @@ public class BetMaker {
             var bet1 = bets.get(0);
             var bet2 = bets.get(1);
 
+            System.out.println("cf1 = " + calculatedFinal.fork().betInfo1().BK_cf());
+            System.out.println("cf2 = " + calculatedFinal.fork().betInfo2().BK_cf());
+            System.out.println("== " + bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency())).multiply(calculatedFinal.fork().betInfo1().BK_cf()));
+            System.out.println("== " + bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency())).multiply(calculatedFinal.fork().betInfo2().BK_cf()));
+
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
 
             if (!isValue) {
@@ -232,6 +237,11 @@ public class BetMaker {
         if (isSuccessFork(realCf1, realCf2)) {
             realRubBalance1 = balance1Rub.subtract(bet1Rub);
             realRubBalance2 = balance2Rub.subtract(bet2Rub);
+
+            System.out.println("realCf1 = " + realCf1);
+            System.out.println("realCf2 = " + realCf2);
+            System.out.println("bet1Rub = " + bet1Rub);
+            System.out.println("bet2Rub = " + bet2Rub);
 
             income = "1) %s₽. 2) %s₽".formatted(
                 bet1Rub.multiply(realCf1).setScale(2, RoundingMode.DOWN),
