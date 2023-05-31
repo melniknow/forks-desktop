@@ -50,14 +50,21 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
-        Context.log.info("info.BK_bet() = " + info.BK_bet());
-        Context.log.info("marketName [pinnacle] = " + marketName);
-        Context.log.info("selectionName [pinnacle] = " + selectionName);
+        Context.log.info("[pinnacle]: info.BK_bet() = " + info.BK_bet());
+        Context.log.info("[pinnacle]: marketName = " + marketName);
+        Context.log.info("[pinnacle]: selectionName = " + selectionName);
+
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        String finalMarketName = marketName;
-        // забираем маркет
-        var market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
+
+        WebElement market;
+        try {
+            // забираем маркет
+            String finalMarketName = marketName;
+            market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
+        } catch (TimeoutException e) {
+            throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
+        }
 
         market = SeleniumSupport.getParentByDeep(market, 2);
 
@@ -66,6 +73,7 @@ public class Pinnacle implements IBookmaker {
         if (marketName.contains("Handicap") && selectionName.equals("0")) {
             List<WebElement> buttons;
             try {
+                // забираем эти 2 нуля
                 buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
             } catch (NoSuchElementException ignored) {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
@@ -73,6 +81,7 @@ public class Pinnacle implements IBookmaker {
             if (buttons.size() != 2) {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
             }
+            // первый в списке это команда слева, второй - справа
             if (info.BK_bet().contains("P1")) {
                 button = buttons.get(0);
             } else if (info.BK_bet().contains("P2")) {
@@ -81,9 +90,13 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet());
             }
         } else {
-            // Находим нужную кнопку
-            button = SeleniumSupport.findElementWithClicking(driver, market,
-                By.xpath(".//span[contains(text(), '" + selectionName + "')]"));
+            try {
+                // Находим нужную кнопку
+                button = SeleniumSupport.findElementWithClicking(driver, market,
+                    By.xpath(".//span[contains(text(), '" + selectionName + "')]"));
+            } catch (RuntimeException e) {
+                throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
+            }
         }
 
         try {
@@ -101,7 +114,7 @@ public class Pinnacle implements IBookmaker {
 
         var currentCf = getCurrentCf(driver, false, info.BK_cf());
 
-        Context.log.info("Current Cf [pinnacle] = " + currentCf);
+        Context.log.info("[pinnacle]: Current Cf = " + currentCf);
 
         if (currentCf.compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
             throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
@@ -111,9 +124,21 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
         }
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        // вводим сумму
-        wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']"))).sendKeys(sum.toString());
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            // вводим сумму
+            var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
+            send.sendKeys(sum.toPlainString());
+//            driver.executeScript("arguments[0].value = " + sum.toPlainString(), send);
+
+            // защита от ебанутого бага
+            var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
+            if (!factSum.equals(sum.toPlainString())) {
+                throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
+            }
+        } catch (TimeoutException e) {
+            throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
+        }
     }
 
     @Override
@@ -135,33 +160,33 @@ public class Pinnacle implements IBookmaker {
     private static final By byBetClosed = SeleniumSupport.buildGlobalSpanByText("Bet not accepted. Please try again or remove this selection from your Bet Slip.");
 
     private BigDecimal waitLoop(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
-        // та же логика что и на бетке
-        for (int i = 0; i < 10; ++i) {
+        // в цикле - жмём на кнопку - пытаемся подождать результата
+        for (int i = 0; i < 15; ++i) {
             updateOdds(driver, oldCf, cf1, isFirst);
             if (waitSuccess(driver)) {
                 return getCurrentCf(driver, true, oldCf);
             }
         }
-        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
+        throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
     }
 
     private boolean waitSuccess(ChromeDriver driver) {
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 30; ++i) {
             try {
-                Context.log.info("Wait....");
+                Context.log.info("[pinnacle]: Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
                 wait.until(driver1 -> driver1.findElement(byBetSuccess));
                 return true;
             } catch (Exception e) {
                 // После попытки подождать чекаем ничего ли не произошло пока мы ждали?
                 if (windowContains(driver, byOddsChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byBetClosed)) { // isActivePlaceBet???
-                    Context.log.info("Exit from wait");
+                    Context.log.info("[pinnacle]: Exit from wait");
                     // что-то появилось, ждать бесполезно идём нажимать на новую кнопку
                     return false;
                 }
             }
         }
-        throw new RuntimeException("Плечо не может быть проставлено [pinnacle]");
+        throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
     }
 
     private void updateOdds(ChromeDriver driver, BigDecimal oldCf, BigDecimal cf1, boolean isFirst) {
@@ -171,22 +196,22 @@ public class Pinnacle implements IBookmaker {
         }
         // Кнопка может быть не активна
         if (!isActivePlaceBet(driver)) {
-            Context.log.info("Is not active");
+            Context.log.info("[pinnacle]: Is not active");
             return;
         }
 
         var curCf = getCurrentCf(driver, false, oldCf);
         if (curCf.compareTo(oldCf) >= 0) {
-            Context.log.info("Click Place 1");
+            Context.log.info("[pinnacle]: Click Place 1");
             clickIfIsClickable(driver, byPlaceBet);
         } else if (!isFirst) {
             var newIncome = MathUtils.calculateIncome(curCf, cf1);
-            Context.log.info("newIncome = " + newIncome);
+            Context.log.info("[pinnacle]: newIncome = " + newIncome);
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
-                Context.log.info("Max minus [pinnacle]: newIncome = " + newIncome);
+                Context.log.info("[pinnacle]: Max minus: newIncome = " + newIncome);
                 throw new RuntimeException("[pinnacle]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
-                Context.log.info("Click Place 2");
+                Context.log.info("[pinnacle]: Click Place 2");
                 clickIfIsClickable(driver, byPlaceBet);
             }
         } else {
@@ -230,7 +255,7 @@ public class Pinnacle implements IBookmaker {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             var curCfTest = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='SelectionDetails-Odds']")));
-            Context.log.info("curCfTest [pinnacle] = " + curCfTest);
+            Context.log.info("[pinnacle]: curCfTest = " + curCfTest);
             return new BigDecimal(curCfTest.getText());
         } catch (TimeoutException e) {
             // Если вдруг мы смогли поставить, но коэффициент пропал, мы ни в коем случае не кинем исключение - бот не поймёт, что мы поставили
@@ -307,7 +332,7 @@ public class Pinnacle implements IBookmaker {
             }
             return "+" + digits;
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]: " + info.BK_bet() + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType " + info.BK_bet() + "| sport: " + sport);
     }
 
     private String getMarketName(String betType, Sport sport, String ref) {
@@ -332,7 +357,7 @@ public class Pinnacle implements IBookmaker {
         } else if (betType.contains("HANDICAP")) {
             return "Handicap" + tennisSuffix;
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType " + betType + "| sport: " + sport);
     }
 
     private String getPartOfGame(String betType, Sport sport) {
@@ -396,7 +421,7 @@ public class Pinnacle implements IBookmaker {
                 case HOCKEY -> { return "Regulation Time"; }
             }
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType:" + betType + "| sport: " + sport);
     }
 
     private static String removePrefix(String str) {
@@ -406,5 +431,4 @@ public class Pinnacle implements IBookmaker {
         }
         return newStr;
     }
-
 }

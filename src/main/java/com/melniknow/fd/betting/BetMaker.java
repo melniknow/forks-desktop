@@ -26,6 +26,9 @@ public class BetMaker {
             Context.log.info(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
             Context.log.info(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
 
+//            Logger.writeToLogSession(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
+//            Logger.writeToLogSession(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
+
             // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
             var bookmaker2 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo2().BK_name());

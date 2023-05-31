@@ -17,7 +17,7 @@ public class ClickSportHandicap {
         } else if (info.BK_bet().contains("__P2")) {
             selectionName = BetsSupport.getTeamSecondNameByTitle(info.BK_game());
         } else {
-            throw new RuntimeException("Not supported Handicap [188Bet]");
+            throw new RuntimeException("[188Bet]: Not supported Handicap");
         }
 
         var marketName = info.BK_market_meta().get("marketName").getAsString();
@@ -32,14 +32,19 @@ public class ClickSportHandicap {
         var buttons = BetsSupport.findElementsWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))
             .stream()
-            .map(e -> e.findElement(By.xpath("./..")))
-            .toList();
+            .map(e -> {
+                try {
+                    return e.findElement(By.xpath("./.."));
+                } catch (StaleElementReferenceException e1) {
+                    throw new RuntimeException("[188bet]: Событие пропало со страницы");
+                }
+            }).toList();
 
         var line = info.BK_market_meta().get("line").getAsString();
 
-        System.out.println("MarketName = " + marketName);
-        System.out.println("partOfGame = " + partOfGame);
-        System.out.println("line = " + line);
+        System.out.println("[188bet]: MarketName = " + marketName);
+        System.out.println("[188bet]: partOfGame = " + partOfGame);
+        System.out.println("[188bet]: line = " + line);
 
         try {
             var button = Objects.requireNonNull(buttons.stream().filter(
