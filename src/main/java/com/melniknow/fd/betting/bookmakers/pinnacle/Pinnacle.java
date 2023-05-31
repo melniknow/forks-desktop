@@ -50,9 +50,9 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
-        Context.log.info("info.BK_bet() = " + info.BK_bet());
-        Context.log.info("marketName [pinnacle] = " + marketName);
-        Context.log.info("selectionName [pinnacle] = " + selectionName);
+        Context.log.info("[pinnacle]: info.BK_bet() = " + info.BK_bet());
+        Context.log.info("[pinnacle]: marketName = " + marketName);
+        Context.log.info("[pinnacle]: selectionName = " + selectionName);
 
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
@@ -112,7 +112,7 @@ public class Pinnacle implements IBookmaker {
 
         var currentCf = getCurrentCf(driver, false, info.BK_cf());
 
-        Context.log.info("Current Cf [pinnacle] = " + currentCf);
+        Context.log.info("[pinnacle]: Current Cf = " + currentCf);
 
         if (currentCf.compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
             throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
@@ -328,7 +328,7 @@ public class Pinnacle implements IBookmaker {
             }
             return "+" + digits;
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]: " + info.BK_bet() + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType " + info.BK_bet() + "| sport: " + sport);
     }
 
     private String getMarketName(String betType, Sport sport, String ref) {
@@ -353,7 +353,7 @@ public class Pinnacle implements IBookmaker {
         } else if (betType.contains("HANDICAP")) {
             return "Handicap" + tennisSuffix;
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType " + betType + "| sport: " + sport);
     }
 
     private String getPartOfGame(String betType, Sport sport) {
@@ -417,7 +417,7 @@ public class Pinnacle implements IBookmaker {
                 case HOCKEY -> { return "Regulation Time"; }
             }
         }
-        throw new RuntimeException("Don`t support BetType [pinnacle]:" + betType + "| sport: " + sport);
+        throw new RuntimeException("[pinnacle]: Don`t support BetType:" + betType + "| sport: " + sport);
     }
 
     private static String removePrefix(String str) {

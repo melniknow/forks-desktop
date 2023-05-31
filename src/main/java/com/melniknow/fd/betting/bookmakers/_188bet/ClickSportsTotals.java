@@ -33,9 +33,9 @@ public class ClickSportsTotals {
 
         var line = info.BK_market_meta().get("line").getAsString();
 
-        System.out.println("MarketName = " + marketName);
-        System.out.println("partOfGame = " + partOfGame);
-        System.out.println("line = " + line);
+        System.out.println("[188Bet]: MarketName = " + marketName);
+        System.out.println("[188Bet]: partOfGame = " + partOfGame);
+        System.out.println("[188Bet]: line = " + line);
 
         try {
             var button = Objects.requireNonNull(buttons.stream().filter(
