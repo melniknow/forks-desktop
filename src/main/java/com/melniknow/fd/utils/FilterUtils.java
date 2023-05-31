@@ -49,8 +49,8 @@ public class FilterUtils {
         // Проверка на повтор вилок
         public static final Predicate<Parser.Fork> repeatFilter = fork -> {
             if (!Context.parserParams.isRepeatFork()) {
-                return !Context.forksCache.asMap().containsKey(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()))
-                    && !Context.forksCache.asMap().containsKey(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()));
+                return !Context.forksCache.containsKey(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.betInfo1().BK_event_id(), fork.betInfo1().BK_bet()))
+                    && !Context.forksCache.containsKey(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.betInfo2().BK_event_id(), fork.betInfo2().BK_bet()));
             }
             return true;
         };

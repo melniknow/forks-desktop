@@ -1,8 +1,5 @@
 package com.melniknow.fd;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.melniknow.fd.advanced.BundleStorage;
 import com.melniknow.fd.advanced.Exception;
 import com.melniknow.fd.betting.ScreenManager;
@@ -17,7 +14,10 @@ import com.melniknow.fd.utils.MathUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class Context {
@@ -48,13 +48,5 @@ public class Context {
     public static final Logger log = Logger.getLogger("mainLogger");
 
     // Кеш для повтора вилок
-    public static final LoadingCache<MathUtils.ForkKey, Parser.Fork> forksCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(120, TimeUnit.MINUTES)
-        .build(
-            new CacheLoader<>() {
-                @Override
-                public Parser.Fork load(MathUtils.ForkKey s) {
-                    return null;
-                }
-            });
+    public static final ConcurrentMap<MathUtils.ForkKey, Object> forksCache = new ConcurrentHashMap<>();
 }

@@ -147,8 +147,8 @@ public class BetMaker {
 
             // Сохраняем вилку в кеш
             var fork = calculatedFinal.fork();
-            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.eventId(), fork.betInfo1().BK_bet()), fork);
-            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.eventId(), fork.betInfo2().BK_bet()), fork);
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.betInfo1().BK_event_id(), fork.betInfo1().BK_bet()), new Object());
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.betInfo2().BK_event_id(), fork.betInfo2().BK_bet()), new Object());
 
             var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
