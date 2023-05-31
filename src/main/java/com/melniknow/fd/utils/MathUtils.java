@@ -6,10 +6,22 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class MathUtils {
     public record CalculatedFork(Parser.Fork fork, BigDecimal betCoef1, BigDecimal betCoef2) { }
-    public record ForkKey(String bookmaker, BigDecimal eventId, String BK_bet) { }
+    public record ForkKey(String bookmaker, String eventId, String BK_bet) {
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ForkKey forkKey = (ForkKey) o;
+            return Objects.equals(bookmaker, forkKey.bookmaker) && Objects.equals(eventId, forkKey.eventId) && Objects.equals(BK_bet, forkKey.BK_bet);
+        }
+        @Override
+        public int hashCode() {
+            return Objects.hash(bookmaker, eventId, BK_bet);
+        }
+    }
 
     public static CalculatedFork calculate(List<Parser.Fork> forks_) {
         if (forks_ == null || forks_.isEmpty()) return null;
