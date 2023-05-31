@@ -56,30 +56,30 @@ public class Parser {
 
         var timeout = 2;
 
-//        var config = RequestConfig.custom()
-//            .setConnectTimeout(timeout * 1000)
-//            .setConnectionRequestTimeout(timeout * 1000)
-//            .setSocketTimeout(timeout * 1000).build();
-//
-//        try (var httpClient = HttpClientBuilder.create()
-//            .setDefaultRequestConfig(config)
-//            .build()) {
-//            var request = new HttpGet(url);
-//            try (CloseableHttpResponse response = httpClient.execute(request)) {
-//                if (response.getStatusLine().getStatusCode() != 200) {
-//                    return null;
-//                }
-//                var entity = response.getEntity();
-//                if (entity != null) {
-//                    stringForks = EntityUtils.toString(entity);
-//                }
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        var jsonParser = JsonParser.parseString(stringForks);
-        var jsonParser = JsonParser.parseString(FakeServer.get());
+        var config = RequestConfig.custom()
+            .setConnectTimeout(timeout * 1000)
+            .setConnectionRequestTimeout(timeout * 1000)
+            .setSocketTimeout(timeout * 1000).build();
+
+        try (var httpClient = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config)
+            .build()) {
+            var request = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    return null;
+                }
+                var entity = response.getEntity();
+                if (entity != null) {
+                    stringForks = EntityUtils.toString(entity);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        var jsonParser = JsonParser.parseString(stringForks);
+//        var jsonParser = JsonParser.parseString(FakeServer.get());
 
         var forks = new ArrayList<Fork>();
         if (!jsonParser.isJsonArray()) return null;
