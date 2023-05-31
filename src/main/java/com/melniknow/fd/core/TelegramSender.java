@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 public class TelegramSender {
     public static final HttpClient client = HttpClient.newHttpClient();
@@ -64,37 +65,17 @@ public class TelegramSender {
     public static String getForkAsMessageInTextArea(BetUtils.CompleteBetsFork completedFork) {
         var fork = completedFork.calculatedFork().fork();
         return String.format(
-            "-----------------------------------------------------------------------------\n" +
-                "--------------------------- NEW FORK --------------------------------\n" +
-                "-----------------------------------------------------------------------------\n" +
-                "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
-                "Спорт: " + fork.sport() + "\n" +
-                "Тип ставки: " + fork.betType() + "\n\n" +
+            new Date() + "\nДоход: " + completedFork.income() + "\n" +
+                "Спорт: " + fork.sport() + "\n\n" +
 
-                "Букмекер 1\n" +
                 "Имя: " + fork.betInfo1().BK_name() + "\n" +
-                "Событие: " + fork.betInfo1().BK_event_id() + "\n" +
-                "Тип ставки: " + fork.betInfo1().BK_bet() + "\n" +
-                "Ссылка: " + fork.betInfo1().BK_href() + "\n" +
-                "Коэффициент: " + fork.betInfo1().BK_cf() + "\n" +
-                "Тип ставки: " + fork.betInfo1().BK_bet_type() + "\n\n" +
-                "Сумма ставки: " + completedFork.bet1Rub() + "руб" + "\n\n" +
+                "Тип ставки: " + fork.betInfo1().BK_bet_type() + "\n" +
                 "Баланс: " + completedFork.betRubBalance1().setScale(2, RoundingMode.DOWN) + "руб" + "\n\n" +
 
-                "Букмекер 2\n" +
                 "Имя: " + fork.betInfo2().BK_name() + "\n" +
-                "Событие: " + fork.betInfo2().BK_event_id() + "\n" +
-                "Тип ставки: " + fork.betInfo2().BK_bet() + "\n" +
-                "Ссылка: " + fork.betInfo2().BK_href() + "\n" +
-                "Коэффициент: " + fork.betInfo2().BK_cf() + "\n" +
-                "Тип ставки: " + fork.betInfo2().BK_bet_type() + "\n\n" +
-                "Сумма ставки: " + completedFork.bet2Rub() + "руб" + "\n\n" +
-                "Баланс: " + completedFork.betRubBalance2().setScale(2, RoundingMode.DOWN) + "руб" + "\n\n" +
-
-                "Доход ₽: " + completedFork.income() + "\n" +
-                "------------------------------------------------------------------------\n" +
-                "--------------------------- END OF FORK ------------------------\n" +
-                "------------------------------------------------------------------------\n",
+                "Тип ставки: " + fork.betInfo2().BK_bet_type() + "\n" +
+                "Баланс: " + completedFork.betRubBalance2().setScale(2, RoundingMode.DOWN) + "руб" +
+                "\n------------------------------------------------------------------------",
             StandardCharsets.UTF_8
         );
     }
