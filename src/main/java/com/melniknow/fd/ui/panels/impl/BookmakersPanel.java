@@ -24,6 +24,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -274,8 +275,15 @@ public class BookmakersPanel implements IPanel {
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
                 var screen = Context.screenManager.getScreenForBookmaker(bookmaker);
-                if (screen == null || screen.getWindowHandles().isEmpty())
+
+                if (screen == null)
                     Context.screenManager.createScreenForBookmaker(bookmaker);
+                else {
+                    if (throwScreen(screen)) {
+                        Context.screenManager.removeScreenForBookmaker(bookmaker);
+                        Context.screenManager.createScreenForBookmaker(bookmaker);
+                    }
+                }
 
                 var json = Context.profile.json;
                 json.addProperty(bookmaker.name() + "linkField", linkField.getText());
@@ -305,6 +313,14 @@ public class BookmakersPanel implements IPanel {
         });
 
         return new ScrollPane(grid);
+    }
+    private static boolean throwScreen(ChromeDriver screen) {
+        try {
+            screen.getCurrentUrl();
+            return false;
+        } catch (java.lang.Exception e) {
+            return true;
+        }
     }
     private static int loadRulesFromDb(GridPane grid, int y, Bookmaker bookmaker) {
         var y_ = y;

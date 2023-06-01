@@ -94,16 +94,17 @@ public class SeleniumSupport {
             case _188BET -> {
                 driver.manage().window().setSize(new Dimension(1400, 1000));
 
-                Context.parsingPool.submit(() -> driver.get(bookmaker.link));
+                Context.botPool.submit(() -> driver.get(bookmaker.link));
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 
                 wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")));
-                System.out.println("Start");
+
                 var count = 0;
+
                 TimeUnit.SECONDS.sleep(5);
+
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/button")))
                     if (++count == 10) throw new RuntimeException();
-
 
                 var loginInput = wait.until(driver1 -> driver1.findElement(By.id("UserIdOrEmail")));
                 wait.until(ExpectedConditions.elementToBeClickable(loginInput));

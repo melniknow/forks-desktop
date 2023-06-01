@@ -87,13 +87,11 @@ public class ScreenManager {
                 screenStorage.put(bookmaker, driver);
 
                 switchWindow(driver);
+                System.out.println("SWITCH");
                 TimeUnit.SECONDS.sleep(1);
-
-                var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-                var input = wait.until(driver_ -> driver_.findElement(By.xpath("/html/body/div/div[1]/table/tbody/tr[1]/td[2]/input")));
-                input.click();
-                input.sendKeys(Context.CAPTCHA_API);
-
+                System.out.println("TIMEOUT");
+                driver.executeScript("document.querySelector('body > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2) > input[type=text]').value = '" + Context.CAPTCHA_API + "' ");
+                System.out.println("EXEC");
                 driver.findElement(By.id("connect")).click();
 
                 new WebDriverWait(driver, Duration.ofSeconds(10))
