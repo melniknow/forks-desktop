@@ -52,6 +52,7 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
+        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf());
         Context.log.info("[pinnacle]: info.BK_bet() = " + info.BK_bet());
         Context.log.info("[pinnacle]: marketName = " + marketName);
         Context.log.info("[pinnacle]: selectionName = " + selectionName);
@@ -150,18 +151,23 @@ public class Pinnacle implements IBookmaker {
     private static void enterSum(ChromeDriver driver, BigDecimal sum) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            // вводим сумму
-            var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
-            send.sendKeys(sum.toPlainString());
+            for (int i = 0; i < 5; ++i) {
+                // вводим сумму
+                var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
+                send.clear();
+                send.click();
+                send.sendKeys(sum.toPlainString());
 
-            // защита от ебанутого бага
-            var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
-            if (!factSum.equals(sum.toPlainString())) {
-                throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
+                // защита от ебанутого бага
+                var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
+                if (factSum.equals(sum.toPlainString())) {
+                    return;
+                }
             }
         } catch (TimeoutException e) {
             throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
         }
+        throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
     }
 
     @Override
