@@ -113,14 +113,23 @@ public class _188Bet implements IBookmaker {
     }
 
     private static void enterSum(ChromeDriver driver, BigDecimal sum) {
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        // окошко для ввода суммы
-        var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
-        enterSnake.sendKeys(sum.toPlainString());
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        try {
+            for (int i = 0; i < 5; ++i) {
+                // окошко для ввода суммы
+                var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
+                enterSnake.clear();
+                enterSnake.click();
+                enterSnake.sendKeys(sum.toPlainString());
 
-        // защита от ебанутого бага
-        var factSum = driver.findElement(By.xpath("//input[@placeholder='Enter Stake']")).getAttribute("value");
-        if (!factSum.equals(sum.toPlainString())) {
+                // защита от ебанутого бага
+                var factSum = driver.findElement(By.xpath("//input[@placeholder='Enter Stake']")).getAttribute("value");
+                if (factSum.equals(sum.toPlainString())) {
+                    return;
+                }
+            }
+            throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");
+        } catch (TimeoutException e) {
             throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");
         }
     }
