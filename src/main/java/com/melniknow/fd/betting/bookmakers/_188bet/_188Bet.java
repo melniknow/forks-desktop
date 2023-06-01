@@ -86,7 +86,7 @@ public class _188Bet implements IBookmaker {
 
             var inaccuracy = new BigDecimal("0.01");
             if (currentCf.add(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
+                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
