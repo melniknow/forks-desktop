@@ -1,5 +1,6 @@
 package com.melniknow.fd.betting.bookmakers;
 
+import com.melniknow.fd.domain.Bookmaker;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
@@ -75,6 +76,18 @@ public class SeleniumSupport {
                 return res;
             } catch (TimeoutException e1) {
                 throw new RuntimeException("Button not found [pinnacle] with by: " + by);
+            }
+        }
+    }
+
+    public static void login(ChromeDriver driver, Bookmaker bookmaker) {
+        switch (bookmaker) {
+            case _188BET -> {
+                System.out.println(bookmaker.link);
+                driver.get(bookmaker.link);
+            } case PINNACLE -> {
+                driver.get(bookmaker.link);
+                System.out.println(bookmaker.link);
             }
         }
     }

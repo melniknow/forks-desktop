@@ -74,6 +74,20 @@ public class BookmakersPanel implements IPanel {
         profileTextCheck(bookmaker.name() + "linkField", linkField);
         grid.add(linkField, 1, y++);
 
+        var login = new Label("Логин *");
+        grid.add(login, 0, y);
+        var loginField = new TextField();
+        loginField.setPrefHeight(40);
+        profileTextCheck(bookmaker.name() + "loginField", loginField);
+        grid.add(loginField, 1, y++);
+
+        var password = new Label("Пароль *");
+        grid.add(password, 0, y);
+        var passwordField = new TextField();
+        passwordField.setPrefHeight(40);
+        profileTextCheck(bookmaker.name() + "passwordField", passwordField);
+        grid.add(passwordField, 1, y++);
+
         var currency = new Label("Валюта *");
         grid.add(currency, 0, y);
         var currencyField = new ComboBox<>(FXCollections.observableArrayList(Context.currencyToRubCourse.keySet()));
@@ -134,14 +148,6 @@ public class BookmakersPanel implements IPanel {
         agentField.setPrefHeight(40);
         agentField.setPromptText("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
         grid.add(agentField, 1, y++);
-
-        var lang = new Label("Язык");
-        grid.add(lang, 0, y);
-        var langField = new TextField();
-        profileTextCheck(bookmaker.name() + "langField", langField);
-        langField.setPrefHeight(40);
-        langField.setPromptText("en-GB");
-        grid.add(langField, 1, y++);
 
         var proxyIp = new Label("Proxy IP (HTTP)");
         grid.add(proxyIp, 0, y);
@@ -247,7 +253,9 @@ public class BookmakersPanel implements IPanel {
         saveButton.setOnAction(event -> {
             try {
                 if (currencyField.getValue() == null || minimumField.getText().isEmpty() || maximumField.getText().isEmpty() ||
-                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() || roundingField.getValue() == null)
+                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() || roundingField.getValue() == null ||
+                    loginField.getText() == null || passwordField.getText() == null || loginField.getText().isEmpty() ||
+                    passwordField.getText().isEmpty())
                     throw new RuntimeException();
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
@@ -255,9 +263,10 @@ public class BookmakersPanel implements IPanel {
                 Context.betsParams.put(bookmaker, new BetUtils.BetsParams(linkField.getText(), currencyField.getValue(),
                     new BigDecimal(minimumField.getText()), new BigDecimal(maximumField.getText()),
                     agentField.getText(), proxyIpField.getText(), port,
-                    proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(), langField.getText(),
+                    proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(),
                     new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText()),
-                    new BigDecimal(roundingField.getValue())));
+                    new BigDecimal(roundingField.getValue()),
+                    loginField.getText(), passwordField.getText()));
 
                 Context.log.info(Context.betsParams.toString());
 
@@ -274,7 +283,6 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "minimumRatioField", minimumRatioField.getText());
                 json.addProperty(bookmaker.name() + "maximumRatioField", maximumRatioField.getText());
                 json.addProperty(bookmaker.name() + "agentField", agentField.getText());
-                json.addProperty(bookmaker.name() + "langField", langField.getText());
                 json.addProperty(bookmaker.name() + "proxyIpField", proxyIpField.getText());
                 json.addProperty(bookmaker.name() + "proxyPortField", proxyPortField.getText());
                 json.addProperty(bookmaker.name() + "proxyLoginField", proxyLoginField.getText());
@@ -283,6 +291,8 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "currencyField", currencyField.getValue().name());
                 json.addProperty(bookmaker.name() + "screenSizeField", screenSizeField.getValue());
                 json.addProperty(bookmaker.name() + "roundingField", roundingField.getValue());
+                json.addProperty(bookmaker.name() + "loginField", loginField.getText());
+                json.addProperty(bookmaker.name() + "passwordField", passwordField.getText());
 
                 Context.profile.save();
             } catch (java.lang.Exception e) {
