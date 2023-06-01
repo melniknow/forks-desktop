@@ -53,6 +53,7 @@ public class ClickSportsWin {
             var button = BetsSupport.findElementWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"));
 
+            // getText() вернёт строку типа: Jannik Sinner (ITA) \n 1.43 - нам нужна 2-ая строка наш коэффициент
             var cfText = SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[1];
             var curCf = new BigDecimal(cfText);
             Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);

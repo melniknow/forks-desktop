@@ -53,6 +53,7 @@ public class ClickSportHandicap {
             var button = Objects.requireNonNull(buttons.stream().filter(
                 b -> isGoodLine(BetsSupport.getTotalsByStr(b.getText()), line)).findAny().orElse(null));
 
+            // getText() вернёт строку типа: Handicap \n -2,5 \n 1.43 - нам нужна 3-яя строка наш коэффициент
             var cfText = SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[2];
             var curCf = new BigDecimal(cfText);
             Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
