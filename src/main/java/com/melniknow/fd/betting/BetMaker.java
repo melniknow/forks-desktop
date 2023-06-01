@@ -76,13 +76,13 @@ public class BetMaker {
             openLink1.get(30, TimeUnit.SECONDS);
 
             var futureBalance1 = executor.submit(() ->
-                realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport(), isValue || isVerifiedValue));
+                realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport(), true));
 
             var balance2Rub = new BigDecimal("1000000000");
 
             if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
                 var futureBalance2 = executor.submit(() ->
-                    realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport(), isValue || isVerifiedValue));
+                    realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport(), !isVerifiedValue));
                 balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
                 if (isVerifiedValue) { // Если это проверяемый валуй, то мы проверив баланс, перезаписываем его на большое число
                     balance2Rub = new BigDecimal("1000000000");

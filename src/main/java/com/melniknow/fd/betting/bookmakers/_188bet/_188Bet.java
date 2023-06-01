@@ -85,7 +85,7 @@ public class _188Bet implements IBookmaker {
             var currentCf = BetsSupport.getCurrentCf(driver);
 
             var inaccuracy = new BigDecimal("0.01");
-            if (currentCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+            if (currentCf.add(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
             }
 
@@ -194,7 +194,8 @@ public class _188Bet implements IBookmaker {
         }
         // если всё ок, то получаем коэф
         var curCf = BetsSupport.getCurrentCf(driver);
-        if (curCf.compareTo(oldCf) >= 0) {
+        var inaccuracy = new BigDecimal("0.01");
+        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             System.out.println("[188bet]: Click Place 1");
             // кликаем на PlaceBet
             clickIfIsClickable(driver, byPlaceBet);

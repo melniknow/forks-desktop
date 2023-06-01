@@ -109,7 +109,7 @@ public class Pinnacle implements IBookmaker {
 
             var inaccuracy = new BigDecimal("0.01");
 
-            if (curCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
 
@@ -135,8 +135,9 @@ public class Pinnacle implements IBookmaker {
 
         var inaccuracy = new BigDecimal("0.01");
 
-        if (currentCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-            throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
+        if (currentCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+            throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s"
+                .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf.setScale(2, RoundingMode.DOWN)));
         }
 
         if (sum.compareTo(new BigDecimal("1")) < 0) {
@@ -223,7 +224,8 @@ public class Pinnacle implements IBookmaker {
         }
 
         var curCf = getCurrentCf(driver, false, oldCf);
-        if (curCf.compareTo(oldCf) >= 0) {
+        var inaccuracy = new BigDecimal("0.01");
+        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[pinnacle]: Click Place 1");
             clickIfIsClickable(driver, byPlaceBet);
         } else if (!shoulderInfo.isFirst()) {
