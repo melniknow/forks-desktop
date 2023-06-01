@@ -273,7 +273,8 @@ public class BookmakersPanel implements IPanel {
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
-                if (Context.screenManager.getScreenForBookmaker(bookmaker) == null)
+                var screen = Context.screenManager.getScreenForBookmaker(bookmaker);
+                if (screen == null || screen.getWindowHandles().isEmpty())
                     Context.screenManager.createScreenForBookmaker(bookmaker);
 
                 var json = Context.profile.json;

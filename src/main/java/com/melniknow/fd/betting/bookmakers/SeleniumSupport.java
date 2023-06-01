@@ -1,14 +1,17 @@
 package com.melniknow.fd.betting.bookmakers;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Bookmaker;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SeleniumSupport {
     public static WebElement getParentByDeep(WebElement element, int deep) {
@@ -80,15 +83,78 @@ public class SeleniumSupport {
         }
     }
 
-    public static void login(ChromeDriver driver, Bookmaker bookmaker) {
+    public static void login(ChromeDriver driver, Bookmaker bookmaker) throws InterruptedException {
+        driver.manage().deleteAllCookies();
+
+        var login = Context.betsParams.get(bookmaker).login();
+        var password = Context.betsParams.get(bookmaker).password();
+
+        Context.parsingPool.submit(() -> driver.get(bookmaker.link));
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+
         switch (bookmaker) {
             case _188BET -> {
-                System.out.println(bookmaker.link);
-                driver.get(bookmaker.link);
+                var count = 0;
+                while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/button")))
+                    if (++count == 10) throw new RuntimeException();
+
+
+                var loginInput = wait.until(driver1 -> driver1.findElement(By.id("UserIdOrEmail")));
+                wait.until(ExpectedConditions.elementToBeClickable(loginInput));
+                loginInput.click();
+                loginInput.sendKeys(login);
+
+                var passwordInput = wait.until(driver1 -> driver1.findElement(By.id("Password")));
+                wait.until(ExpectedConditions.elementToBeClickable(passwordInput));
+                passwordInput.click();
+                passwordInput.sendKeys(password);
+
+                var button = wait.until(driver1 -> driver1.findElement(By.xpath("/html/body/div[7]/aside/div/div[2]/div/div/form[1]/div[3]/button[2]")));
+                wait.until(ExpectedConditions.elementToBeClickable(button));
+                TimeUnit.SECONDS.sleep(3);
+                button.click();
+
+                wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/div[3]/div[1]/ul/li[2]")));
+
+                count = 0;
+                while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
+                    if (++count == 10) throw new RuntimeException();
             } case PINNACLE -> {
-                driver.get(bookmaker.link);
-                System.out.println(bookmaker.link);
+                var loginInput = wait.until(driver1 -> driver1.findElement(By.xpath("//input[@id='username']")));
+                wait.until(ExpectedConditions.elementToBeClickable(loginInput));
+                loginInput.click();
+                loginInput.sendKeys(login);
+
+                var passwordInput = wait.until(driver1 -> driver1.findElement(By.xpath("//input[@id='password']")));
+                wait.until(ExpectedConditions.elementToBeClickable(passwordInput));
+                passwordInput.click();
+                passwordInput.sendKeys(password);
+
+                var sendButton = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='root']/div/div[1]/div[1]/div[3]/div[2]/div/div/div[4]/button")));
+                wait.until(ExpectedConditions.elementToBeClickable(sendButton));
+                sendButton.click();
+
+                var captchaButton = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='loginRecaptcha']/div[2]/div[2]")));
+                captchaButton.click();
+
+                wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='Капча решена!']")));
+                TimeUnit.SECONDS.sleep(5);
+
+                var button = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='modal']/div/div/div/div/div[2]/div/form/div/div[4]/button")));
+                driver.executeScript("arguments[0].click();", button);
             }
+        }
+    }
+    private static boolean clickIfIsClickable(ChromeDriver driver, By xpath) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        try {
+            var button = wait.until(driver_ -> driver_.findElement(xpath));
+            button.click();
+            return true;
+        } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
+            return false;
         }
     }
 }
