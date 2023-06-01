@@ -12,8 +12,10 @@ import com.melniknow.fd.profile.Profile;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +23,8 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class Context {
+    public static HashSet<File> deleteTempFiles = new HashSet<>();
+    public static final String CAPTCHA_API = "664ea32afcb8e07c7788ff9db946f9b9";
     // Параметры парсера
     public static volatile Parser.ParserParams parserParams;
     // Хранилище связок

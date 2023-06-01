@@ -235,6 +235,8 @@ public class _188Bet implements IBookmaker {
             driver.executeScript("arguments[0].click();", button);
             return true;
         } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
             return false;
         }
     }
