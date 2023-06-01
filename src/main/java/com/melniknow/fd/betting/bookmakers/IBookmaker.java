@@ -10,5 +10,5 @@ public interface IBookmaker {
     void openLink(Bookmaker bookmaker, Parser.BetInfo info);
     BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException;
     void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum);
-    BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, boolean isFirst, BigDecimal cf1) throws InterruptedException;
+    BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) throws InterruptedException;
 }

@@ -1,5 +1,6 @@
 package com.melniknow.fd.betting.bookmakers._188bet;
 
+import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
@@ -7,6 +8,8 @@ import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 public class ClickSportsTotals {
@@ -40,6 +43,14 @@ public class ClickSportsTotals {
         try {
             var button = Objects.requireNonNull(buttons.stream().filter(
                 b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null));
+
+            var cfText = SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[2];
+            var curCf = new BigDecimal(cfText);
+            Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
+            var inaccuracy = new BigDecimal("0.01");
+            if (curCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
+            }
 
             driver.executeScript("arguments[0].click();", button);
         } catch (NullPointerException | StaleElementReferenceException |
