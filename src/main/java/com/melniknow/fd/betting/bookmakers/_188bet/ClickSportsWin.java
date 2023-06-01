@@ -59,7 +59,7 @@ public class ClickSportsWin {
             Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
             var inaccuracy = new BigDecimal("0.01");
             if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s"
+                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s"
                     .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
             }
 
