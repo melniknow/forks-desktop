@@ -61,15 +61,15 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
-                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             case TOTALS, SET_TOTALS, HALF_TOTALS ->
-                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             case HANDICAP, SET_HANDICAP, HALF_HANDICAP ->
-                ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             default ->
                 throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
         }

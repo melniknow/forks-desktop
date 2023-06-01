@@ -13,7 +13,7 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 public class ClickSportHandicap {
-    static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
+    static public void click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -62,7 +62,9 @@ public class ClickSportHandicap {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
 
-            driver.executeScript("arguments[0].click();", button);
+            if (isNeedToClick) {
+                driver.executeScript("arguments[0].click();", button);
+            }
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");

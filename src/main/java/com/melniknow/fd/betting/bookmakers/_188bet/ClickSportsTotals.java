@@ -13,7 +13,7 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 public class ClickSportsTotals {
-    static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
+    static public void click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
         var marketName = info.BK_market_meta().get("marketName").getAsString();
         var partOfGame = BetsSupport.getPartOfGameByMarketName(marketName);
 
@@ -53,7 +53,10 @@ public class ClickSportsTotals {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
 
-            driver.executeScript("arguments[0].click();", button);
+            if (isNeedToClick) {
+                driver.executeScript("arguments[0].click();", button);
+            }
+
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");

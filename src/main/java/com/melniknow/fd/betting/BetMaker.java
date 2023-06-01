@@ -27,8 +27,10 @@ public class BetMaker {
             Context.log.info(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
             Context.log.info(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
 
-//            Logger.writeToLogSession(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
-//            Logger.writeToLogSession(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
+            Logger.writeToLogSession(calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet());
+            Logger.writeToLogSession("Cf = " + calculated.fork().betInfo1().BK_cf());
+            Logger.writeToLogSession(calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet());
+            Logger.writeToLogSession("Cf = " + calculated.fork().betInfo2().BK_cf());
 
             // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
@@ -72,12 +74,14 @@ public class BetMaker {
 
             openLink1.get(30, TimeUnit.SECONDS);
 
-            var futureBalance1 = executor.submit(() -> realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport()));
+            var futureBalance1 = executor.submit(() ->
+                realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport(), isValue || isVerifiedValue));
 
             var balance2Rub = new BigDecimal("1000000000");
 
             if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
-                var futureBalance2 = executor.submit(() -> realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
+                var futureBalance2 = executor.submit(() ->
+                    realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport(), isValue || isVerifiedValue));
                 balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
                 if (isVerifiedValue) { // Если это проверяемый валуй, то мы проверив баланс, перезаписываем его на большое число
                     balance2Rub = new BigDecimal("1000000000");

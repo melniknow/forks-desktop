@@ -31,7 +31,7 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub Pinnacle");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         removeAllPreviousWindows(driver);
@@ -113,7 +113,10 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
 
-            wait.until(ExpectedConditions.elementToBeClickable(button)).click();
+            if (isNeedToClick) {
+                wait.until(ExpectedConditions.elementToBeClickable(button)).click();
+            }
+
         } catch (StaleElementReferenceException | ElementNotInteractableException |
                  IndexOutOfBoundsException e) {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
