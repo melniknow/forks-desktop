@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.core.Parser;
@@ -122,7 +123,7 @@ public class BetMaker {
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), true, new BigDecimal("0")));
+                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), new ShoulderInfo(true, null, null, null)));
                 realCf1 = betFuture1.get(30, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 throw new RuntimeException("Не удалось поставить вилку" + e.getCause().getLocalizedMessage());
@@ -134,7 +135,8 @@ public class BetMaker {
             if (!isValue && !isVerifiedValue) { // Сюда заходим только если вилка
                 try {
                     BigDecimal finalRealCf = realCf1;
-                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), false, finalRealCf));
+                    String bk1name = calculated.fork().betInfo1().BK_name();
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), new ShoulderInfo(false, finalRealCf, bet1, bk1name)));
                     realCf2 = betFuture2.get(30, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
                     if (bookmaker1Final.equals(Bookmaker._188BET)) { // Пытаемся сделать кешаут из 188bet
