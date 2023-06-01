@@ -2,6 +2,7 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
+import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
@@ -33,19 +34,25 @@ public class _188Bet implements IBookmaker {
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
 
             // в этом цикле ждём прогрузки баланса
-            for (int i = 0; i < 30; ++i) {
-                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(30)).until(driver1
-                    -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
-                if (balanceButton != null && !balanceButton.isEmpty()) {
-                    balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
-                    balanceButton = balanceButton.replace(",", "");
-                    var balance = new BigDecimal(balanceButton);
-                    if (!balance.equals(BigDecimal.ZERO)) {
-                        break;
+            try {
+
+                for (int i = 0; i < 15; ++i) {
+                    var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1
+                        -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
+                    if (balanceButton != null && !balanceButton.isEmpty()) {
+                        balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
+                        balanceButton = balanceButton.replace(",", "");
+                        var balance = new BigDecimal(balanceButton);
+                        if (!balance.equals(BigDecimal.ZERO)) {
+                            break;
+                        }
                     }
+                    // спим, ждём прогрузки
+                    TimeUnit.SECONDS.sleep(1);
                 }
-                // спим, ждём прогрузки
-                TimeUnit.SECONDS.sleep(1);
+            } catch (TimeoutException e) {
+                SeleniumSupport.login(driver, bookmaker);
+                throw new RuntimeException("Мы вошли в аккаунт");
             }
 
             var wait = new WebDriverWait(driver, Duration.ofSeconds(10));

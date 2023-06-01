@@ -24,10 +24,15 @@ import java.util.List;
 public class Pinnacle implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-        Context.log.info("Call openLink Pinnacle");
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        // ебаный oddscorp присылает ru
-        driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
+        try {
+            Context.log.info("Call openLink Pinnacle");
+            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+            // ебаный oddscorp присылает ru
+            driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
+        } catch (TimeoutException ignored) {
+            throw new RuntimeException("[Pinnacle]: Страница не загружается!");
+        }
     }
 
     @Override
