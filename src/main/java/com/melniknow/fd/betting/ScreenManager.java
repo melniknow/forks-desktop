@@ -6,7 +6,6 @@ import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.domain.Bookmaker;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoAlertPresentException;
@@ -25,6 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 public class ScreenManager {
     private final ConcurrentMap<Bookmaker, ChromeDriver> screenStorage = new ConcurrentHashMap<>();
@@ -51,6 +51,9 @@ public class ScreenManager {
 
                 var chromePrefs = new HashMap<String, Object>();
                 chromePrefs.put("intl.accept_languages", "en");
+
+                if (bookmaker.equals(Bookmaker._188BET))
+                    chromePrefs.put("profile.managed_default_content_settings.images", 2);
 
                 options.setExperimentalOption("prefs", chromePrefs);
 
@@ -84,6 +87,7 @@ public class ScreenManager {
                 screenStorage.put(bookmaker, driver);
 
                 switchWindow(driver);
+                TimeUnit.SECONDS.sleep(1);
 
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
                 var input = wait.until(driver_ -> driver_.findElement(By.xpath("/html/body/div/div[1]/table/tbody/tr[1]/td[2]/input")));

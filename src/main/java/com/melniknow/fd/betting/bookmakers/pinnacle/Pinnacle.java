@@ -30,7 +30,7 @@ public class Pinnacle implements IBookmaker {
 
             // ебаный oddscorp присылает ru
             driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
-        } catch (TimeoutException ignored) {
+        } catch (TimeoutException e) {
             throw new RuntimeException("[Pinnacle]: Страница не загружается!");
         }
     }
@@ -71,6 +71,17 @@ public class Pinnacle implements IBookmaker {
             market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
         } catch (TimeoutException e) {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
+        }
+
+        // Проверка входа в аккаунт
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(1)).until(driver_ -> driver_.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[1]/div[2]/div[2]/div/div/div[4]/button[text() = 'Log in']")));
+            SeleniumSupport.login(driver, bookmaker);
+            throw new RuntimeException("Мы вошли в аккаунт [pinnacle]");
+        } catch (WebDriverException e) {
+            if (e.getCause() instanceof InterruptedException)
+                throw new RuntimeException("Поток прерван [pinnacle]");
+        } catch (Exception ignored) {
         }
 
         market = SeleniumSupport.getParentByDeep(market, 2);

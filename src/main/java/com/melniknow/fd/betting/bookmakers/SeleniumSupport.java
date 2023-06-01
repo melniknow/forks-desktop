@@ -97,7 +97,10 @@ public class SeleniumSupport {
                 Context.parsingPool.submit(() -> driver.get(bookmaker.link));
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 
+                wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")));
+                System.out.println("Start");
                 var count = 0;
+                TimeUnit.SECONDS.sleep(5);
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/button")))
                     if (++count == 10) throw new RuntimeException();
 
@@ -123,10 +126,11 @@ public class SeleniumSupport {
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
                     if (++count == 10) throw new RuntimeException();
             } case PINNACLE -> {
-                Context.parsingPool.submit(() -> driver.get(bookmaker.link));
+                driver.get(bookmaker.link);
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 
-                var loginInput = wait.until(driver1 -> driver1.findElement(By.xpath("//input[@id='username']")));
+                var loginInput = new WebDriverWait(driver, Duration.ofSeconds(30))
+                    .until(driver1 -> driver1.findElement(By.xpath("//input[@id='username']")));
                 wait.until(ExpectedConditions.elementToBeClickable(loginInput));
                 loginInput.click();
                 loginInput.sendKeys(login);

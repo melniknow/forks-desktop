@@ -70,10 +70,10 @@ public class BetMaker {
 
             if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
                 var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
-                openLink2.get(30, TimeUnit.SECONDS);
+                openLink2.get(60, TimeUnit.SECONDS);
             }
 
-            openLink1.get(30, TimeUnit.SECONDS);
+            openLink1.get(60, TimeUnit.SECONDS);
 
             var futureBalance1 = executor.submit(() ->
                 realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport(), true));
@@ -162,14 +162,16 @@ public class BetMaker {
             Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name().trim(), fork.betInfo1().BK_event_id().trim(), fork.betInfo1().BK_bet().trim()), OBJ);
             Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name().trim(), fork.betInfo2().BK_event_id().trim(), fork.betInfo2().BK_bet().trim()), OBJ);
 
-            var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
-            var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
+            var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency())).setScale(2, RoundingMode.DOWN);
+            var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency())).setScale(2, RoundingMode.DOWN);
 
             return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub, balance2Rub, bet1Rub, bet2Rub, isValue || isVerifiedValue, isClosed);
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (ExecutionException e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Ошибка в постановке ставки - слишком медленное соединение с сетью");
         } catch (Exception e) {
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getLocalizedMessage());
         } finally {

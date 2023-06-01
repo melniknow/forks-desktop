@@ -51,7 +51,7 @@ public class _188Bet implements IBookmaker {
                 }
             } catch (TimeoutException e) {
                 SeleniumSupport.login(driver, bookmaker);
-                throw new RuntimeException("Мы вошли в аккаунт");
+                throw new RuntimeException("Мы вошли в аккаунт [188bet]");
             }
 
             var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
