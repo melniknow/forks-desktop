@@ -2,6 +2,7 @@ package com.melniknow.fd.betting;
 
 import com.melniknow.fd.App;
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Logger;
 import com.melniknow.fd.domain.Bookmaker;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -43,12 +44,11 @@ public class ScreenManager {
                 if (!params.userAgent().isEmpty())
                     options.addArguments("user-agent=" + params.userAgent());
 
-                if (!params.lang().isEmpty()) {
-                    var chromePrefs = new HashMap<String, Object>();
-                    chromePrefs.put("intl.accept_languages", "en");
+                var chromePrefs = new HashMap<String, Object>();
+                chromePrefs.put("intl.accept_languages", "en");
 
-                    options.setExperimentalOption("prefs", chromePrefs);
-                }
+                options.setExperimentalOption("prefs", chromePrefs);
+
 
                 if (!params.proxyIp().isEmpty()) {
                     try {
@@ -92,7 +92,7 @@ public class ScreenManager {
                 driver.manage().window().setSize(dimension);
                 driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 
-                driver.get(link);
+                SeleniumSupport.login(driver, bookmaker);
             } catch (Exception e) {
                 Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
             }

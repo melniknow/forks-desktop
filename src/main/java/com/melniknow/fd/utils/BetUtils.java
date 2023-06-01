@@ -12,8 +12,9 @@ public class BetUtils {
                              BigDecimal maxBetSum,
                              String userAgent, String proxyIp, Integer proxyPort,
                              String proxyLogin, String proxyPassword, String screenSize,
-                             String lang, BigDecimal minCf,
-                             BigDecimal maxCf, BigDecimal accuracy) { }
+                             BigDecimal minCf,
+                             BigDecimal maxCf, BigDecimal accuracy,
+                             String login, String password) { }
 
     // Поставленная вилка
     public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String income,

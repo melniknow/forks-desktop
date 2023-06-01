@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class BetMaker {
+    private static final Object OBJ = new Object();
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
         var executor = Executors.newFixedThreadPool(2);
 
@@ -116,7 +117,7 @@ public class BetMaker {
 
             var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
 
-            if (!isValue) {
+            if (!isValue && !isVerifiedValue) { // Сюда заходим только если вилка
                 var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
                 enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
             }
@@ -158,8 +159,8 @@ public class BetMaker {
 
             // Сохраняем вилку в кеш
             var fork = calculatedFinal.fork();
-            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name(), fork.betInfo1().BK_event_id(), fork.betInfo1().BK_bet()), new Object());
-            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name(), fork.betInfo2().BK_event_id(), fork.betInfo2().BK_bet()), new Object());
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo1().BK_name().trim(), fork.betInfo1().BK_event_id().trim(), fork.betInfo1().BK_bet().trim()), OBJ);
+            Context.forksCache.put(new MathUtils.ForkKey(fork.betInfo2().BK_name().trim(), fork.betInfo2().BK_event_id().trim(), fork.betInfo2().BK_bet().trim()), OBJ);
 
             var bet1Rub = bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency()));
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency()));
