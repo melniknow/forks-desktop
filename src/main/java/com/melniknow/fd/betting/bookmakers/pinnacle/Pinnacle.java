@@ -269,7 +269,9 @@ public class Pinnacle implements IBookmaker {
             wait.until(
                 driver1 -> driver1.findElement(by));
             return true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
             return false;
         }
     }
@@ -279,6 +281,8 @@ public class Pinnacle implements IBookmaker {
             var bt = driver.findElement(byPlaceBet);
             return bt.isEnabled();
         } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
             return false;
         }
     }
@@ -291,6 +295,8 @@ public class Pinnacle implements IBookmaker {
             driver.executeScript("arguments[0].click();", button);
             return true;
         } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
             return false;
         }
     }

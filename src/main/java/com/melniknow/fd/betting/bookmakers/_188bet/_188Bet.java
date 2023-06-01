@@ -35,7 +35,6 @@ public class _188Bet implements IBookmaker {
 
             // в этом цикле ждём прогрузки баланса
             try {
-
                 for (int i = 0; i < 15; ++i) {
                     var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1
                         -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом

@@ -3,6 +3,7 @@ package com.melniknow.fd.betting.bookmakers;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Bookmaker;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -89,11 +90,13 @@ public class SeleniumSupport {
         var login = Context.betsParams.get(bookmaker).login();
         var password = Context.betsParams.get(bookmaker).password();
 
-        Context.parsingPool.submit(() -> driver.get(bookmaker.link));
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-
         switch (bookmaker) {
             case _188BET -> {
+                driver.manage().window().setSize(new Dimension(1400, 1000));
+
+                Context.parsingPool.submit(() -> driver.get(bookmaker.link));
+                var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+
                 var count = 0;
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/button")))
                     if (++count == 10) throw new RuntimeException();
@@ -120,6 +123,9 @@ public class SeleniumSupport {
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
                     if (++count == 10) throw new RuntimeException();
             } case PINNACLE -> {
+                Context.parsingPool.submit(() -> driver.get(bookmaker.link));
+                var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+
                 var loginInput = wait.until(driver1 -> driver1.findElement(By.xpath("//input[@id='username']")));
                 wait.until(ExpectedConditions.elementToBeClickable(loginInput));
                 loginInput.click();

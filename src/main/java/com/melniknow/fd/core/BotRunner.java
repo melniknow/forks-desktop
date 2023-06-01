@@ -49,9 +49,6 @@ public class BotRunner implements Runnable {
             } catch (Exception e) {
                 Logger.writeToLogSession(e.getLocalizedMessage());
                 Context.log.info(Arrays.toString(e.getStackTrace()));
-                try {
-                    TimeUnit.SECONDS.sleep(6);
-                } catch (InterruptedException e1) {}
             }
         }
     }
