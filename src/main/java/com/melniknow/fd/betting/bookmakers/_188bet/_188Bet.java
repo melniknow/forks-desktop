@@ -68,15 +68,15 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
-                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             case TOTALS, SET_TOTALS, HALF_TOTALS ->
-                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             case HANDICAP, SET_HANDICAP, HALF_HANDICAP ->
-                ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info);
+                ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
             default ->
                 throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
         }
@@ -92,8 +92,8 @@ public class _188Bet implements IBookmaker {
             var currentCf = BetsSupport.getCurrentCf(driver);
 
             var inaccuracy = new BigDecimal("0.01");
-            if (currentCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
+            if (currentCf.add(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
@@ -201,7 +201,8 @@ public class _188Bet implements IBookmaker {
         }
         // если всё ок, то получаем коэф
         var curCf = BetsSupport.getCurrentCf(driver);
-        if (curCf.compareTo(oldCf) >= 0) {
+        var inaccuracy = new BigDecimal("0.01");
+        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             System.out.println("[188bet]: Click Place 1");
             // кликаем на PlaceBet
             clickIfIsClickable(driver, byPlaceBet);

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class ClickSportsWin {
-    static public void click(ChromeDriver driver, Parser.BetInfo info) throws InterruptedException {
+    static public void click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -53,15 +53,19 @@ public class ClickSportsWin {
             var button = BetsSupport.findElementWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"));
 
+            // getText() вернёт строку типа: Jannik Sinner (ITA) \n 1.43 - нам нужна 2-ая строка наш коэффициент
             var cfText = SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[1];
             var curCf = new BigDecimal(cfText);
             Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
             var inaccuracy = new BigDecimal("0.01");
-            if (curCf.subtract(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
+            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s"
+                    .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
             }
 
-            driver.executeScript("arguments[0].click();", button);
+            if (isNeedToClick) {
+                driver.executeScript("arguments[0].click();", button);
+            }
         } catch (NoSuchElementException | StaleElementReferenceException |
                  ElementNotInteractableException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
