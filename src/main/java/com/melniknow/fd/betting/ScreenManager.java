@@ -90,7 +90,11 @@ public class ScreenManager {
                 System.out.println("SWITCH");
                 TimeUnit.SECONDS.sleep(3);
                 System.out.println("TIMEOUT");
-                driver.executeScript("document.querySelector('body > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2) > input[type=text]').value = '" + Context.CAPTCHA_API + "' ");
+                driver.executeScript("""
+                    var input_ = document.getElementsByName("apiKey")[0];
+                    input_.click()
+                    input_.value = '%s'
+                    """.formatted(Context.CAPTCHA_API));
                 System.out.println("EXEC");
                 driver.findElement(By.id("connect")).click();
 
@@ -129,6 +133,7 @@ public class ScreenManager {
 
                 SeleniumSupport.login(driver, bookmaker);
             } catch (Exception e) {
+                System.out.println(e.getLocalizedMessage());
                 Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
             }
         });
