@@ -250,28 +250,29 @@ public class Pinnacle implements IBookmaker {
         if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[pinnacle]: Click Place 1");
             clickIfIsClickable(driver, byPlaceBet);
-        } else if (!shoulderInfo.isFirst()) {
+        } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             Context.log.info("[pinnacle]: newIncome = " + newIncome);
-            if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
+            if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) { // если превысили максимальный минус
                 Context.log.info("[pinnacle]: Max minus: newIncome = " + newIncome);
                 throw new RuntimeException("[pinnacle]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
                 // считаем новую сумму
                 Context.log.info("[pinnacle]: Click Place 2");
-                var currency1 = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
-                var currency2 = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
+                // забираем наши валюты
+                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
+                var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
 
                 var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).accuracy().intValue();
 
                 var newSum = shoulderInfo.cf1()
-                    .multiply(shoulderInfo.sum1().multiply(currency2))
+                    .multiply(shoulderInfo.sum1().multiply(currencyFirstShoulder))
                     .divide(curCf, 2, RoundingMode.DOWN)
-                    .divide(currency1, scale, RoundingMode.DOWN);
+                    .divide(currencySecondShoulder, scale, RoundingMode.DOWN);
 
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
-                enterSum(driver, newSum); // TODO handle exceptions
+                enterSum(driver, newSum);
 
                 clickIfIsClickable(driver, byPlaceBet);
             }
