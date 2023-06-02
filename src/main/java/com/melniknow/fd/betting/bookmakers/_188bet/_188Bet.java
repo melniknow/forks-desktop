@@ -99,7 +99,7 @@ public class _188Bet implements IBookmaker {
                 throw new RuntimeException("[188bet]: Минимальная ставка на бетке - 50, а бот пытается поставить: " + sum);
             }
 
-            enterSum(driver, sum);
+            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"),  sum, "188bet");
 
         } catch (TimeoutException e) {
             BetsSupport.closeBetWindow(driver);
@@ -109,28 +109,6 @@ public class _188Bet implements IBookmaker {
             BetsSupport.closeBetWindow(driver);
             BetsSupport.clearPreviousBets(driver);
             throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    private static void enterSum(ChromeDriver driver, BigDecimal sum) {
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        try {
-            for (int i = 0; i < 5; ++i) {
-                // окошко для ввода суммы
-                var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
-                enterSnake.click();
-                enterSnake.clear();
-                enterSnake.sendKeys(sum.toPlainString());
-
-                // защита от ебанутого бага
-                var factSum = driver.findElement(By.xpath("//input[@placeholder='Enter Stake']")).getAttribute("value");
-                if (factSum.equals(sum.toPlainString())) {
-                    return;
-                }
-            }
-            throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");
-        } catch (TimeoutException e) {
-            throw new RuntimeException("[188bet]: Ошибка при вводе суммы в купон");
         }
     }
 
@@ -236,7 +214,7 @@ public class _188Bet implements IBookmaker {
 
                 Context.log.info("[188bet]: newSum = " + newSum + " | with cf = " + curCf);
 
-                enterSum(driver, newSum);
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"),  newSum, "188bet");
 
                 // кликаем на PlaceBet
                 clickIfIsClickable(driver, byPlaceBet);

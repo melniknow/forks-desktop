@@ -162,29 +162,7 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
         }
 
-        enterSum(driver, sum);
-    }
-
-    private static void enterSum(ChromeDriver driver, BigDecimal sum) {
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            for (int i = 0; i < 5; ++i) {
-                // вводим сумму
-                var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
-                send.clear();
-                send.click();
-                send.sendKeys(sum.toPlainString());
-
-                // защита от ебанутого бага
-                var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
-                if (factSum.equals(sum.toPlainString())) {
-                    return;
-                }
-            }
-        } catch (TimeoutException e) {
-            throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
-        }
-        throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
+        SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
     }
 
     @Override
@@ -273,7 +251,7 @@ public class Pinnacle implements IBookmaker {
 
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
-                enterSum(driver, newSum);
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"),  newSum, "pinnacle");
 
                 clickIfIsClickable(driver, byPlaceBet);
             }
