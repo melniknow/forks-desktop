@@ -88,7 +88,7 @@ public class ScreenManager {
 
                 switchWindow(driver);
                 System.out.println("SWITCH");
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.SECONDS.sleep(3);
                 System.out.println("TIMEOUT");
                 driver.executeScript("document.querySelector('body > div > div.content > table > tbody > tr:nth-child(1) > td:nth-child(2) > input[type=text]').value = '" + Context.CAPTCHA_API + "' ");
                 System.out.println("EXEC");
