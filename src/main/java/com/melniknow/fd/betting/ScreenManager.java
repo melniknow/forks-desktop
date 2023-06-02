@@ -90,8 +90,12 @@ public class ScreenManager {
                 System.out.println("SWITCH");
                 TimeUnit.SECONDS.sleep(3);
 
-                var el = new WebDriverWait(driver, Duration.ofSeconds(30))
+                var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+                var el = wait
                     .until(driver_ -> driver_.findElement(By.cssSelector("input[name=apiKey]")));
+                wait.until(ExpectedConditions.elementToBeClickable(el));
+
                 el.click();
                 el.sendKeys(Context.CAPTCHA_API);
 
