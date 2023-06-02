@@ -89,12 +89,12 @@ public class ScreenManager {
                 switchWindow(driver);
                 System.out.println("SWITCH");
                 TimeUnit.SECONDS.sleep(3);
-                System.out.println("TIMEOUT");
-                driver.executeScript("""
-                    var input_ = document.getElementsByName("apiKey")[0];
-                    input_.click()
-                    input_.value = '%s'
-                    """.formatted(Context.CAPTCHA_API));
+
+                var el = new WebDriverWait(driver, Duration.ofSeconds(30))
+                    .until(driver_ -> driver_.findElement(By.cssSelector("input[name=apiKey]")));
+                el.click();
+                el.sendKeys(Context.CAPTCHA_API);
+
                 System.out.println("EXEC");
                 driver.findElement(By.id("connect")).click();
 
