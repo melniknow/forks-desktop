@@ -75,7 +75,7 @@ public class ClickSportHandicap {
                 driver.executeScript("arguments[0].click();", button);
             }
         } catch (NullPointerException | StaleElementReferenceException |
-                 ElementNotInteractableException e) {
+                 ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
     }

@@ -67,7 +67,7 @@ public class ClickSportsWin {
                 driver.executeScript("arguments[0].click();", button);
             }
         } catch (NoSuchElementException | StaleElementReferenceException |
-                 ElementNotInteractableException e) {
+                 ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
     }

@@ -59,7 +59,7 @@ public class ClickSportsTotals {
             }
 
         } catch (NullPointerException | StaleElementReferenceException |
-                 ElementNotInteractableException e) {
+                 ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
     }

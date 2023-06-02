@@ -214,27 +214,28 @@ public class _188Bet implements IBookmaker {
             System.out.println("[188bet]: Click Place 1");
             // кликаем на PlaceBet
             clickIfIsClickable(driver, byPlaceBet);
-        } else if (!shoulderInfo.isFirst()) {
+        } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             System.out.println("[188bet] newIncome = " + newIncome);
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("[188bet]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
                 System.out.println("[188bet]: Click Place 2");
-                // считаем новую сумму
-                var _188betCurrency = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
-                var otherCurrency2 = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
+                // забираем наши валюты
+                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
+                var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
 
                 var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).accuracy().intValue();
 
+                // считаем новую сумму
                 var newSum = shoulderInfo.cf1()
-                    .multiply(shoulderInfo.sum1().multiply(otherCurrency2))
+                    .multiply(shoulderInfo.sum1().multiply(currencyFirstShoulder))
                     .divide(curCf, 2, RoundingMode.DOWN)
-                    .divide(_188betCurrency, scale, RoundingMode.DOWN);
+                    .divide(currencySecondShoulder, scale, RoundingMode.DOWN);
 
                 Context.log.info("[188bet]: newSum = " + newSum + " | with cf = " + curCf);
 
-                enterSum(driver, newSum); // TODO handle exceptions
+                enterSum(driver, newSum);
 
                 // кликаем на PlaceBet
                 clickIfIsClickable(driver, byPlaceBet);
