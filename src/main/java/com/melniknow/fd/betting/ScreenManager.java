@@ -86,9 +86,8 @@ public class ScreenManager {
                 var driver = new ChromeDriver(options);
                 screenStorage.put(bookmaker, driver);
 
-                switchWindow(driver);
-                System.out.println("SWITCH");
                 TimeUnit.SECONDS.sleep(3);
+                switchWindow(driver);
 
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
@@ -99,7 +98,6 @@ public class ScreenManager {
                 el.click();
                 el.sendKeys(Context.CAPTCHA_API);
 
-                System.out.println("EXEC");
                 driver.findElement(By.id("connect")).click();
 
                 new WebDriverWait(driver, Duration.ofSeconds(10))
@@ -143,8 +141,9 @@ public class ScreenManager {
         });
     }
     private void switchWindow(ChromeDriver driver) {
+        var self = driver.getWindowHandle();
         for (String windowHandle : driver.getWindowHandles()) {
-            if (!driver.getWindowHandle().equals(windowHandle)) {
+            if (!self.equals(windowHandle)) {
                 driver.switchTo().window(windowHandle);
                 break;
             }
