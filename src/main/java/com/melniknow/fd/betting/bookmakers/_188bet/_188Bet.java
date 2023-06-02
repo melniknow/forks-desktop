@@ -118,8 +118,8 @@ public class _188Bet implements IBookmaker {
             for (int i = 0; i < 5; ++i) {
                 // окошко для ввода суммы
                 var enterSnake = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Enter Stake']")));
-                enterSnake.clear();
                 enterSnake.click();
+                enterSnake.clear();
                 enterSnake.sendKeys(sum.toPlainString());
 
                 // защита от ебанутого бага
@@ -199,24 +199,25 @@ public class _188Bet implements IBookmaker {
     private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) throws InterruptedException {
         // чекаем, мейби коэфы поменялись
         if (clickIfIsClickable(driver, byAccepChanges)) {
-            System.out.println("[188bet]: Click byAccepChanges");
-            TimeUnit.SECONDS.sleep(1);
+            Context.log.info("[188bet]: Click byAccepChanges");
+            TimeUnit.MILLISECONDS.sleep(300);
         }
         // чекаем, мейби ставка вовсе закрыта
         if (windowContains(driver, byClosedBet)) {
-            System.out.println("[188bet]: Событие закрыто");
+            Context.log.info("[188bet]: Событие закрыто");
             throw new RuntimeException("[188bet]: Событие закрыто");
         }
         // если всё ок, то получаем коэф
         var curCf = BetsSupport.getCurrentCf(driver);
+        Context.log.info("[188bet]: curCf = " + curCf);
         var inaccuracy = new BigDecimal("0.01");
         if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
-            System.out.println("[188bet]: Click Place 1");
+            Context.log.info("[188bet]: Click Place 1");
             // кликаем на PlaceBet
             clickIfIsClickable(driver, byPlaceBet);
         } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
-            System.out.println("[188bet] newIncome = " + newIncome);
+            Context.log.info("[188bet] newIncome = " + newIncome);
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("[188bet]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {

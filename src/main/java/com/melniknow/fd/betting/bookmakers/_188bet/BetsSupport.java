@@ -174,7 +174,7 @@ public class BetsSupport {
             var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
             countOfPreviousBets.click();
             // elementToBeClickable они становятся гораздо раньше, и мы можем кликнуть вхолостую - поэтому ждём немного
-            TimeUnit.MILLISECONDS.sleep(500);
+            TimeUnit.MILLISECONDS.sleep(1000);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(500);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();

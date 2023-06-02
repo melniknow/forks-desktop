@@ -57,11 +57,10 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
-        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf());
-        Context.log.info("[pinnacle]: info.BK_bet() = " + info.BK_bet());
-        Context.log.info("[pinnacle]: marketName = " + marketName);
-        Context.log.info("[pinnacle]: selectionName = " + selectionName);
-
+        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf() + "\n" +
+            "[pinnacle]: info.BK_bet() = " + info.BK_bet() + "\n" +
+            "[pinnacle]: marketName = " + marketName + "\n" +
+            "[pinnacle]: selectionName = " + selectionName);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
@@ -84,6 +83,7 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("Поток прерван [pinnacle]");
         } catch (Exception ignored) {
         }
+        // -----------------------
 
         market = SeleniumSupport.getParentByDeep(market, 2);
 
@@ -122,7 +122,8 @@ public class Pinnacle implements IBookmaker {
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
             var curCf = new BigDecimal(buttonText.split("\n")[1]);
 
-            Context.log.info("[pinnacle]: Current Cf from click = " + curCf);
+            Context.log.info("[pinnacle]: buttonText = " + buttonText + "\n" +
+                "[pinnacle]: Current Cf from click = " + curCf);
 
             var inaccuracy = new BigDecimal("0.01");
 
@@ -393,6 +394,7 @@ public class Pinnacle implements IBookmaker {
             return "Under " + digits;
         } else if (bkBet.contains("HANDICAP")) {
             digits = info.BK_market_meta().getAsJsonObject().get("points").getAsString();
+            Context.log.info("[pinnacle] points = " + digits);
             if (digits.equals("0.0") || digits.equals("-0.0") || digits.equals("+0.0")) {
                 return "0";
             }

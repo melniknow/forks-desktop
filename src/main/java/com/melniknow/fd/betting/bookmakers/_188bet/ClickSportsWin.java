@@ -41,9 +41,12 @@ public class ClickSportsWin {
             partOfGame = "";
         }
 
-        System.out.println("[188bet] MarketName = " + marketName);
-        System.out.println("[188bet] partOfGame = " + partOfGame);
-        System.out.println("[188bet] selectionName = " + selectionName);
+        Context.log.info("[188bet]: required Cf = " + info.BK_cf() + "\n" +
+                                "[188Bet]: info.BK_bet() = " + info.BK_bet() + "\n" +
+                                "[188Bet]: info.BK_game() = " + info.BK_game() + "\n" +
+                                "[188Bet]: MarketName = " + marketName + "\n" +
+                                "[188Bet]: partOfGame = " + partOfGame + "\n" +
+                                "[188Bet]: selectionName = " + selectionName);
 
         var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
 
