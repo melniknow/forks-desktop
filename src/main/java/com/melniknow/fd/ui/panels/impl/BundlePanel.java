@@ -44,11 +44,15 @@ public class BundlePanel implements IPanel {
         nameRulesField.setPrefHeight(40);
         nameRulesField.setPromptText("Имя правила");
         grid.add(nameRulesField, 1, y.get(), 1, 1);
+
         var isValue = new CheckBox("Валуй");
         grid.add(isValue, 2, y.getAndIncrement(), 1, 1);
 
         var isVerifiedValue = new CheckBox("Проверяемый валуй");
         grid.add(isVerifiedValue, 2, y.getAndIncrement(), 1, 1);
+
+        var isValueWithOneDollarValue = new CheckBox("Валуй с одним долларом на первом плече");
+        grid.add(isValueWithOneDollarValue, 2, y.getAndIncrement(), 1, 1);
 
         grid.add(new Label("Первое плечо"), 1, y.get());
         var bk1Field = new ComboBox<>(FXCollections.observableArrayList(Bookmaker.values()));
@@ -82,7 +86,7 @@ public class BundlePanel implements IPanel {
                     throw new RuntimeException();
 
                 var bundle = new BundleSetting(nameRulesField.getText(), isValue.isSelected(),
-                    isVerifiedValue.isSelected(),
+                    isVerifiedValue.isSelected(), isValueWithOneDollarValue.isSelected(),
                     bk1Field.getValue(), bk2Field.getValue());
 
                 Context.bundleStorage.add(bundle);
@@ -91,7 +95,8 @@ public class BundlePanel implements IPanel {
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + " " + bundle.bk2() +
                     " " + (
                     bundle.isValue() ? "Валуй" :
-                        bundle.isVerifiedValue() ? "Проверяемый валуй" : "Не валуй")
+                        bundle.isVerifiedValue() ? "Проверяемый валуй" :
+                            bundle.isValueWithOneDollar() ? "Валуй с одним долларом на первом плече" : "Не валуй")
                 );
 
                 GridPane.setHalignment(delButton, HPos.CENTER);
@@ -118,6 +123,7 @@ public class BundlePanel implements IPanel {
                 var bundle = new BundleSetting(jsonElement.getAsJsonObject().getAsJsonPrimitive("name").getAsString(),
                     jsonElement.getAsJsonObject().getAsJsonPrimitive("isValue").getAsBoolean(),
                     jsonElement.getAsJsonObject().getAsJsonPrimitive("isVerifiedValue").getAsBoolean(),
+                    jsonElement.getAsJsonObject().getAsJsonPrimitive("isValueWithOneDollar").getAsBoolean(),
                     Bookmaker.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("bk1").getAsString()),
                     Bookmaker.valueOf(jsonElement.getAsJsonObject().getAsJsonPrimitive("bk2").getAsString()));
 
@@ -126,7 +132,9 @@ public class BundlePanel implements IPanel {
                 var delButton = new Button(bundle.name() + " " + bundle.bk1() + "-" + bundle.bk2() +
                     " " + (
                     bundle.isValue() ? "Валуй" :
-                        bundle.isVerifiedValue() ? "Проверяемый валуй" : "Не валуй"));
+                        bundle.isVerifiedValue() ? "Проверяемый валуй" :
+                            bundle.isValueWithOneDollar() ? "Валуй с одним долларом на первом плече" : "Не валуй")
+                );
 
                 delButton.setOnAction(ev -> {
                     Context.bundleStorage.remove(bundle);

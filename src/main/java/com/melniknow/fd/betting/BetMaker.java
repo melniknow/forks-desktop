@@ -45,6 +45,7 @@ public class BetMaker {
 
             var isValue = bundle != null && bundle.isValue();
             var isVerifiedValue = bundle != null && bundle.isVerifiedValue();
+            var isValueWithOneDollar = bundle != null && bundle.isValueWithOneDollar();
 
             // Если порядок перевёрнут, то мы должны поменять порядок очерёдности букмекеров
             if (isReversed) {
@@ -68,7 +69,7 @@ public class BetMaker {
 
             var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1()));
 
-            if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
+            if (!isValue) { // Если это не валуй по заходим
                 var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
                 openLink2.get(60, TimeUnit.SECONDS);
             }
@@ -80,7 +81,7 @@ public class BetMaker {
 
             var balance2Rub = new BigDecimal("1000000000");
 
-            if (!isValue) { // Если это вилка или проверяемый валуй, то заходим, иначе нахуй
+            if (!isValue) {
                 var futureBalance2 = executor.submit(() ->
                     realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport(), !isVerifiedValue));
                 balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
@@ -90,6 +91,7 @@ public class BetMaker {
             }
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
+            if (isValueWithOneDollar) balance1Rub = new BigDecimal("1000000000");
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
@@ -110,14 +112,9 @@ public class BetMaker {
             var bet1 = bets.get(0);
             var bet2 = bets.get(1);
 
-            System.out.println("cf1 = " + calculatedFinal.fork().betInfo1().BK_cf());
-            System.out.println("cf2 = " + calculatedFinal.fork().betInfo2().BK_cf());
-            System.out.println("== " + bet1.multiply(Context.currencyToRubCourse.get(bkParams1.currency())).multiply(calculatedFinal.fork().betInfo1().BK_cf()));
-            System.out.println("== " + bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency())).multiply(calculatedFinal.fork().betInfo2().BK_cf()));
+            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), isValueWithOneDollar ? bkParams1.currency().minValue : bet1));
 
-            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), bet1));
-
-            if (!isValue && !isVerifiedValue) { // Сюда заходим только если вилка
+            if (!isValue && !isVerifiedValue) {
                 var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
                 enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
             }
@@ -137,7 +134,7 @@ public class BetMaker {
             }
 
             var isClosed = false;
-            if (!isValue && !isVerifiedValue) { // Сюда заходим только если вилка
+            if (!isValue && !isVerifiedValue) {
                 try {
                     BigDecimal finalRealCf = realCf1;
                     String bk1name = calculated.fork().betInfo1().BK_name();
