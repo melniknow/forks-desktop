@@ -482,17 +482,9 @@ public class Pinnacle implements IBookmaker {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
             var market = wait.until(driver1 -> driver1.findElement(by));
-
             market = SeleniumSupport.getParentByDeep(market, 2);
 
-            try {
-                WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(2));
-                WebElement finalMarket = market;
-                var seeMore = waitForSeeMore.until(driver1 -> finalMarket.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
-                waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
-            } catch (TimeoutException ignored) {
-                Context.log.info("[pinnacle] There isn`t 'See More'");
-            }
+            SeleniumSupport.clickOnSeeMore(driver, market);
             return market;
         } catch (TimeoutException | StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: Маркет не найден в фильтре");
