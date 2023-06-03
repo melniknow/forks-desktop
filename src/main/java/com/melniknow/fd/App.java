@@ -33,7 +33,7 @@ public class App extends Application {
         Context.screenManager.clear();
 
         for (File deleteTempFile : Context.deleteTempFiles)
-            if (!deleteTempFile.delete()) System.out.println("Не удалось удалить временный файл");
+            if (!deleteTempFile.delete()) Context.log.info("Не удалось удалить временный файл");
     }
 
     public static void main(String[] args) {

@@ -47,11 +47,12 @@ public class _188Bet implements IBookmaker {
                         }
                     }
                     // спим, ждём прогрузки
+                    Context.log.info("[188bet]: Waiting balance...");
                     TimeUnit.SECONDS.sleep(1);
                 }
             } catch (TimeoutException e) {
                 SeleniumSupport.login(driver, bookmaker);
-                throw new RuntimeException("Мы вошли в аккаунт [188bet]");
+                throw new RuntimeException("[188bet]: Мы вошли в аккаунт");
             }
 
             var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -89,6 +90,8 @@ public class _188Bet implements IBookmaker {
 
         try {
             var currentCf = BetsSupport.getCurrentCf(driver);
+
+            Context.log.info("[188bet]: currentCf = " + currentCf);
 
             var inaccuracy = new BigDecimal("0.01");
             if (currentCf.add(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
@@ -130,11 +133,11 @@ public class _188Bet implements IBookmaker {
             var realCf = BetsSupport.getCurrentCf(driver);
             // чтобы закрыть окошко мы нажимаем на "ОК", тк крестик после успешной ставки пропадает
             BetsSupport.closeAfterSuccessfulBet(driver);
-            System.out.println("[188bet]: Final cf = " + realCf);
+            Context.log.info("[188bet]: Final cf = " + realCf);
             return realCf;
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
-            System.out.println("[188bet]: Don`t Place Bet" + e.getMessage());
+            Context.log.info("[188bet]: Don`t Place Bet" + e.getMessage());
             throw new RuntimeException(e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException("[188bet]: не смогли уснуть после AccepChanges");
@@ -157,7 +160,7 @@ public class _188Bet implements IBookmaker {
         // вечно ждать нельзя!
         for (int i = 0; i < 15; ++i) {
             try {
-                System.out.println("[188bet]: Wait....");
+                Context.log.info("[188bet]: Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
                 // ждём успеха
                 wait.until(driver1 -> driver1.findElement(bySuccessBet));
@@ -165,7 +168,7 @@ public class _188Bet implements IBookmaker {
             } catch (Exception e) {
                 // Пока мы ждали ничего не произошло? (ставка могла закрыться или поменяться коэфы и тд)
                 if (windowContains(driver, byAccepChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byClosedBet)) {
-                    System.out.println("[188bet]: Exit from wait");
+                    Context.log.info("[188bet]: Exit from wait");
                     // ждать нечего - выходим, чтобы снова нажимать на кнопку
                     return false;
                 }
@@ -199,7 +202,7 @@ public class _188Bet implements IBookmaker {
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
                 throw new RuntimeException("[188bet]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
-                System.out.println("[188bet]: Click Place 2");
+                Context.log.info("[188bet]: Click Place 2");
                 // забираем наши валюты
                 var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
                 var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());

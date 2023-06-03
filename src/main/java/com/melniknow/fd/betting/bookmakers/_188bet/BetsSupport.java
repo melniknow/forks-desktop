@@ -194,7 +194,7 @@ public class BetsSupport {
             // Нужно нажать на крестик - он "Брат" нашей строки - таким образо получаем следующий элемент в иерархии
             tmp.findElement(By.xpath(".//following::div[1]")).click();
         } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException | ElementNotInteractableException e) {
-            System.out.println("[188bet]: Не закрыли окошко с купоном");
+            Context.log.info("[188bet]: Не закрыли окошко с купоном");
         }
     }
 
@@ -208,10 +208,10 @@ public class BetsSupport {
             if (balance.equals(BigDecimal.ZERO)) {
                 throw new RuntimeException("[188bet]: нулевой баланс, пополните баланс");
             }
-            System.out.println("Balance from header THB: " + balance + " [188bet]");
+            Context.log.info("Balance from header THB: " + balance + " [188bet]");
             return balance.multiply(Context.currencyToRubCourse.get(currency));
         } catch (NoSuchElementException e) {
-            System.out.println("[188bet]: баланс не найден на странице");
+            Context.log.info("[188bet]: баланс не найден на странице");
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -247,7 +247,7 @@ public class BetsSupport {
                 tmpButton.findElement(SeleniumSupport.buildLocalH4ByText("Ok")).click();
             }
         } catch (TimeoutException | NoSuchElementException | StaleElementReferenceException | ElementNotInteractableException e) {
-            System.out.println("Not Close mini-window after success betting!  [188bet]");
+            Context.log.info("Not Close mini-window after success betting!  [188bet]");
         }
     }
 

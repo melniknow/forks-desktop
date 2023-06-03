@@ -57,7 +57,8 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
-        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf() + "\n" +
+        Context.log.info("[pinnacle]: info.BK_game() = " + info.BK_game() + "\n" +
+            "[pinnacle]: info.BK_cf() = " + info.BK_cf() + "\n" +
             "[pinnacle]: info.BK_bet() = " + info.BK_bet() + "\n" +
             "[pinnacle]: marketName = " + marketName + "\n" +
             "[pinnacle]: selectionName = " + selectionName);
@@ -82,8 +83,6 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("Поток прерван [pinnacle]");
         } catch (Exception ignored) {
         }
-
-        market = SeleniumSupport.getParentByDeep(market, 2);
 
         WebElement button;
         // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки с нулём
@@ -120,7 +119,7 @@ public class Pinnacle implements IBookmaker {
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
             var curCf = new BigDecimal(buttonText.split("\n")[1]);
 
-            Context.log.info("[pinnacle]: buttonText = " + buttonText + "\n" +
+            Context.log.info("[pinnacle]: Final buttonText = " + buttonText + "\n" +
                 "[pinnacle]: Current Cf from click = " + curCf);
 
             var inaccuracy = new BigDecimal("0.01");
@@ -487,9 +486,9 @@ public class Pinnacle implements IBookmaker {
             market = SeleniumSupport.getParentByDeep(market, 2);
 
             try {
-                WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+                WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(2));
                 WebElement finalMarket = market;
-                var seeMore = waitForSeeMore.until(driver1 -> finalMarket.findElement(SeleniumSupport.buildLocalSpanByText("See more")));
+                var seeMore = waitForSeeMore.until(driver1 -> finalMarket.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
                 waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
             } catch (TimeoutException ignored) {
                 Context.log.info("[pinnacle] There isn`t 'See More'");
@@ -506,16 +505,20 @@ public class Pinnacle implements IBookmaker {
             return getMarketOnTheFilter(driver, by);
         } catch (RuntimeException ignored) { }
 
-        var filtersBar = driver.findElement(By.cssSelector("[class^='style_filterBarContent__']"));
-        // забираем все фильтры
-        var filters = filtersBar.findElements(By.tagName("button"));
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
-        for (var filter : filters) {
-            wait.until(ExpectedConditions.elementToBeClickable(filter)).click();
-            try {
-                return getMarketOnTheFilter(driver, by);
-            } catch (RuntimeException ignored) { }
+        try {
+            var filtersBar = driver.findElement(By.cssSelector("[class^='style_filterBarContent__']"));
+            // забираем все фильтры
+            var filters = filtersBar.findElements(By.tagName("button"));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+            for (var filter : filters) {
+                wait.until(ExpectedConditions.elementToBeClickable(filter)).click();
+                try {
+                    return getMarketOnTheFilter(driver, by);
+                } catch (RuntimeException ignored) { }
+            }
+            throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
+        } catch (NoSuchElementException | StaleElementReferenceException e ) {
+            throw new RuntimeException("[pinnacle] На странице отсутствуют элементы");
         }
-        throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
     }
 }
