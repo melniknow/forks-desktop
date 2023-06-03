@@ -13,14 +13,18 @@ import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Context {
     public static HashSet<File> deleteTempFiles = new HashSet<>();
@@ -49,7 +53,20 @@ public class Context {
     public static volatile Profile profile;
 
     // Логгер
-    public static final Logger log = Logger.getLogger("mainLogger");
+    public static final Logger log;
+
+    static {
+        log = Logger.getLogger("mainLogger");
+        FileHandler fh;
+        try {
+            fh = new FileHandler(UUID.randomUUID() + ".log");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        log.addHandler(fh);
+        SimpleFormatter formatter = new SimpleFormatter();
+        fh.setFormatter(formatter);
+    }
 
     // Кеш для повтора вилок
     public static final ConcurrentMap<MathUtils.ForkKey, Object> forksCache = new ConcurrentHashMap<>();

@@ -82,6 +82,7 @@ public class ProfileTab implements IPanel {
 
                 Context.profile = new Profile(profileName, jsonData);
                 Context.profile.save();
+                Context.log.info("Установили профиль - " + profileName);
             } else {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните данные");
                 return;
