@@ -51,7 +51,7 @@ public class Pinnacle implements IBookmaker {
             marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
             if (marketName.contains(" | ")) {
                 marketName = marketName.split(" \\| ")[0];
-                selectionName = marketName.split(" \\| ")[1];
+                selectionName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString().split(" \\| ")[1];
             } else {
                 throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet() + " | sport: " + sport);
             }
@@ -67,25 +67,24 @@ public class Pinnacle implements IBookmaker {
         WebElement market;
         try {
             // забираем маркет
-            String finalMarketName = marketName;
-            market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
+            market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
         } catch (TimeoutException e) {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
         }
 
         // Проверка входа в аккаунт
-        try {
-            new WebDriverWait(driver, Duration.ofMillis(200)).until(driver_ -> driver_.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[1]/div[2]/div[2]/div/div/div[4]/button[text() = 'Log in']")));
-            SeleniumSupport.login(driver, bookmaker);
-            throw new RuntimeException("Мы вошли в аккаунт [pinnacle]");
-        } catch (WebDriverException e) {
-            if (e.getCause() instanceof InterruptedException)
-                throw new RuntimeException("Поток прерван [pinnacle]");
-        } catch (Exception ignored) {
-        }
+//        try {
+//            new WebDriverWait(driver, Duration.ofMillis(200)).until(driver_ -> driver_.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[1]/div[2]/div[2]/div/div/div[4]/button[text() = 'Log in']")));
+//            SeleniumSupport.login(driver, bookmaker);
+//            throw new RuntimeException("Мы вошли в аккаунт [pinnacle]");
+//        } catch (WebDriverException e) {
+//            if (e.getCause() instanceof InterruptedException)
+//                throw new RuntimeException("Поток прерван [pinnacle]");
+//        } catch (Exception ignored) {
+//        }
         // -----------------------
 
-        market = SeleniumSupport.getParentByDeep(market, 2);
+//        market = SeleniumSupport.getParentByDeep(market, 2);
 
         WebElement button;
         // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки с нулём
@@ -219,7 +218,7 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Ставка закрыта");
         }
         // Кнопка может быть не активна
-        if (!isActivePlaceBet(driver)) {
+        if (!isActivePlaceBet(driver)) { // TODO
             Context.log.info("[pinnacle]: Is not active");
             return;
         }
@@ -479,5 +478,45 @@ public class Pinnacle implements IBookmaker {
             newStr = newStr.substring(1);
         }
         return newStr;
+    }
+
+    private static WebElement getMarketOnTheFilter(ChromeDriver driver, By by) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            var market = wait.until(driver1 -> driver1.findElement(by));
+
+            market = SeleniumSupport.getParentByDeep(market, 2);
+
+            try {
+                WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+                WebElement finalMarket = market;
+                var seeMore = waitForSeeMore.until(driver1 -> finalMarket.findElement(SeleniumSupport.buildLocalSpanByText("See more")));
+                waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
+            } catch (TimeoutException ignored) {
+                Context.log.info("[pinnacle] There isn`t 'See More'");
+            }
+            return market;
+        } catch (TimeoutException | StaleElementReferenceException e) {
+            throw new RuntimeException("[pinnacle]: Маркет не найден в фильтре");
+        }
+    }
+
+    private static WebElement getMarket(ChromeDriver driver, By by) {
+        // Первый раз всегда пытаемся найти на текущей странице, если не получилось, то уже по всем филтрам
+        try {
+            return getMarketOnTheFilter(driver, by);
+        } catch (RuntimeException ignored) { }
+
+        var filtersBar = driver.findElement(By.cssSelector("[class^='style_filterBarContent__']"));
+        // забираем все фильтры
+        var filters = filtersBar.findElements(By.tagName("button"));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        for (var filter : filters) {
+            wait.until(ExpectedConditions.elementToBeClickable(filter)).click();
+            try {
+                return getMarketOnTheFilter(driver, by);
+            } catch (RuntimeException ignored) { }
+        }
+        throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
     }
 }
