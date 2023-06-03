@@ -154,7 +154,7 @@ public class SeleniumSupport {
                 var captchaButton = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='loginRecaptcha']/div[2]/div[2]")));
                 captchaButton.click();
 
-                wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='Капча решена!']")));
+                wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='Капча решена!' or text()='Captcha solved!']")));
 
                 var button = wait.until(driver1 -> driver1.findElement(By.xpath("//button/span[text()='Log in']/parent::button")));
 
