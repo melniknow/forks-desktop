@@ -270,6 +270,8 @@ public class SettingPanel implements IPanel {
                     Context.screenManager.clear();
                     Controller.runButton.setDisable(true);
                 }
+
+                Context.log.info("Сохранили настройки - " + Context.parserParams);
             } catch (Exception e) {
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
                 return;

@@ -14,6 +14,7 @@ import java.util.Objects;
 public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        Context.log.info("Запустили приложение");
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("app.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1300, 700);
 
@@ -28,6 +29,7 @@ public class App extends Application {
 
     @Override
     public void stop() {
+        Context.log.info("Остановили приложение");
         Context.botPool.shutdownNow();
         Context.parsingPool.shutdownNow();
         Context.screenManager.clear();

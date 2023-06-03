@@ -132,8 +132,12 @@ public class ScreenManager {
 
                 SeleniumSupport.login(driver, bookmaker);
             } catch (Exception e) {
-                Context.log.info(e.getLocalizedMessage());
+                Context.log.warning("Бот не смог открыть ссылку - " + link + " - " + e.getLocalizedMessage());
                 Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
+
+                if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    throw new RuntimeException("Поток прерван при попытке открыть ссылку - " + link);
+                }
             }
         });
     }

@@ -118,7 +118,7 @@ public class SeleniumSupport {
                 wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/div[3]/div[1]/ul/li[2]")));
 
                 while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
-                    Context.log.info("Пытаемся нажать на кнопку Sport");
+                    Context.log.info("[188bet autoLogin] Пытаемся нажать на кнопку Sport");
             } case PINNACLE -> {
                 driver.get(bookmaker.link);
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));

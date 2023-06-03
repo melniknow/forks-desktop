@@ -18,7 +18,7 @@ public class BundleStorage {
                 setting.bk1().equals(bundleSetting.bk2()) && setting.bk2().equals(bundleSetting.bk1()))
                 throw new RuntimeException();
         }
-
+        Context.log.info("Добавлена настройка связок - " + bundleSetting);
         bundleSettingArrayList.add(bundleSetting);
     }
 
@@ -33,6 +33,7 @@ public class BundleStorage {
     }
 
     public void remove(BundleSetting bundleSetting) {
+        Context.log.info("Удалена настройка связок - " + bundleSetting);
         bundleSettingArrayList.remove(bundleSetting);
     }
 
@@ -53,6 +54,10 @@ public class BundleStorage {
 
         Context.profile.json.add("bundle", array);
         Context.profile.save();
+    }
+
+    public ArrayList<BundleSetting> getAll() {
+        return bundleSettingArrayList;
     }
 
     public void clear() {

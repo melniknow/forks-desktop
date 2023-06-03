@@ -101,6 +101,7 @@ public class CurrencyPanel implements IPanel {
         saveButton.setOnAction(event -> {
             if (updateCurrencyValue(usdField.getText(), eurField.getText(), thbField.getText())) {
                 Controller.bookmakers.setDisable(false);
+                Context.log.info("Установили курсы валют - " + Context.currencyToRubCourse);
             } else
                 PanelUtils.showErrorAlert(grid.getScene().getWindow(), "Корректно заполните все необходимые поля!");
         });

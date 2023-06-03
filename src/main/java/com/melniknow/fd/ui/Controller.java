@@ -47,6 +47,10 @@ public class Controller {
     }
 
     private void start() {
+        Context.log.info("Запустили бота");
+        Context.log.info("Настройки связок - " + Context.bundleStorage.getAll());
+        Context.log.info("Исключения для букмекеров - " + Context.exceptionForBookmaker);
+
         Context.botPool.submit(new BotRunner());
         Platform.runLater(() -> run.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000;"));
         Platform.runLater(() -> run.setText("Стоп"));
@@ -54,6 +58,7 @@ public class Controller {
     }
 
     private void stop() {
+        Context.log.info("Остановили бота");
         boolean isInterrupted;
 
         try {

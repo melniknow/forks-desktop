@@ -269,8 +269,6 @@ public class BookmakersPanel implements IPanel {
                     new BigDecimal(roundingField.getValue()),
                     loginField.getText(), passwordField.getText()));
 
-                Context.log.info(Context.betsParams.toString());
-
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
 
@@ -304,6 +302,7 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "passwordField", passwordField.getText());
 
                 Context.profile.save();
+                Context.log.info("Настройки букмекера " + bookmaker + " - " + Context.betsParams.get(bookmaker));
             } catch (java.lang.Exception e) {
                 Context.screenManager.removeScreenForBookmaker(bookmaker);
                 Controller.runButton.setDisable(true);
@@ -352,6 +351,8 @@ public class BookmakersPanel implements IPanel {
             }
 
         } catch (java.lang.Exception ignored) {
+        } finally {
+            Context.log.info("Исключения для букмекера " + bookmaker + " - " + Context.exceptionForBookmaker.get(bookmaker));
         }
 
         return y_;
@@ -376,6 +377,7 @@ public class BookmakersPanel implements IPanel {
 
         Context.profile.json.add("rules", obj);
         Context.profile.save();
+        Context.log.info("Правила для букмекеров - " + rulesForBookmaker);
     }
 
     private static void setString(String name, ComboBox<String> screenSizeField) {

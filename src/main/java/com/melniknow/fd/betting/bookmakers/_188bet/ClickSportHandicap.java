@@ -42,7 +42,7 @@ public class ClickSportHandicap {
             .stream()
             .map(e -> {
                 try {
-                    Context.log.info(SeleniumSupport.getParentByDeep(e, 2).getText());
+                    Context.log.info("[188bet] map - " + SeleniumSupport.getParentByDeep(e, 2).getText());
                     return e.findElement(By.xpath("./.."));
                 } catch (StaleElementReferenceException e1) {
                     throw new RuntimeException("[188bet]: Событие пропало со страницы");
