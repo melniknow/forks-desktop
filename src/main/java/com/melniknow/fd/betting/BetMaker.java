@@ -92,7 +92,6 @@ public class BetMaker {
             }
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
-//            if (isValueWithOneDollar) balance1Rub = new BigDecimal("1000000000");
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
@@ -130,9 +129,13 @@ public class BetMaker {
                 var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), new ShoulderInfo(true, null, null, null)));
                 realCf1 = betFuture1.get(kSecondsForPlaceBet, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
-                throw new RuntimeException("Не удалось поставить вилку" + e.getCause().getLocalizedMessage());
+                var errorMessage = "Не удалось поставить вилку" + e.getCause().getLocalizedMessage();
+                Context.log.info(errorMessage);
+                throw new RuntimeException(errorMessage);
             } catch (TimeoutException e) {
-                throw new RuntimeException("Не удалось поставить вилку" + e.getLocalizedMessage());
+                var errorMessage = "Не удалось поставить вилку" + e.getLocalizedMessage();
+                Context.log.info(errorMessage);
+                throw new RuntimeException(errorMessage);
             }
 
             var isClosed = false;
@@ -150,10 +153,11 @@ public class BetMaker {
 
                     causeOfFail = e.getCause().getLocalizedMessage();
 
-                    Logger.writeToLogSession("Не удалось поставить плечо(%s) - %s \nПричина: %s".formatted(
+                    var errorMessage = "Не удалось поставить плечо(%s) - %s \nПричина: %s".formatted(
                         isClosed ? "Сделали CashOut" : "Не сделали CashOut",
-                        calculatedFinal.fork().betInfo2().BK_name(), causeOfFail)
-                    );
+                        calculatedFinal.fork().betInfo2().BK_name(), causeOfFail);
+                    Context.log.info(errorMessage);
+                    Logger.writeToLogSession(errorMessage);
                 }
             }
 
@@ -172,14 +176,17 @@ public class BetMaker {
             var bet2Rub = bet2.multiply(Context.currencyToRubCourse.get(bkParams2.currency())).setScale(2, RoundingMode.DOWN);
 
             return buildCompleteBetsFork(calculatedFinal, realCf1, realCf2, balance1Rub,
-                balance2Rub, bet1Rub, bet2Rub, isValue || isVerifiedValue, isValueWithOneDollar, isClosed, causeOfFail);
+                balance2Rub, bet1Rub, bet2Rub, isValue || isVerifiedValue, isValueWithOneDollar, isVerifiedValue, isClosed, causeOfFail);
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (ExecutionException e) {
+            Context.log.info("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
         } catch (TimeoutException e) {
+            Context.log.info("Ошибка в постановке ставки - слишком медленное соединение с сетью");
             throw new RuntimeException("Ошибка в постановке ставки - слишком медленное соединение с сетью");
         } catch (Exception e) {
+            Context.log.info("Ошибка в постановке ставки - " + e.getLocalizedMessage());
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getLocalizedMessage());
         } finally {
             executor.shutdownNow();
@@ -250,8 +257,8 @@ public class BetMaker {
                                                                    BigDecimal realCf1, BigDecimal realCf2,
                                                                    BigDecimal balance1Rub, BigDecimal balance2Rub,
                                                                    BigDecimal bet1Rub, BigDecimal bet2Rub, boolean isValue,
-                                                                   boolean isValueWithOneDollar, boolean isClosed,
-                                                                    String causeOfFail) {
+                                                                   boolean isValueWithOneDollar, boolean isVerifiedValue, boolean isClosed,
+                                                                   String causeOfFail) {
         String income;
         BigDecimal realRubBalance1;
         BigDecimal realRubBalance2;
@@ -282,6 +289,10 @@ public class BetMaker {
             bet2Rub = BigDecimal.ZERO;
         } else {
             throw new RuntimeException("Вилка не была поставлена");
+        }
+
+        if (isVerifiedValue) {
+            income = "Был поставлен валуй с проверкой";
         }
 
         return new BetUtils.CompleteBetsFork(calculated, income, realRubBalance1, realRubBalance2, bet1Rub, bet2Rub, realCf1, realCf2);
