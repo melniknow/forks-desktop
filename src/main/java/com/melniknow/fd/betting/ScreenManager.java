@@ -132,7 +132,7 @@ public class ScreenManager {
 
                 SeleniumSupport.login(driver, bookmaker);
             } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+                Context.log.info(e.getLocalizedMessage());
                 Logger.writeToLogSession("Бот не смог открыть ссылку - " + link);
             }
         });
