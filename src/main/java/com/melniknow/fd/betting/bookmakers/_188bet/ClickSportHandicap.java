@@ -32,10 +32,10 @@ public class ClickSportHandicap {
 
         if (selectionName == null) throw new RuntimeException("selectionName is null");
 
-        Context.log.info("[188bet]: info.BK_bet() = " + info.BK_bet());
-        Context.log.info("[188bet]: info.BK_game() = " + info.BK_game());
-        Context.log.info("[188bet]: required Cf = " + info.BK_cf());
-        Context.log.info("[188bet]: selectionName = " + selectionName);
+        Context.log.info("[188bet]: info.BK_bet() = " + info.BK_bet() + "\n" +
+                                "[188bet]: info.BK_game() = " + info.BK_game() + "\n" +
+                                "[188bet]: required Cf = " + info.BK_cf() + "\n" +
+                                "[188bet]: selectionName = " + selectionName);
 
         var buttons = BetsSupport.findElementsWithClicking(market,
                 By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))

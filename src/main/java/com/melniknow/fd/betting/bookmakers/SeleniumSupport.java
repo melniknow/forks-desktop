@@ -2,14 +2,12 @@ package com.melniknow.fd.betting.bookmakers;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.domain.Bookmaker;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -155,6 +153,7 @@ public class SeleniumSupport {
             }
         }
     }
+
     private static boolean clickIfIsClickable(ChromeDriver driver, By xpath) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
@@ -165,6 +164,35 @@ public class SeleniumSupport {
             if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
                 throw new RuntimeException();
             return false;
+        }
+    }
+
+    private static void clearBetSum(WebElement enterSumButton, String betSum) {
+        for (int i = 0; i < betSum.length(); ++i) {
+            enterSumButton.sendKeys(Keys.BACK_SPACE);
+        }
+    }
+
+    public static void enterSum(ChromeDriver driver, By by, BigDecimal sum, String bkName) {
+        try {
+            for (int trying = 0; trying < 3; ++trying) {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
+                for (int i = 0; i < 15; ++i) {
+                    var betSum = enterSumButton.getAttribute("value");
+                    if (betSum.isEmpty()) {
+                        break;
+                    }
+                    clearBetSum(enterSumButton, betSum);
+                }
+                enterSumButton.sendKeys(sum.toPlainString());
+                if (enterSumButton.getAttribute("value").equals(sum.toPlainString())) {
+                    return;
+                }
+            }
+            throw new RuntimeException("[" + bkName + "]: бот не смог очистить поле ввода");
+        } catch (TimeoutException e) {
+            throw new RuntimeException("[" + bkName + "]: Ошибка при вводе суммы в купон");
         }
     }
 }

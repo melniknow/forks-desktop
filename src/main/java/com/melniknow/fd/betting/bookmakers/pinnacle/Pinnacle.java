@@ -51,25 +51,23 @@ public class Pinnacle implements IBookmaker {
             marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
             if (marketName.contains(" | ")) {
                 marketName = marketName.split(" \\| ")[0];
-                selectionName = marketName.split(" \\| ")[1];
+                selectionName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString().split(" \\| ")[1];
             } else {
                 throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet() + " | sport: " + sport);
             }
         }
 
-        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf());
-        Context.log.info("[pinnacle]: info.BK_bet() = " + info.BK_bet());
-        Context.log.info("[pinnacle]: marketName = " + marketName);
-        Context.log.info("[pinnacle]: selectionName = " + selectionName);
-
+        Context.log.info("[pinnacle]: info.BK_cf() = " + info.BK_cf() + "\n" +
+            "[pinnacle]: info.BK_bet() = " + info.BK_bet() + "\n" +
+            "[pinnacle]: marketName = " + marketName + "\n" +
+            "[pinnacle]: selectionName = " + selectionName);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
         WebElement market;
         try {
             // забираем маркет
-            String finalMarketName = marketName;
-            market = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText(finalMarketName)));
+            market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
         } catch (TimeoutException e) {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
         }
@@ -122,7 +120,8 @@ public class Pinnacle implements IBookmaker {
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
             var curCf = new BigDecimal(buttonText.split("\n")[1]);
 
-            Context.log.info("[pinnacle]: Current Cf from click = " + curCf);
+            Context.log.info("[pinnacle]: buttonText = " + buttonText + "\n" +
+                "[pinnacle]: Current Cf from click = " + curCf);
 
             var inaccuracy = new BigDecimal("0.01");
 
@@ -161,29 +160,7 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
         }
 
-        enterSum(driver, sum);
-    }
-
-    private static void enterSum(ChromeDriver driver, BigDecimal sum) {
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            for (int i = 0; i < 5; ++i) {
-                // вводим сумму
-                var send = wait.until(driver_ -> driver_.findElement(By.cssSelector("[placeholder='Stake']")));
-                send.clear();
-                send.click();
-                send.sendKeys(sum.toPlainString());
-
-                // защита от ебанутого бага
-                var factSum = driver.findElement(By.xpath("//input[@placeholder='Stake']")).getAttribute("value");
-                if (factSum.equals(sum.toPlainString())) {
-                    return;
-                }
-            }
-        } catch (TimeoutException e) {
-            throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
-        }
-        throw new RuntimeException("[pinnacle]: Ошибка при вводе суммы в купон");
+        SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
     }
 
     @Override
@@ -240,7 +217,7 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Ставка закрыта");
         }
         // Кнопка может быть не активна
-        if (!isActivePlaceBet(driver)) {
+        if (!isActivePlaceBet(driver)) { // TODO
             Context.log.info("[pinnacle]: Is not active");
             return;
         }
@@ -272,7 +249,7 @@ public class Pinnacle implements IBookmaker {
 
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
-                enterSum(driver, newSum);
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"),  newSum, "pinnacle");
 
                 clickIfIsClickable(driver, byPlaceBet);
             }
@@ -393,6 +370,7 @@ public class Pinnacle implements IBookmaker {
             return "Under " + digits;
         } else if (bkBet.contains("HANDICAP")) {
             digits = info.BK_market_meta().getAsJsonObject().get("points").getAsString();
+            Context.log.info("[pinnacle] points = " + digits);
             if (digits.equals("0.0") || digits.equals("-0.0") || digits.equals("+0.0")) {
                 return "0";
             }
@@ -499,5 +477,45 @@ public class Pinnacle implements IBookmaker {
             newStr = newStr.substring(1);
         }
         return newStr;
+    }
+
+    private static WebElement getMarketOnTheFilter(ChromeDriver driver, By by) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            var market = wait.until(driver1 -> driver1.findElement(by));
+
+            market = SeleniumSupport.getParentByDeep(market, 2);
+
+            try {
+                WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+                WebElement finalMarket = market;
+                var seeMore = waitForSeeMore.until(driver1 -> finalMarket.findElement(SeleniumSupport.buildLocalSpanByText("See more")));
+                waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
+            } catch (TimeoutException ignored) {
+                Context.log.info("[pinnacle] There isn`t 'See More'");
+            }
+            return market;
+        } catch (TimeoutException | StaleElementReferenceException e) {
+            throw new RuntimeException("[pinnacle]: Маркет не найден в фильтре");
+        }
+    }
+
+    private static WebElement getMarket(ChromeDriver driver, By by) {
+        // Первый раз всегда пытаемся найти на текущей странице, если не получилось, то уже по всем филтрам
+        try {
+            return getMarketOnTheFilter(driver, by);
+        } catch (RuntimeException ignored) { }
+
+        var filtersBar = driver.findElement(By.cssSelector("[class^='style_filterBarContent__']"));
+        // забираем все фильтры
+        var filters = filtersBar.findElements(By.tagName("button"));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        for (var filter : filters) {
+            wait.until(ExpectedConditions.elementToBeClickable(filter)).click();
+            try {
+                return getMarketOnTheFilter(driver, by);
+            } catch (RuntimeException ignored) { }
+        }
+        throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
     }
 }
