@@ -52,9 +52,6 @@ public class ScreenManager {
                 var chromePrefs = new HashMap<String, Object>();
                 chromePrefs.put("intl.accept_languages", "en");
 
-                if (bookmaker.equals(Bookmaker._188BET))
-                    chromePrefs.put("profile.managed_default_content_settings.images", 2);
-
                 options.setExperimentalOption("prefs", chromePrefs);
 
 
