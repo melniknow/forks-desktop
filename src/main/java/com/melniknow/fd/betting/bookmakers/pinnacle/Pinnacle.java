@@ -73,18 +73,17 @@ public class Pinnacle implements IBookmaker {
         }
 
         // Проверка входа в аккаунт
-//        try {
-//            new WebDriverWait(driver, Duration.ofMillis(200)).until(driver_ -> driver_.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[1]/div[2]/div[2]/div/div/div[4]/button[text() = 'Log in']")));
-//            SeleniumSupport.login(driver, bookmaker);
-//            throw new RuntimeException("Мы вошли в аккаунт [pinnacle]");
-//        } catch (WebDriverException e) {
-//            if (e.getCause() instanceof InterruptedException)
-//                throw new RuntimeException("Поток прерван [pinnacle]");
-//        } catch (Exception ignored) {
-//        }
-        // -----------------------
+        try {
+            driver.findElement(By.xpath("//button[text()='Log in']"));
+            SeleniumSupport.login(driver, bookmaker);
+            throw new RuntimeException("Мы вошли в аккаунт [pinnacle]");
+        } catch (WebDriverException e) {
+            if (e.getCause() instanceof InterruptedException)
+                throw new RuntimeException("Поток прерван [pinnacle]");
+        } catch (Exception ignored) {
+        }
 
-//        market = SeleniumSupport.getParentByDeep(market, 2);
+        market = SeleniumSupport.getParentByDeep(market, 2);
 
         WebElement button;
         // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки с нулём
