@@ -92,12 +92,11 @@ public class BetMaker {
             }
 
             var balance1Rub = futureBalance1.get(30, TimeUnit.SECONDS);
-//            if (isValueWithOneDollar) balance1Rub = new BigDecimal("1000000000");
 
             var bets = calculateBetsSize(
                 bkParams1.currency(),
                 bkParams2.currency(),
-                balance1Rub,
+                isValueWithOneDollar ? new BigDecimal("1000000000") : balance1Rub,
                 balance2Rub,
                 Context.currencyToRubCourse.get(bkParams1.currency()).multiply(bkParams1.minBetSum()),
                 Context.currencyToRubCourse.get(bkParams2.currency()).multiply(bkParams2.minBetSum()),
