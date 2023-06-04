@@ -179,8 +179,10 @@ public class Pinnacle implements IBookmaker {
 
     private BigDecimal waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
         // в цикле - жмём на кнопку - пытаемся подождать результата
+        boolean isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
-            updateOdds(driver, bkName, oldCf, shoulderInfo);
+            updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
+            isFirstClick = false;
             if (waitSuccess(driver)) {
                 return getCurrentCf(driver, true, oldCf);
             }
@@ -192,13 +194,13 @@ public class Pinnacle implements IBookmaker {
         for (int i = 0; i < 30; ++i) {
             try {
                 Context.log.info("[pinnacle]: Wait....");
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-//                wait.pollingEvery(Duration.ofMillis(100));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
+                wait.pollingEvery(Duration.ofMillis(100));
                 wait.until(driver1 -> driver1.findElement(byBetSuccess));
                 return true;
             } catch (Exception e) {
                 // После попытки подождать чекаем ничего ли не произошло пока мы ждали?
-                if (windowContains(driver, byOddsChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byBetClosed)) { // isActivePlaceBet???
+                if (windowContains(driver, byOddsChanges) || isActivePlaceBet(driver) || windowContains(driver, byBetClosed)) {
                     Context.log.info("[pinnacle]: Exit from wait");
                     // что-то появилось, ждать бесполезно идём нажимать на новую кнопку
                     return false;
@@ -208,22 +210,27 @@ public class Pinnacle implements IBookmaker {
         throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
     }
 
-    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
-        // Ставка закрыта?
-        if (windowContains(driver, byBetClosed)) {
-            throw new RuntimeException("[pinnacle]: Ставка закрыта");
+    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
+        if (!isFirstClick) {
+            // Ставка закрыта?
+            if (windowContains(driver, byBetClosed)) {
+                throw new RuntimeException("[pinnacle]: Ставка закрыта");
+            }
+            // Кнопка может быть не активна
+            if (!isActivePlaceBet(driver)) {
+                Context.log.info("[pinnacle]: Is not active");
+                return;
+            }
         }
-        // Кнопка может быть не активна
-        if (!isActivePlaceBet(driver)) { // TODO
-            Context.log.info("[pinnacle]: Is not active");
-            return;
-        }
-
         var curCf = getCurrentCf(driver, false, oldCf);
         var inaccuracy = new BigDecimal("0.01");
         if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[pinnacle]: Click Place 1");
-            clickIfIsClickable(driver, byPlaceBet);
+            for (int i = 0; i < 10; ++i) {
+                if (clickIfIsClickable(driver)) {
+                    return;
+                }
+            }
         } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             Context.log.info("[pinnacle]: newIncome = " + newIncome);
@@ -248,7 +255,11 @@ public class Pinnacle implements IBookmaker {
 
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), newSum, "pinnacle");
 
-                clickIfIsClickable(driver, byPlaceBet);
+                for (int i = 0; i < 10; ++i) {
+                    if (clickIfIsClickable(driver)) {
+                        return;
+                    }
+                }
             }
         } else {
             throw new RuntimeException("[pinnacle]: Коэфициент на первом плече упал. Было - " + oldCf + " стало - " + curCf);
@@ -257,9 +268,7 @@ public class Pinnacle implements IBookmaker {
 
     private static boolean windowContains(ChromeDriver driver, By by) {
         try {
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-            wait.until(
-                driver1 -> driver1.findElement(by));
+            driver.findElement(by);
             return true;
         } catch (Exception e) {
             if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
@@ -270,8 +279,9 @@ public class Pinnacle implements IBookmaker {
 
     private static boolean isActivePlaceBet(ChromeDriver driver) {
         try {
-            var bt = driver.findElement(byPlaceBet);
-            return bt.isEnabled();
+            var res = driver.findElement(byPlaceBet).isEnabled();
+            Context.log.info("isActivePlaceBet = %b".formatted(res));
+            return res;
         } catch (Exception e) {
             if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
                 throw new RuntimeException();
@@ -279,10 +289,11 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
+    private static boolean clickIfIsClickable(ChromeDriver driver) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        wait.pollingEvery(Duration.ofMillis(100));
         try {
-            var button = wait.until(driver_ -> driver_.findElement(by));
+            var button = wait.until(driver_ -> driver_.findElement(Pinnacle.byPlaceBet));
             wait.until(ExpectedConditions.elementToBeClickable(button));
             driver.executeScript("arguments[0].click();", button);
             return true;

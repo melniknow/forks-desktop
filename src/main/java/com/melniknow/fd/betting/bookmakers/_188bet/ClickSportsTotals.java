@@ -6,6 +6,7 @@ import com.melniknow.fd.core.Parser;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.math.BigDecimal;
@@ -13,11 +14,18 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 public class ClickSportsTotals {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
+    static public WebElement click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
         var marketName = info.BK_market_meta().get("marketName").getAsString();
         var partOfGame = BetsSupport.getPartOfGameByMarketName(marketName);
 
         marketName = marketName.split(" - ")[0];
+        var line = info.BK_market_meta().get("line").getAsString();
+        Context.log.info("[188bet]: required Cf = " + info.BK_cf() + "\n" +
+            "[188Bet]: info.BK_bet() = " + info.BK_bet() + "\n" +
+            "[188Bet]: info.BK_game() = " + info.BK_game() + "\n" +
+            "[188Bet]: MarketName = " + marketName + "\n" +
+            "[188Bet]: partOfGame = " + partOfGame + "\n" +
+            "[188Bet]: line = " + line);
 
         var market = BetsSupport.getMarketByMarketName(driver, marketName, partOfGame);
         var selectionName = info.BK_market_meta().get("selectionName").getAsString();
@@ -34,15 +42,6 @@ public class ClickSportsTotals {
             })
             .toList();
 
-        var line = info.BK_market_meta().get("line").getAsString();
-
-        Context.log.info("[188bet]: required Cf = " + info.BK_cf() + "\n" +
-                                "[188Bet]: info.BK_bet() = " + info.BK_bet() + "\n" +
-                                "[188Bet]: info.BK_game() = " + info.BK_game() + "\n" +
-                                "[188Bet]: MarketName = " + marketName + "\n" +
-                                "[188Bet]: partOfGame = " + partOfGame + "\n" +
-                                "[188Bet]: line = " + line);
-
         try {
             var button = Objects.requireNonNull(buttons.stream().filter(
                 b -> BetsSupport.getTotalsByStr(b.getText()).equals(line)).findAny().orElse(null));
@@ -57,10 +56,7 @@ public class ClickSportsTotals {
                     .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
             }
 
-            if (isNeedToClick) {
-                driver.executeScript("arguments[0].click();", button);
-            }
-
+            return button;
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");

@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.domain.Bookmaker;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -188,7 +189,7 @@ public class SeleniumSupport {
     public static void enterSum(ChromeDriver driver, By by, BigDecimal sum, String bkName) {
         try {
             for (int trying = 0; trying < 3; ++trying) {
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
                 var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
                 for (int i = 0; i < 15; ++i) {
                     var betSum = enterSumButton.getAttribute("value");
@@ -203,8 +204,10 @@ public class SeleniumSupport {
                     return;
                 }
             }
+            BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
         } catch (TimeoutException e) {
+            BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон".formatted(bkName));
         }
     }
