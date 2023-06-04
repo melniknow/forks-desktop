@@ -28,7 +28,7 @@ public class ClickSportHandicap {
 
         marketName = marketName.split(" - ")[0];
 
-        var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
+        var market = BetsSupport.getMarketByMarketName(driver, marketName, partOfGame);
 
         if (selectionName == null) throw new RuntimeException("selectionName is null");
 

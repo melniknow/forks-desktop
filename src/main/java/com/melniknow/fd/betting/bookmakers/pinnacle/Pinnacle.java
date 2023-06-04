@@ -63,15 +63,7 @@ public class Pinnacle implements IBookmaker {
             "[pinnacle]: marketName = " + marketName + "\n" +
             "[pinnacle]: selectionName = " + selectionName);
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-
-        WebElement market;
-        try {
-            // забираем маркет
-            market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
-        } catch (TimeoutException e) {
-            throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
-        }
+        var market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
 
         // Проверка входа в аккаунт
         try {
@@ -87,24 +79,7 @@ public class Pinnacle implements IBookmaker {
         WebElement button;
         // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки с нулём
         if (marketName.contains("Handicap") && selectionName.equals("0")) {
-            List<WebElement> buttons;
-            try {
-                // забираем эти 2 нуля
-                buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
-            } catch (NoSuchElementException ignored) {
-                throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
-            }
-            if (buttons.size() != 2) {
-                throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
-            }
-            // первый в списке это команда слева, второй - справа
-            if (info.BK_bet().contains("P1")) {
-                button = buttons.get(0);
-            } else if (info.BK_bet().contains("P2")) {
-                button = buttons.get(1);
-            } else {
-                throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet());
-            }
+            button = getButtonOnZeroHandicap(driver, market, selectionName, info.BK_bet());
         } else {
             try {
                 // Находим нужную кнопку
@@ -116,6 +91,7 @@ public class Pinnacle implements IBookmaker {
         }
 
         try {
+            // Получаем текущий коэф и чекаем его
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
             var curCf = new BigDecimal(buttonText.split("\n")[1]);
 
@@ -123,13 +99,13 @@ public class Pinnacle implements IBookmaker {
                 "[pinnacle]: Current Cf from click = " + curCf);
 
             var inaccuracy = new BigDecimal("0.01");
-
             if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
                 throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
 
             if (isNeedToClick) {
-                wait.until(ExpectedConditions.elementToBeClickable(button)).click();
+                new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.elementToBeClickable(button)).click();
             }
 
         } catch (StaleElementReferenceException | ElementNotInteractableException |
@@ -173,6 +149,27 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
+    private static WebElement getButtonOnZeroHandicap(ChromeDriver driver, WebElement market, String selectionName, String bkBet) {
+        List<WebElement> buttons;
+        try {
+            // забираем эти 2 нуля
+            buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
+        } catch (NoSuchElementException ignored) {
+            throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
+        }
+        if (buttons.size() != 2) {
+            throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
+        }
+        // первый в списке это команда слева, второй - справа
+        if (bkBet.contains("P1")) {
+            return buttons.get(0);
+        } else if (bkBet.contains("P2")) {
+            return buttons.get(1);
+        } else {
+            throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + bkBet);
+        }
+    }
+
     // наши состояния во время простановки ставки
     private static final By byPlaceBet = By.cssSelector("[data-test-id='Betslip-ConfirmBetButton']");
     private static final By byPlaceBetSpan = SeleniumSupport.buildGlobalSpanByText("CONFIRM 1 SINGLE BET");
@@ -196,6 +193,7 @@ public class Pinnacle implements IBookmaker {
             try {
                 Context.log.info("[pinnacle]: Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+//                wait.pollingEvery(Duration.ofMillis(100));
                 wait.until(driver1 -> driver1.findElement(byBetSuccess));
                 return true;
             } catch (Exception e) {
@@ -248,7 +246,7 @@ public class Pinnacle implements IBookmaker {
 
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"),  newSum, "pinnacle");
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), newSum, "pinnacle");
 
                 clickIfIsClickable(driver, byPlaceBet);
             }
@@ -509,7 +507,7 @@ public class Pinnacle implements IBookmaker {
                 } catch (RuntimeException ignored) { }
             }
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
-        } catch (NoSuchElementException | StaleElementReferenceException e ) {
+        } catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e) {
             throw new RuntimeException("[pinnacle] На странице отсутствуют элементы");
         }
     }

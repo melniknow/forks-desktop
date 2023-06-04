@@ -33,37 +33,12 @@ public class _188Bet implements IBookmaker {
             driver.manage().window().setSize(new Dimension(1000, 1000));
             driver.get(info.BK_href() + "?c=207&u=https://www.188bedt.com");
 
-            // в этом цикле ждём прогрузки баланса
-            try {
-                for (int i = 0; i < 15; ++i) {
-                    var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1
-                        -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
-                    if (balanceButton != null && !balanceButton.isEmpty()) {
-                        balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
-                        balanceButton = balanceButton.replace(",", "");
-                        var balance = new BigDecimal(balanceButton);
-                        if (!balance.equals(BigDecimal.ZERO)) {
-                            break;
-                        }
-                    }
-                    // спим, ждём прогрузки
-                    Context.log.info("[188bet]: Waiting balance...");
-                    TimeUnit.SECONDS.sleep(1);
-                }
-            } catch (TimeoutException e) {
-                SeleniumSupport.login(driver, bookmaker);
-                throw new RuntimeException("[188bet]: Мы вошли в аккаунт");
-            }
-
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             // убираем ебаный контейнер
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             wait.until(ExpectedConditions.elementToBeClickable(By.id("lc_container")));
             driver.executeScript("document.getElementById('lc_container').classList.add('hidden');");
-
         } catch (TimeoutException ignored) {
             throw new RuntimeException("[188bet]: Страница не загружается!");
-        } catch (InterruptedException e) {
-            throw new RuntimeException("[188bet]: Страница не загрузилась!");
         }
     }
 
@@ -80,7 +55,7 @@ public class _188Bet implements IBookmaker {
             default ->
                 throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
         }
-        return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
+        return BetsSupport.BetCorrectBalance(bookmaker, Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
     }
 
     @Override

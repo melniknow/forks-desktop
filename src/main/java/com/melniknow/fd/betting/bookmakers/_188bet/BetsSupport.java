@@ -2,9 +2,12 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.WheelInput;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -115,9 +118,9 @@ public class BetsSupport {
         return !market.getText().contains("\n");
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, By byMarketName, String partOfGame) throws InterruptedException {
+    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String partOfGame) {
         clearPreviousBets(driver);
-        return getMarketImpl(driver, byMarketName, partOfGame);
+        return scroll(driver, marketName, partOfGame);
     }
 
     public static WebElement getMarketImpl(ChromeDriver driver, By byName, String partOfGame) throws InterruptedException {
@@ -216,6 +219,31 @@ public class BetsSupport {
         }
     }
 
+    public static BigDecimal BetCorrectBalance(Bookmaker bookmaker, ChromeDriver driver, Currency currency) throws InterruptedException {
+        // в этом цикле ждём прогрузки баланса
+        try {
+            for (int i = 0; i < 20; ++i) {
+                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(5)).until(driver1
+                    -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
+                if (balanceButton != null && !balanceButton.isEmpty()) {
+                    balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
+                    balanceButton = balanceButton.replace(",", "");
+                    var balance = new BigDecimal(balanceButton);
+                    if (!balance.equals(BigDecimal.ZERO)) {
+                        return balance.multiply(Context.currencyToRubCourse.get(currency));
+                    }
+                }
+                // спим, ждём прогрузки
+                Context.log.info("[188bet]: Waiting balance...");
+                TimeUnit.MILLISECONDS.sleep(500);
+            }
+        } catch (TimeoutException e) {
+            SeleniumSupport.login(driver, bookmaker);
+            throw new RuntimeException("[188bet]: Мы вошли в аккаунт");
+        }
+        throw new RuntimeException("[188bet] Мы вошли в аккаунт");
+    }
+
     public static BigDecimal getCurrentCf(ChromeDriver driver) {
         try {
             // @ - разделяет название события и коэфициент
@@ -307,5 +335,34 @@ public class BetsSupport {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private static WebElement scroll(ChromeDriver driver, String marketName, String partOfGame) {
+        WebElement el = null;
+        Actions actions = new Actions(driver);
+        var yPos = 0L;
+        for (var i = 0; i < 20; i++) {
+            try {
+                var els = driver.findElements(By.xpath("//h4[text()='%s']".formatted(marketName)));
+                for (var e : els) {
+                    el = e;
+                    WebElement parent = (WebElement) ((JavascriptExecutor) driver).executeScript(
+                        "return arguments[0].parentNode.parentNode;", el);
+                    if (isCorrectMarket(parent, partOfGame)) {
+                        break;
+                    }
+                }
+            } catch (Exception ignored) { }
+
+            actions.scrollByAmount(0, 500).perform();
+
+            var temp = (Long) ((JavascriptExecutor) driver).executeScript("return window.pageYOffset;");
+            if (yPos == temp) break;
+            yPos = temp;
+        }
+
+        if (el == null) throw new RuntimeException("Не найден маркет - " + marketName);
+        actions.scrollFromOrigin(WheelInput.ScrollOrigin.fromElement(el), 0, 800).perform();
+        return SeleniumSupport.getParentByDeep(el, 5);
     }
 }

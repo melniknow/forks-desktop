@@ -48,7 +48,7 @@ public class ClickSportsWin {
                                 "[188Bet]: partOfGame = " + partOfGame + "\n" +
                                 "[188Bet]: selectionName = " + selectionName);
 
-        var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
+        var market = BetsSupport.getMarketByMarketName(driver, marketName, partOfGame);
 
         if (selectionName == null) throw new RuntimeException("selectionName is null WIN [188bet]");
 

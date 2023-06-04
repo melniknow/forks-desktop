@@ -203,9 +203,9 @@ public class SeleniumSupport {
                     return;
                 }
             }
-            throw new RuntimeException("[" + bkName + "]: бот не смог очистить поле ввода");
+            throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
         } catch (TimeoutException e) {
-            throw new RuntimeException("[" + bkName + "]: Ошибка при вводе суммы в купон");
+            throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон".formatted(bkName));
         }
     }
 }
