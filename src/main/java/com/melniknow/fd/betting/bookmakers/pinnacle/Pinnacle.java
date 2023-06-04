@@ -182,8 +182,10 @@ public class Pinnacle implements IBookmaker {
 
     private BigDecimal waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
         // в цикле - жмём на кнопку - пытаемся подождать результата
+        var isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
-            updateOdds(driver, bkName, oldCf, shoulderInfo);
+            updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
+            isFirstClick = false;
             if (waitSuccess(driver)) {
                 return getCurrentCf(driver, true, oldCf);
             }
@@ -210,15 +212,17 @@ public class Pinnacle implements IBookmaker {
         throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
     }
 
-    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
-        // Ставка закрыта?
-        if (windowContains(driver, byBetClosed)) {
-            throw new RuntimeException("[pinnacle]: Ставка закрыта");
-        }
-        // Кнопка может быть не активна
-        if (!isActivePlaceBet(driver)) { // TODO
-            Context.log.info("[pinnacle]: Is not active");
-            return;
+    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
+        if (!isFirstClick) {
+            // Ставка закрыта?
+            if (windowContains(driver, byBetClosed)) {
+                throw new RuntimeException("[pinnacle]: Ставка закрыта");
+            }
+            // Кнопка может быть не активна
+            if (!isActivePlaceBet(driver)) { // TODO
+                Context.log.info("[pinnacle]: Is not active");
+                return;
+            }
         }
 
         var curCf = getCurrentCf(driver, false, oldCf);
@@ -248,7 +252,7 @@ public class Pinnacle implements IBookmaker {
 
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"),  newSum, "pinnacle");
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), newSum, "pinnacle");
 
                 clickIfIsClickable(driver, byPlaceBet);
             }
@@ -509,7 +513,7 @@ public class Pinnacle implements IBookmaker {
                 } catch (RuntimeException ignored) { }
             }
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
-        } catch (NoSuchElementException | StaleElementReferenceException e ) {
+        } catch (NoSuchElementException | StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle] На странице отсутствуют элементы");
         }
     }
