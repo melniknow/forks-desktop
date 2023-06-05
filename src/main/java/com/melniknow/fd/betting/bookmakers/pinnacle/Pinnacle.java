@@ -164,7 +164,7 @@ public class Pinnacle implements IBookmaker {
 
     private BigDecimal waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
         // в цикле - жмём на кнопку - пытаемся подождать результата
-        boolean isFirstClick = true;
+        var isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
             updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
             isFirstClick = false;

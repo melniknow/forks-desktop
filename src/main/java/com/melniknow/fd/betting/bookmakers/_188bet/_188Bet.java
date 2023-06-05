@@ -135,7 +135,7 @@ public class _188Bet implements IBookmaker {
 
     private void waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) throws InterruptedException {
         // в цикле - жмём на кнопку - пытаемся подождать результата
-        boolean isFirstClick = true;
+        var isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
             updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
             isFirstClick = false;
@@ -169,8 +169,8 @@ public class _188Bet implements IBookmaker {
     }
 
     private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) throws InterruptedException {
+        // чекаем, мейби коэфы поменялись
         if (!isFirstClick) {
-            // чекаем, мейби коэфы поменялись
             if (clickIfIsClickable(driver, byAccepChanges)) {
                 Context.log.info("[188bet]: Click byAccepChanges");
                 TimeUnit.MILLISECONDS.sleep(300);
