@@ -149,7 +149,9 @@ public class Pinnacle implements IBookmaker {
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), curSum, "pinnacle");
 
             return waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
-        } catch (Exception e) {
+        } catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
+        } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }
     }

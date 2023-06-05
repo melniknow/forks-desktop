@@ -118,6 +118,8 @@ public class _188Bet implements IBookmaker {
             BetsSupport.closeAfterSuccessfulBet(driver);
             Context.log.info("[188bet]: Final cf = " + realCf);
             return realCf;
+        } catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[188bet]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             Context.log.info("[188bet]: Don`t Place Bet" + e.getMessage());

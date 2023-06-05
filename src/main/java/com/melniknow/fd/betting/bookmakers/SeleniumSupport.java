@@ -207,11 +207,9 @@ public class SeleniumSupport {
                     return;
                 }
             }
-            BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
         } catch (TimeoutException e) {
-            BetsSupport.closeBetWindow(driver);
-            throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон".formatted(bkName));
+            throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон - Не найдено поле ввода".formatted(bkName));
         }
     }
 }
