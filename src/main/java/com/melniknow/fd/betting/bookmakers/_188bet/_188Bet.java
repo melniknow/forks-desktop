@@ -32,14 +32,6 @@ public class _188Bet implements IBookmaker {
 
             driver.manage().window().setSize(new Dimension(1000, 1000));
             driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
-
-            new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
-            try { TimeUnit.MILLISECONDS.sleep(500); } catch (InterruptedException ignored) { }
-            ((JavascriptExecutor) driver).executeScript(
-                """
-                    b = document.evaluate("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                    b.remove()                                  
-                    """);
         } catch (TimeoutException ignored) {
             throw new RuntimeException("[188bet]: Страница не загружается!");
         }
@@ -49,13 +41,25 @@ public class _188Bet implements IBookmaker {
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
         this.curBetType = info.BK_bet();
+
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.pollingEvery(Duration.ofMillis(100));
+        while (true) {
+            var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
+            if (header.getAttribute("data-id") != null && header.getAttribute("data-id").equals("CenterPanelWrapper")) {
+                break;
+            }
+            ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
+        }
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
-                this.curButton = ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportsWin.click(driver, info, isNeedToClick);
             case TOTALS, SET_TOTALS, HALF_TOTALS ->
-                this.curButton = ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportsTotals.click(driver, info, isNeedToClick);
             case HANDICAP, SET_HANDICAP, HALF_HANDICAP ->
-                this.curButton = ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportHandicap.click(driver, info, isNeedToClick);
             default ->
                 throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
         }
@@ -85,7 +89,6 @@ public class _188Bet implements IBookmaker {
                 throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
             }
             this.curSum = sum;
-            BetsSupport.closeBetWindow(driver);
         } catch (StaleElementReferenceException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Не получилось взять коэффициент из кнопки");
         }

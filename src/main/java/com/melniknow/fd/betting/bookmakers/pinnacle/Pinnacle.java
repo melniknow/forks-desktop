@@ -496,6 +496,7 @@ public class Pinnacle implements IBookmaker {
     private static WebElement getMarketOnTheFilter(ChromeDriver driver, By by) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            wait.pollingEvery(Duration.ofMillis(100));
             var market = wait.until(driver1 -> driver1.findElement(by));
             market = SeleniumSupport.getParentByDeep(market, 2);
 
@@ -513,6 +514,7 @@ public class Pinnacle implements IBookmaker {
         } catch (RuntimeException ignored) { }
 
         try {
+            // имя класса начинается с "style_filterBarContent__"
             var filtersBar = driver.findElement(By.cssSelector("[class^='style_filterBarContent__']"));
             // забираем все фильтры
             var filters = filtersBar.findElements(By.tagName("button"));

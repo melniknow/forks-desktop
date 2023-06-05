@@ -87,7 +87,8 @@ public class SeleniumSupport {
 
     public static void clickOnSeeMore(ChromeDriver driver, WebElement market) {
         try {
-            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(2));
+            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+            waitForSeeMore.pollingEvery(Duration.ofMillis(100));
             var seeMore = waitForSeeMore.until(driver1 -> market.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
             waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
         } catch (TimeoutException | StaleElementReferenceException ignored) {
