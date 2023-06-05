@@ -68,7 +68,7 @@ public class SeleniumSupport {
      * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
      */
     public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement market, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         List<WebElement> res;
         try {
             res = wait.until(driver1 -> market.findElements(by));
@@ -130,8 +130,11 @@ public class SeleniumSupport {
 
                 wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/div[3]/div[1]/ul/li[2]")));
 
-                while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
+                for (int i = 0; i < 5; i++) {
+                    if (clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
+                        break;
                     Context.log.info("[188bet autoLogin] Пытаемся нажать на кнопку Sport");
+                }
             } case PINNACLE -> {
                 driver.get(bookmaker.link);
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
@@ -189,7 +192,7 @@ public class SeleniumSupport {
     public static void enterSum(ChromeDriver driver, By by, BigDecimal sum, String bkName) {
         try {
             for (int trying = 0; trying < 3; ++trying) {
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
                 var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
                 for (int i = 0; i < 15; ++i) {
                     var betSum = enterSumButton.getAttribute("value");

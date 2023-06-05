@@ -34,7 +34,7 @@ public class _188Bet implements IBookmaker {
             driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
 
             new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
-            try { TimeUnit.MILLISECONDS.sleep(1500); } catch (InterruptedException ignored) { }
+            try { TimeUnit.MILLISECONDS.sleep(500); } catch (InterruptedException ignored) { }
             ((JavascriptExecutor) driver).executeScript(
                 """
                     b = document.evaluate("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -103,7 +103,12 @@ public class _188Bet implements IBookmaker {
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             this.curButton.click();
-            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
+            try {
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
+            } catch (RuntimeException e) {
+                BetsSupport.clearInAnyWay(driver);
+                this.curButton.click();
+            }
             // от сюда мы выёдем только если поставили
             waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
 
@@ -134,7 +139,6 @@ public class _188Bet implements IBookmaker {
                 return;
             }
         }
-        BetsSupport.closeBetWindow(driver);
         throw new RuntimeException("[188bet]: Плечо не может быть проставлено");
     }
 
@@ -208,7 +212,6 @@ public class _188Bet implements IBookmaker {
                 clickIfIsClickable(driver, byPlaceBet);
             }
         } else {
-            BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("[188bet]: Коэфициент на первом плече упал");
         }
     }
