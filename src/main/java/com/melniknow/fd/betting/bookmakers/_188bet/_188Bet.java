@@ -109,8 +109,9 @@ public class _188Bet implements IBookmaker {
             try {
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
             } catch (RuntimeException e) {
-                BetsSupport.clearInAnyWay(driver);
+                BetsSupport.clearPreviousBets(driver);
                 this.curButton.click();
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
             }
             // от сюда мы выёдем только если поставили
             waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
