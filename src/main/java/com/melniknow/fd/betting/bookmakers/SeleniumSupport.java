@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.domain.Bookmaker;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -67,7 +68,7 @@ public class SeleniumSupport {
      * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
      */
     public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement market, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         List<WebElement> res;
         try {
             res = wait.until(driver1 -> market.findElements(by));
@@ -86,7 +87,8 @@ public class SeleniumSupport {
 
     public static void clickOnSeeMore(ChromeDriver driver, WebElement market) {
         try {
-            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(2));
+            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+            waitForSeeMore.pollingEvery(Duration.ofMillis(100));
             var seeMore = waitForSeeMore.until(driver1 -> market.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
             waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
         } catch (TimeoutException | StaleElementReferenceException ignored) {
@@ -129,8 +131,11 @@ public class SeleniumSupport {
 
                 wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='s-app-bar']/div/div[3]/div[1]/ul/li[2]")));
 
-                while (!clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
+                for (int i = 0; i < 5; i++) {
+                    if (clickIfIsClickable(driver, By.xpath("//*[@id='s-app-bar']/div/nav/ul/li[1]/a")))
+                        break;
                     Context.log.info("[188bet autoLogin] Пытаемся нажать на кнопку Sport");
+                }
             } case PINNACLE -> {
                 driver.get(bookmaker.link);
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
@@ -188,7 +193,7 @@ public class SeleniumSupport {
     public static void enterSum(ChromeDriver driver, By by, BigDecimal sum, String bkName) {
         try {
             for (int trying = 0; trying < 3; ++trying) {
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
                 var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
                 for (int i = 0; i < 15; ++i) {
                     var betSum = enterSumButton.getAttribute("value");
@@ -203,9 +208,9 @@ public class SeleniumSupport {
                     return;
                 }
             }
-            throw new RuntimeException("[" + bkName + "]: бот не смог очистить поле ввода");
+            throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
         } catch (TimeoutException e) {
-            throw new RuntimeException("[" + bkName + "]: Ошибка при вводе суммы в купон");
+            throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон - Не найдено поле ввода".formatted(bkName));
         }
     }
 }

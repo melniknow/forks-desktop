@@ -3,17 +3,14 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.core.Parser;
-import org.openqa.selenium.By;
-import org.openqa.selenium.ElementNotInteractableException;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class ClickSportsWin {
-    static public void click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
+    static public WebElement click(ChromeDriver driver, Parser.BetInfo info, boolean isNeedToClick) throws InterruptedException {
         var selectionName = "";
         if (info.BK_bet().contains("WIN__P1")) {
             selectionName = BetsSupport.getTeamFirstNameByTitle(info.BK_game());
@@ -48,7 +45,7 @@ public class ClickSportsWin {
                                 "[188Bet]: partOfGame = " + partOfGame + "\n" +
                                 "[188Bet]: selectionName = " + selectionName);
 
-        var market = BetsSupport.getMarketByMarketName(driver, SeleniumSupport.buildGlobalH4ByText(marketName), partOfGame);
+        var market = BetsSupport.getMarketByMarketName(driver, marketName, partOfGame);
 
         if (selectionName == null) throw new RuntimeException("selectionName is null WIN [188bet]");
 
@@ -66,9 +63,7 @@ public class ClickSportsWin {
                     .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
             }
 
-            if (isNeedToClick) {
-                driver.executeScript("arguments[0].click();", button);
-            }
+            return button;
         } catch (NoSuchElementException | StaleElementReferenceException |
                  ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");

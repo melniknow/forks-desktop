@@ -9,12 +9,8 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
@@ -24,6 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 public class _188Bet implements IBookmaker {
 
+    private WebElement curButton;
+    private BigDecimal curSum;
+    private String curBetType;
+
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         Context.log.info("Call openLink _188Bet");
@@ -31,66 +31,52 @@ public class _188Bet implements IBookmaker {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
             driver.manage().window().setSize(new Dimension(1000, 1000));
-            driver.get(info.BK_href().replace("https://sports.188sbk.com",
-                "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
-
-            // в этом цикле ждём прогрузки баланса
-            try {
-                for (int i = 0; i < 15; ++i) {
-                    var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver1
-                        -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
-                    if (balanceButton != null && !balanceButton.isEmpty()) {
-                        balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
-                        balanceButton = balanceButton.replace(",", "");
-                        var balance = new BigDecimal(balanceButton);
-                        if (!balance.equals(BigDecimal.ZERO)) {
-                            break;
-                        }
-                    }
-                    // спим, ждём прогрузки
-                    Context.log.info("[188bet]: Waiting balance...");
-                    TimeUnit.SECONDS.sleep(1);
-                }
-            } catch (TimeoutException e) {
-                SeleniumSupport.login(driver, bookmaker);
-                throw new RuntimeException("[188bet]: Мы вошли в аккаунт");
-            }
-
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            // убираем ебаный контейнер
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("lc_container")));
-            driver.executeScript("document.getElementById('lc_container').classList.add('hidden');");
-
+            driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
         } catch (TimeoutException ignored) {
             throw new RuntimeException("[188bet]: Страница не загружается!");
-        } catch (InterruptedException e) {
-            throw new RuntimeException("[188bet]: Страница не загрузилась!");
         }
     }
 
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
+        this.curBetType = info.BK_bet();
+
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+        var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.pollingEvery(Duration.ofMillis(100));
+        while (true) {
+            var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
+            if (header.getAttribute("data-id") != null && header.getAttribute("data-id").equals("CenterPanelWrapper")) {
+                break;
+            }
+            ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
+        }
         switch (info.BK_bet_type()) {
             case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
-                ClickSportsWin.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportsWin.click(driver, info, isNeedToClick);
             case TOTALS, SET_TOTALS, HALF_TOTALS ->
-                ClickSportsTotals.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportsTotals.click(driver, info, isNeedToClick);
             case HANDICAP, SET_HANDICAP, HALF_HANDICAP ->
-                ClickSportHandicap.click(Context.screenManager.getScreenForBookmaker(bookmaker), info, isNeedToClick);
+                this.curButton = ClickSportHandicap.click(driver, info, isNeedToClick);
             default ->
                 throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
         }
-        return BetsSupport.getBalance(Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
+        return BetsSupport.BetCorrectBalance(bookmaker, Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
     }
 
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         Context.log.info("Call enterSumAndCheckCf _188Bet");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
         try {
-            var currentCf = BetsSupport.getCurrentCf(driver);
+            BigDecimal currentCf;
+            if (curBetType.contains("WIN")) {
+                currentCf = new BigDecimal(SeleniumSupport.getParentByDeep(curButton, 2).getText().split("\n")[1]);
+            } else {
+                currentCf = new BigDecimal(SeleniumSupport.getParentByDeep(curButton, 2).getText().split("\n")[2]);
+            }
 
             Context.log.info("[188bet]: currentCf = " + currentCf);
 
@@ -100,19 +86,11 @@ public class _188Bet implements IBookmaker {
             }
 
             if (sum.compareTo(new BigDecimal("50")) < 0) {
-                throw new RuntimeException("[188bet]: Минимальная ставка на бетке - 50, а бот пытается поставить: " + sum);
+                throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
             }
-
-            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
-
-        } catch (TimeoutException e) {
-            BetsSupport.closeBetWindow(driver);
-            BetsSupport.clearPreviousBets(driver);
-            throw new RuntimeException("[188bet]: не нашлось окошко для вводы суммы ставки");
-        } catch (RuntimeException e) {
-            BetsSupport.closeBetWindow(driver);
-            BetsSupport.clearPreviousBets(driver);
-            throw new RuntimeException(e.getMessage());
+            this.curSum = sum;
+        } catch (StaleElementReferenceException | IndexOutOfBoundsException e) {
+            throw new RuntimeException("[188bet]: Не получилось взять коэффициент из кнопки");
         }
     }
 
@@ -127,6 +105,13 @@ public class _188Bet implements IBookmaker {
         Context.log.info("Call placeBetAndGetRealCf _188Bet");
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
+            this.curButton.click();
+            try {
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
+            } catch (RuntimeException e) {
+                BetsSupport.clearInAnyWay(driver);
+                this.curButton.click();
+            }
             // от сюда мы выёдем только если поставили
             waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
 
@@ -136,11 +121,14 @@ public class _188Bet implements IBookmaker {
             BetsSupport.closeAfterSuccessfulBet(driver);
             Context.log.info("[188bet]: Final cf = " + realCf);
             return realCf;
+        } catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[188bet]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             Context.log.info("[188bet]: Don`t Place Bet" + e.getMessage());
             throw new RuntimeException(e.getMessage());
         } catch (InterruptedException e) {
+            BetsSupport.closeBetWindow(driver);
             throw new RuntimeException("[188bet]: не смогли уснуть после AccepChanges");
         }
     }
@@ -164,8 +152,8 @@ public class _188Bet implements IBookmaker {
         for (int i = 0; i < 15; ++i) {
             try {
                 Context.log.info("[188bet]: Wait....");
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-                // ждём успеха
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+                wait.pollingEvery(Duration.ofMillis(100));
                 wait.until(driver1 -> driver1.findElement(bySuccessBet));
                 return true;
             } catch (Exception e) {
@@ -205,6 +193,7 @@ public class _188Bet implements IBookmaker {
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             Context.log.info("[188bet] newIncome = " + newIncome);
             if (newIncome.compareTo(Context.parserParams.maxMinus()) < 0) {
+                BetsSupport.closeBetWindow(driver);
                 throw new RuntimeException("[188bet]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
                 Context.log.info("[188bet]: Click Place 2");
@@ -248,7 +237,7 @@ public class _188Bet implements IBookmaker {
     // Узнать содержится ли эелемент на текущей странице
     private static boolean windowContains(ChromeDriver driver, By by) {
         try {
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            var wait = new WebDriverWait(driver, Duration.ofMillis(300));
             wait.until(
                 driver1 -> driver1.findElement(by));
             return true;

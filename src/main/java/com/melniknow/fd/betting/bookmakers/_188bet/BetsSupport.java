@@ -2,9 +2,11 @@ package com.melniknow.fd.betting.bookmakers._188bet;
 
 import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
+import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -115,80 +117,20 @@ public class BetsSupport {
         return !market.getText().contains("\n");
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, By byMarketName, String partOfGame) throws InterruptedException {
-        clearPreviousBets(driver);
-        return getMarketImpl(driver, byMarketName, partOfGame);
-    }
-
-    public static WebElement getMarketImpl(ChromeDriver driver, By byName, String partOfGame) throws InterruptedException {
-        // берём текущую высотку экрана
-        int scroll = ((Number) ((JavascriptExecutor) driver).executeScript("return window.innerHeight")).intValue();
-        // будем скроллить не-немногу, например, чтобы не пропустить самый первый элемент, тк он почти в самом вверху страницы
-        int curScroll = scroll / 4;
-        int scrollPosition = 0;
-        // хз как получить всю высотку страницы(как минимум она динамически меняется, поэтому просто ставим "много"
-        while (scrollPosition < 10000) {
-            try {
-                // находим всё, что может нам подойти (Handicap, Handicap\n1st Half)
-                List<WebElement> visibleMarkets = driver.findElements(byName);
-                for (var market : visibleMarkets) {
-                    try {
-                        // чтобы иметь доступ к части матча, выйдем на 2
-                        var parent = SeleniumSupport.getParentByDeep(market, 2);
-                        // чекаем - это наш маркет?
-                        if (isCorrectMarket(parent, partOfGame)) {
-                            // Это ответ, но нужно выйти ещё на 3, чтобы иметь доступ ко всем кнопкам
-                            var result = SeleniumSupport.getParentByDeep(parent, 3);
-                            // Проскроллим ещё немного, чтобы ввести внопки на экран, тк они ниже маркет, вдруг мы до них не долистали
-                            if (result.getLocation().y > scroll / 2)
-                                ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + scroll / 4 + ")");
-                            TimeUnit.MILLISECONDS.sleep(300);
-                            return result;
-                        }
-                    } catch (StaleElementReferenceException e) {
-                        throw new RuntimeException("[188bet]: Событие пропало со страницы");
-                    }
-                }
-            } catch (NoSuchElementException ignored) { } // Ничего не нашли - скроллим дальше
-            // Скроллим, ждём пока проскроллит
-            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, " + curScroll + ")");
-            TimeUnit.MILLISECONDS.sleep(300); // Wait for the page to finish scrolling
-            scrollPosition += curScroll;
-        }
-        throw new RuntimeException("[188bet]: Не найден раздел с событием: " + byName.toString());
-    }
-
-    public static void clearPreviousBets(ChromeDriver driver) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement button;
+    public static void closeBetWindow_(ChromeDriver driver) {
         try {
-            // находим "Bet Slip", а над ним число окошек, поэтому getParentByDeep
-            button = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalH4ByText("Bet Slip")));
-            button = SeleniumSupport.getParentByDeep(button, 1);
-        } catch (TimeoutException | StaleElementReferenceException e) {
-            throw new RuntimeException("[188bet]: не получилось закрыть предыдущие окна, страница прогрузилась не полностью");
-        }
-
-        try {
-            // если != 0, то надо закрывать, иначе споконойуходим уходим через catch (NoSuchElementException ignored)
-            var countOfPreviousBets = button.findElement(By.xpath(".//h1[text()!='0']"));
-            countOfPreviousBets.click();
-            // elementToBeClickable они становятся гораздо раньше, и мы можем кликнуть вхолостую - поэтому ждём немного
-            TimeUnit.MILLISECONDS.sleep(1000);
-            wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
-            TimeUnit.MILLISECONDS.sleep(500);
-            wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
-            TimeUnit.MILLISECONDS.sleep(500);
-        } catch (NoSuchElementException | StaleElementReferenceException | ElementNotInteractableException ignored) {
-        } catch (InterruptedException | TimeoutException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+            new WebDriverWait(driver, Duration.ofSeconds(2)).until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
+        } catch (TimeoutException ignored) { }
+        ((JavascriptExecutor) driver).executeScript("""
+            b = document.evaluate("//span[text()='@']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            b.parentNode.nextSibling.click()
+            """);
     }
 
     public static void closeBetWindow(ChromeDriver driver) {
         try {
             // Ищем '@', выходим на один уровень вверх(как при получении коэффициента)
-            var wait = new WebDriverWait(driver, Duration.ofSeconds(15)).until(
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(5)).until(
                 driver_ -> driver_.findElement(By.xpath("//span[text()='@']")));
             var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             // Нужно нажать на крестик - он "Брат" нашей строки - таким образо получаем следующий элемент в иерархии
@@ -198,29 +140,55 @@ public class BetsSupport {
         }
     }
 
-    public static BigDecimal getBalance(ChromeDriver driver, Currency currency) {
-        try {
-            var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(60)).until(driver1
-                -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
-            balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
-            balanceButton = balanceButton.replace(",", "");
-            var balance = new BigDecimal(balanceButton);
-            if (balance.equals(BigDecimal.ZERO)) {
-                throw new RuntimeException("[188bet]: нулевой баланс, пополните баланс");
+    public static void clearInAnyWay(ChromeDriver driver) {
+        ((JavascriptExecutor) driver).executeScript("""
+            var el = document.querySelector('[data-btn-remove-all="true"]')
+            el.click()
+            await new Promise(r => setTimeout(r, 1000))
+            try {
+                el = document.querySelector('[data-btn-trash-can="true"]')
+                el.click()
+                var el = document.querySelector('[data-btn-remove-all="true"]')
+                el.click()
             }
-            Context.log.info("Balance from header THB: " + balance + " [188bet]");
-            return balance.multiply(Context.currencyToRubCourse.get(currency));
-        } catch (NoSuchElementException e) {
-            Context.log.info("[188bet]: баланс не найден на странице");
-            throw new RuntimeException(e.getMessage());
+            catch(Exception) {
+                b = document.evaluate("//h3[text()='Bet Slip']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                b.click()
+            }
+            """);
+        try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException ignored) { }
+    }
+
+    public static BigDecimal BetCorrectBalance(Bookmaker bookmaker, ChromeDriver driver, Currency currency) throws InterruptedException {
+        // в этом цикле ждём прогрузки баланса
+        try {
+            for (int i = 0; i < 20; ++i) {
+                var balanceButton = new WebDriverWait(driver, Duration.ofSeconds(5)).until(driver1
+                    -> driver1.findElement(By.className("print:text-black/80")).getText()); // "print:text-black/80" - принадлежит окошку с балансом
+                if (balanceButton != null && !balanceButton.isEmpty()) {
+                    balanceButton = balanceButton.substring(4); // откусываем название валюты и пробел
+                    balanceButton = balanceButton.replace(",", "");
+                    var balance = new BigDecimal(balanceButton);
+                    if (!balance.equals(BigDecimal.ZERO)) {
+                        return balance.multiply(Context.currencyToRubCourse.get(currency));
+                    }
+                }
+                // спим, ждём прогрузки
+                Context.log.info("[188bet]: Waiting balance...");
+                TimeUnit.MILLISECONDS.sleep(500);
+            }
+        } catch (TimeoutException e) {
+            SeleniumSupport.login(driver, bookmaker);
+            throw new RuntimeException("[188bet]: Мы вошли в аккаунт");
         }
+        throw new RuntimeException("[188bet] Мы вошли в аккаунт");
     }
 
     public static BigDecimal getCurrentCf(ChromeDriver driver) {
         try {
             // @ - разделяет название события и коэфициент
-            WebElement tmpTitle = new WebDriverWait(driver, Duration.ofSeconds(30))
-                .until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
+            var wait = new WebDriverWait(driver, Duration.ofSeconds(5)).pollingEvery(Duration.ofMillis(100));
+            var tmpTitle = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("@")));
             // сама @ нам не нужна, выходим на один уровень вверх, чтобы взять всю строку(в конце которой коэффициент)
             var title = SeleniumSupport.getParentByDeep(tmpTitle, 1).getText();
             // берём всё, что после @ - наш коэффициент
@@ -246,7 +214,8 @@ public class BetsSupport {
             } catch (NoSuchElementException e) {
                 tmpButton.findElement(SeleniumSupport.buildLocalH4ByText("Ok")).click();
             }
-        } catch (TimeoutException | NoSuchElementException | StaleElementReferenceException | ElementNotInteractableException e) {
+        } catch (TimeoutException | NoSuchElementException | StaleElementReferenceException |
+                 ElementNotInteractableException e) {
             Context.log.info("Not Close mini-window after success betting!  [188bet]");
         }
     }
@@ -307,5 +276,35 @@ public class BetsSupport {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String partOfGame) {
+        WebElement el;
+        Actions actions = new Actions(driver);
+        var yPos = 0L;
+        for (var i = 0; i < 20; i++) {
+            try {
+                var els = driver.findElements(By.xpath("//h4[text()='%s']".formatted(marketName)));
+                for (var e : els) {
+                    el = e;
+                    WebElement parent = (WebElement) ((JavascriptExecutor) driver).executeScript(
+                        "return arguments[0].parentNode.parentNode;", el);
+                    if (isCorrectMarket(parent, partOfGame)) {
+                        ((JavascriptExecutor) driver).executeScript("""
+                            arguments[0].scrollIntoView()
+                            window.scrollBy(0, -100)
+                            """, parent);
+                        return SeleniumSupport.getParentByDeep(el, 5);
+                    }
+                }
+            } catch (Exception ignored) { }
+
+            actions.scrollByAmount(0, 500).perform();
+
+            var temp = (Long) ((JavascriptExecutor) driver).executeScript("return window.pageYOffset;");
+            if (yPos == temp) break;
+            yPos = temp;
+        }
+        throw new RuntimeException("[188bet]: Не найден маркет - " + marketName);
     }
 }
