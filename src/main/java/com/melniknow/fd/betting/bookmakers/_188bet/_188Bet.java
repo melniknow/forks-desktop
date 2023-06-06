@@ -69,7 +69,6 @@ public class _188Bet implements IBookmaker {
     @Override
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         Context.log.info("Call enterSumAndCheckCf _188Bet");
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             BigDecimal currentCf;
             if (curBetType.contains("WIN")) {
