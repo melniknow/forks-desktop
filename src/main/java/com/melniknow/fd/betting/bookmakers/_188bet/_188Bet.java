@@ -16,7 +16,13 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
+import static com.melniknow.fd.betting.bookmakers._188bet.BetsSupport.*;
 
 public class _188Bet implements IBookmaker {
 
@@ -46,6 +52,7 @@ public class _188Bet implements IBookmaker {
 
         var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.pollingEvery(Duration.ofMillis(100));
+
         while (true) {
             var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
             if (header.getAttribute("data-id") != null && header.getAttribute("data-id").equals("CenterPanelWrapper")) {
@@ -53,17 +60,68 @@ public class _188Bet implements IBookmaker {
             }
             ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
         }
-        switch (info.BK_bet_type()) {
-            case WIN, SET_WIN, HALF_WIN, GAME_WIN ->
-                this.curButton = ClickSportsWin.click(driver, info, isNeedToClick);
-            case TOTALS, SET_TOTALS, HALF_TOTALS ->
-                this.curButton = ClickSportsTotals.click(driver, info, isNeedToClick);
-            case HANDICAP, SET_HANDICAP, HALF_HANDICAP ->
-                this.curButton = ClickSportHandicap.click(driver, info, isNeedToClick);
-            default ->
-                throw new RuntimeException("[188bet]: не поддерживаемый bet_type: " + info.BK_bet_type());
+
+        var marketData = getCorrectMarketData(info.BK_market_meta().get("marketName").getAsString());
+
+        var marketName = marketData.get(0);
+        var marketSubName = marketData.get(1);
+        var selectionName = getCorrectSelectionName(info.BK_market_meta().get("selectionName").getAsString(), info.BK_game());
+
+        var market = BetsSupport.getMarketByMarketName(driver, marketName, marketSubName);
+
+        var line = info.BK_market_meta().has("line") ?
+            info.BK_market_meta().get("line").getAsString() :
+            null;
+
+        var handicap = info.BK_bet().contains("HANDICAP") ?
+            extractContentInBrackets(info.BK_bet()).get(0) :
+            null;
+
+        var buttons = BetsSupport.findElementsWithClicking(market,
+                By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))
+            .stream()
+            .map(e -> {
+                try {
+                    return e.findElement(By.xpath("./.."));
+                } catch (StaleElementReferenceException e1) {
+                    throw new RuntimeException("[188bet]: Событие пропало со страницы");
+                }
+            })
+            .toList();
+
+        try {
+            var button = Objects.requireNonNull(buttons.stream().filter(
+                b -> line == null || equalsForLine(BetsSupport.getTotalsByStr(b.getText()), line, handicap)).findFirst().orElse(null));
+
+            var cfText = line == null ?
+                SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[1] :
+                SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[2];
+
+            var curCf = new BigDecimal(cfText);
+            Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
+            var inaccuracy = new BigDecimal("0.01");
+            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
+                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s"
+                    .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
+            }
+
+            curButton = button;
+        } catch (NullPointerException | StaleElementReferenceException |
+                 ElementNotInteractableException | IndexOutOfBoundsException e) {
+            throw new RuntimeException("[188bet]: Событие пропало со страницы");
         }
-        return BetsSupport.BetCorrectBalance(bookmaker, Context.screenManager.getScreenForBookmaker(bookmaker), Context.betsParams.get(bookmaker).currency());
+
+        return BetsSupport.betCorrectBalance(bookmaker, driver, Context.betsParams.get(bookmaker).currency());
+    }
+
+    public static List<String> extractContentInBrackets(String input) {
+        var result = new ArrayList<String>();
+        var pattern = Pattern.compile("\\((.*?)\\)");
+        var matcher = pattern.matcher(input);
+
+        while (matcher.find()) result.add(matcher.group(1));
+
+        return result;
     }
 
     @Override
