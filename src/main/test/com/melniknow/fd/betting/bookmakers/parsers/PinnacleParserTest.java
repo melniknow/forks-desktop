@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers.parsers;
 
 import com.google.gson.JsonObject;
+import com.melniknow.fd.betting.bookmakers.pinnacle.PinnacleParser;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Sport;

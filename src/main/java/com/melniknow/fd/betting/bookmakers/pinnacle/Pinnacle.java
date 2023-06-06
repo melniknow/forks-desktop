@@ -5,7 +5,6 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
-import com.melniknow.fd.betting.bookmakers.parsers.PinnacleParser;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;

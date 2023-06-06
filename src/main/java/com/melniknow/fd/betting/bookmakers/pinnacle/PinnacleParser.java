@@ -1,11 +1,11 @@
-package com.melniknow.fd.betting.bookmakers.parsers;
+package com.melniknow.fd.betting.bookmakers.pinnacle;
 
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Sport;
 
 import java.util.Arrays;
 
-public class PinnacleParser implements IParser {
+public class PinnacleParser {
     private final Parser.BetInfo info;
     private final Sport sport;
 
@@ -18,7 +18,6 @@ public class PinnacleParser implements IParser {
         this.sport = sport;
     }
 
-    @Override
     public ClickBox parse() {
         if (info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
             var marketNameTmp = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
