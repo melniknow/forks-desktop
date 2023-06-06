@@ -159,6 +159,28 @@ public class BetsSupport {
         try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException ignored) { }
     }
 
+    public static void clearPreviousBets(ChromeDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        try {
+            ((JavascriptExecutor) driver).executeScript("""
+            try {
+                var el = document.querySelector('[data-btn-remove-all="true"]')
+                el.click()
+            }
+            catch(Exception) {}
+            """);
+            TimeUnit.MILLISECONDS.sleep(1000);
+            wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
+            TimeUnit.MILLISECONDS.sleep(800);
+            wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
+            TimeUnit.MILLISECONDS.sleep(800);
+        } catch (NoSuchElementException | StaleElementReferenceException | ElementNotInteractableException ignored) {
+        } catch (InterruptedException | TimeoutException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public static BigDecimal BetCorrectBalance(Bookmaker bookmaker, ChromeDriver driver, Currency currency) throws InterruptedException {
         // в этом цикле ждём прогрузки баланса
         try {
