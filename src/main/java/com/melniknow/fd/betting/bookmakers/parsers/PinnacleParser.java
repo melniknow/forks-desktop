@@ -34,7 +34,13 @@ public class PinnacleParser implements IParser {
 
 
     private void parseImpl() {
-        var betComponents = Arrays.stream(info.BK_bet().split("_")).toList();
+        var bet = info.BK_bet();
+        if (bet.contains("P1__TOTALS") || bet.contains("P2__TOTALS")) {
+            parseTeamTotals();
+            return;
+        }
+
+        var betComponents = Arrays.stream(bet.split("_")).toList();
         for (var component : betComponents) {
             component = clearComponent(component);
             switch (component) {
@@ -52,18 +58,24 @@ public class PinnacleParser implements IParser {
                     marketName = "Money Line (Games)";
                     partOfGame = getGameOfSetTennis();
                 }
+                case "RT" -> {
+                    if (sport.equals(Sport.HOCKEY)) {
+                        partOfGame = "Regulation Time";
+                    } else {
+                        throw new RuntimeException("[pinnacle] Неподдерживаемый тип ставки: " + bet);
+                    }
+                }
+                case "OT" -> {
+                    if (sport.equals(Sport.HOCKEY)) {
+                        partOfGame = "OT Included";
+                    } else if (!sport.equals(Sport.BASKETBALL)) {
+                        throw new RuntimeException("[pinnacle] Неподдерживаемый тип ставки: " + bet);
+                    }
+                }
+                case "3W", "EXACT" -> throw new RuntimeException("[pinnacle] Неподдерживаемый тип ставки: " + bet);
             }
         }
-        if (partOfGame == null) {
-            switch (sport) {
-                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL -> partOfGame = "Match";
-                case BASKETBALL -> partOfGame = "Game";
-                case HOCKEY -> partOfGame = "OT Included";
-            }
-            if (sport.equals(Sport.HOCKEY) && info.BK_bet().contains("_RT")) {
-                partOfGame = "Regulation Time";
-            }
-        }
+        setFullGame();
     }
 
     private String clearComponent(String com) {
@@ -115,7 +127,9 @@ public class PinnacleParser implements IParser {
         if (!info.BK_bet().contains("HANDICAP")) {
             switch (p1p2) {
                 // home - away detect
-                case "P1" -> { return info.BK_game().substring(0, info.BK_game().indexOf("vs") - 1); }
+                case "P1" -> {
+                    return info.BK_game().substring(0, info.BK_game().indexOf("vs") - 1);
+                }
                 case "P2" -> { return info.BK_game().substring(info.BK_game().indexOf("vs") + 3); }
             }
         }
@@ -154,5 +168,35 @@ public class PinnacleParser implements IParser {
             newStr = newStr.substring(1);
         }
         return newStr;
+    }
+
+    private void setFullGame() {
+        if (partOfGame == null) {
+            switch (sport) {
+                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL, ESPORTS, CRICKET, RUGBY_LEAGUE, RUGBY_UNION ->
+                    partOfGame = "Match";
+                case BASKETBALL, BASEBALL, FOOTBALL -> partOfGame = "Game";
+                case BOXING -> partOfGame = "Fight";
+            }
+        }
+    }
+
+    private void parseTeamTotals() {
+        marketName = "Team Total";
+        var betComponents = Arrays.stream(info.BK_bet().split("_")).toList();
+        for (var component : betComponents) {
+            component = clearComponent(component);
+            switch (component) {
+                case "SET" -> partOfGame = getSet(info.BK_bet().split("SET_0")[1].substring(0, 1));
+                case "HALF" -> partOfGame = info.BK_bet().contains("01") ? "1st Half" : "2nd Half";
+                case "P1" -> { }
+                case "P2" -> { }
+                case "OVER" -> selectionName = getSelectionNameOverUnder("Over");
+                case "UNDER" -> selectionName = getSelectionNameOverUnder("Under");
+                case "RT", "3W", "EXACT" ->
+                    throw new RuntimeException("[pinnacle] Неподдерживаемый тип ставки: " + info.BK_bet());
+            }
+        }
+        setFullGame();
     }
 }

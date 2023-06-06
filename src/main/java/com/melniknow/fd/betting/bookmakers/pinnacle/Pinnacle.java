@@ -5,6 +5,7 @@ import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
+import com.melniknow.fd.betting.bookmakers.parsers.PinnacleParser;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
@@ -49,13 +50,15 @@ public class Pinnacle implements IBookmaker {
         String marketName;
         String selectionName;
         if (!info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
-            marketName = getMarketName(info.BK_bet(), sport, info.BK_href());
-            selectionName = getSelectionName(info, sport);
+            var parser = new PinnacleParser(info, sport);
+            var clickBox = parser.parse();
+            marketName = clickBox.marketName() + " – " + clickBox.partOfGame();
+            selectionName = clickBox.selectionName();
         } else {
-            marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
-            if (marketName.contains(" | ")) {
-                marketName = marketName.split(" \\| ")[0];
-                selectionName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString().split(" \\| ")[1];
+            var marketNameFromMeta = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
+            if (marketNameFromMeta.contains(" | ")) {
+                marketName = marketNameFromMeta.split(" \\| ")[0];
+                selectionName = marketNameFromMeta.split(" \\| ")[1];
             } else {
                 throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet() + " | sport: " + sport);
             }

@@ -140,25 +140,6 @@ public class BetsSupport {
         }
     }
 
-    public static void clearInAnyWay(ChromeDriver driver) {
-        ((JavascriptExecutor) driver).executeScript("""
-            var el = document.querySelector('[data-btn-remove-all="true"]')
-            el.click()
-            await new Promise(r => setTimeout(r, 1000))
-            try {
-                el = document.querySelector('[data-btn-trash-can="true"]')
-                el.click()
-                var el = document.querySelector('[data-btn-remove-all="true"]')
-                el.click()
-            }
-            catch(Exception) {
-                b = document.evaluate("//h3[text()='Bet Slip']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                b.click()
-            }
-            """);
-        try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException ignored) { }
-    }
-
     public static void clearPreviousBets(ChromeDriver driver) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

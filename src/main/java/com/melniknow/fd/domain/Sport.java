@@ -6,5 +6,18 @@ public enum Sport {
     BASKETBALL,
     VOLLEYBALL,
     HANDBALL,
-    HOCKEY
+    HOCKEY,
+    BASEBALL,
+    ESPORTS,
+    AUSSIE_RULES,
+    BADMINTON,
+    BOXING,
+    CRICKET,
+    CYCLING,
+    FOOTBALL,
+    FUTSAL,
+    GOLF,
+    MMA,
+    RUGBY_LEAGUE,
+    RUGBY_UNION
 }
