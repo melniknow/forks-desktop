@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class BetMaker {
-    private static final Integer kSecondsForPlaceBet = 60;
+    private static final Integer kSecondsForPlaceBet = 100;
     private static final Object OBJ = new Object();
     public static BetUtils.CompleteBetsFork make(MathUtils.CalculatedFork calculated) throws InterruptedException {
         var executor = Executors.newFixedThreadPool(2);
