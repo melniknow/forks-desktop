@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -63,25 +64,6 @@ public class BetsSupport {
     /***
      * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
      */
-    public static WebElement findElementWithClicking(WebElement element, By by) throws InterruptedException {
-        WebElement res;
-        try {
-            res = element.findElement(by);
-            return res;
-        } catch (NoSuchElementException e) {
-            try {
-                element.click();
-                TimeUnit.MILLISECONDS.sleep(300);
-                return element.findElement(by);
-            } catch (StaleElementReferenceException | ElementNotInteractableException e1) {
-                throw new RuntimeException("[188bet]: Блок с событиями пропал со страницы");
-            }
-        }
-    }
-
-    /***
-     * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
-     */
     public static List<WebElement> findElementsWithClicking(WebElement element, By by) throws InterruptedException {
         List<WebElement> res;
         try {
@@ -98,33 +80,9 @@ public class BetsSupport {
         }
     }
 
-    public static boolean containsItem(WebElement market, String partOfGame) {
-        /* market.getText() вернёт строку, в которой через \n написана часть игры
-        Пример: market.getText() = Handicap\n1st Half
-        */
-        return market.getText().contains(partOfGame);
-    }
-
-    public static boolean isCorrectMarket(WebElement market, String partOfGame) {
-        if (partOfGame.isEmpty()) {
-            return isPureMarket(market);
-        }
-        return containsItem(market, partOfGame);
-    }
-
     public static boolean isPureMarket(WebElement market) {
         // если в market.getText() нет "\n" - значит ставка на весь матч(там в строке только одно имя маркета)
         return !market.getText().contains("\n");
-    }
-
-    public static void closeBetWindow_(ChromeDriver driver) {
-        try {
-            new WebDriverWait(driver, Duration.ofSeconds(2)).until(driver1 -> driver1.findElement(By.xpath("//span[text()='@']")));
-        } catch (TimeoutException ignored) { }
-        ((JavascriptExecutor) driver).executeScript("""
-            b = document.evaluate("//span[text()='@']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            b.parentNode.nextSibling.click()
-            """);
     }
 
     public static void closeBetWindow(ChromeDriver driver) {
@@ -135,28 +93,10 @@ public class BetsSupport {
             var tmp = SeleniumSupport.getParentByDeep(wait, 1);
             // Нужно нажать на крестик - он "Брат" нашей строки - таким образо получаем следующий элемент в иерархии
             tmp.findElement(By.xpath(".//following::div[1]")).click();
-        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException | ElementNotInteractableException e) {
+        } catch (NoSuchElementException | TimeoutException | StaleElementReferenceException |
+                 ElementNotInteractableException e) {
             Context.log.info("[188bet]: Не закрыли окошко с купоном");
         }
-    }
-
-    public static void clearInAnyWay(ChromeDriver driver) {
-        ((JavascriptExecutor) driver).executeScript("""
-            var el = document.querySelector('[data-btn-remove-all="true"]')
-            el.click()
-            await new Promise(r => setTimeout(r, 1000))
-            try {
-                el = document.querySelector('[data-btn-trash-can="true"]')
-                el.click()
-                var el = document.querySelector('[data-btn-remove-all="true"]')
-                el.click()
-            }
-            catch(Exception) {
-                b = document.evaluate("//h3[text()='Bet Slip']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                b.click()
-            }
-            """);
-        try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException ignored) { }
     }
 
     public static void clearPreviousBets(ChromeDriver driver) {
@@ -164,24 +104,25 @@ public class BetsSupport {
 
         try {
             ((JavascriptExecutor) driver).executeScript("""
-            try {
-                var el = document.querySelector('[data-btn-remove-all="true"]')
-                el.click()
-            }
-            catch(Exception) {}
-            """);
+                try {
+                    var el = document.querySelector('[data-btn-remove-all="true"]')
+                    el.click()
+                }
+                catch(Exception) {}
+                """);
             TimeUnit.MILLISECONDS.sleep(1000);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(800);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(800);
-        } catch (NoSuchElementException | StaleElementReferenceException | ElementNotInteractableException ignored) {
+        } catch (NoSuchElementException | StaleElementReferenceException |
+                 ElementNotInteractableException ignored) {
         } catch (InterruptedException | TimeoutException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    public static BigDecimal BetCorrectBalance(Bookmaker bookmaker, ChromeDriver driver, Currency currency) throws InterruptedException {
+    public static BigDecimal betCorrectBalance(Bookmaker bookmaker, ChromeDriver driver, Currency currency) throws InterruptedException {
         // в этом цикле ждём прогрузки баланса
         try {
             for (int i = 0; i < 20; ++i) {
@@ -243,7 +184,7 @@ public class BetsSupport {
     }
 
     public static boolean cashOut(ChromeDriver driver) throws InterruptedException {
-        // забераем наши строчки, которые ранее сохранили
+        // забираем наши строчки, которые ранее сохранили
         var originalLines = curCashOutField.lines().toList();
         // их минимум 4
         if (originalLines.size() < 4) {
@@ -300,7 +241,8 @@ public class BetsSupport {
         }
     }
 
-    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String partOfGame) {
+    public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String marketSubName) {
+        // FIXME
         WebElement el;
         Actions actions = new Actions(driver);
         var yPos = 0L;
@@ -309,9 +251,20 @@ public class BetsSupport {
                 var els = driver.findElements(By.xpath("//h4[text()='%s']".formatted(marketName)));
                 for (var e : els) {
                     el = e;
-                    WebElement parent = (WebElement) ((JavascriptExecutor) driver).executeScript(
+                    var parent = (WebElement) ((JavascriptExecutor) driver).executeScript(
                         "return arguments[0].parentNode.parentNode;", el);
-                    if (isCorrectMarket(parent, partOfGame)) {
+
+                    var flag = false;
+
+                    if (isPureMarket(parent) && marketSubName == null) {
+                        flag = true;
+                    } else if (isPureMarket(parent) && marketSubName != null && !marketSubName.isEmpty()) {
+                        flag = parent.getText().equals(marketName + " - " + marketSubName);
+                    } else {
+                        flag = parent.getText().split("\n")[1].equals(marketSubName);
+                    }
+
+                    if (flag) {
                         ((JavascriptExecutor) driver).executeScript("""
                             arguments[0].scrollIntoView()
                             window.scrollBy(0, -100)
@@ -321,12 +274,41 @@ public class BetsSupport {
                 }
             } catch (Exception ignored) { }
 
-            actions.scrollByAmount(0, 500).perform();
+            actions.scrollByAmount(0, 300).perform();
 
             var temp = (Long) ((JavascriptExecutor) driver).executeScript("return window.pageYOffset;");
             if (yPos == temp) break;
             yPos = temp;
         }
-        throw new RuntimeException("[188bet]: Не найден маркет - " + marketName);
+        throw new RuntimeException("[188bet]: Не найден маркет - " + marketName + " : " + marketSubName);
+    }
+
+    public static ArrayList<String> getCorrectMarketData(String marketName) {
+        if (marketName.contains(" - ")) {
+            var ind = marketName.lastIndexOf(" - ");
+            return new ArrayList<>() {{
+                add(marketName.substring(0, ind));
+                add(marketName.substring(ind + 3));
+            }};
+        } else {
+            return new ArrayList<>() {{
+                add(marketName);
+                add(null);
+            }};
+        }
+    }
+    public static String getCorrectSelectionName(String selectionName, String game) {
+        if (selectionName.equals("Home")) return game.split(" vs ")[0];
+        else if (selectionName.equals("Away")) return game.split(" vs ")[1];
+        return selectionName;
+    }
+
+    public static boolean equalsForLine(String totalOrHandicap, String line, String handicap) {
+        if (handicap == null) return totalOrHandicap.equals(line);
+        else {
+            var sign = handicap.startsWith("+") ? "+" :
+                handicap.startsWith("-") ? "-" : "";
+            return totalOrHandicap.equals(sign + line);
+        }
     }
 }
