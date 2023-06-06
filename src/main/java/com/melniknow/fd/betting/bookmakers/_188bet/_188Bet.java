@@ -90,6 +90,7 @@ public class _188Bet implements IBookmaker {
             .toList();
 
         try {
+            // FIXME не правильно выбираем кнопку
             var button = Objects.requireNonNull(buttons.stream().filter(
                 b -> line == null || equalsForLine(BetsSupport.getTotalsByStr(b.getText()), line, handicap)).findFirst().orElse(null));
 
@@ -100,8 +101,10 @@ public class _188Bet implements IBookmaker {
             var curCf = new BigDecimal(cfText);
             Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
             var inaccuracy = new BigDecimal("0.01");
-            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s"
+            var inaccuracy2 = new BigDecimal("0.05");
+            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0 ||
+                curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) {
+                throw new RuntimeException("[188bet]: коэффициент изменился - было %s, стало %s"
                     .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
             }
 

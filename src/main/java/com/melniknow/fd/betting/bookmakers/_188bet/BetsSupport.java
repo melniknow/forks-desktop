@@ -242,7 +242,7 @@ public class BetsSupport {
     }
 
     public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String marketSubName) {
-        // FIXME
+        // FIXME не правильно ищем маркет
         WebElement el;
         Actions actions = new Actions(driver);
         var yPos = 0L;
@@ -306,8 +306,8 @@ public class BetsSupport {
     public static boolean equalsForLine(String totalOrHandicap, String line, String handicap) {
         if (handicap == null) return totalOrHandicap.equals(line);
         else {
-            var sign = handicap.startsWith("+") ? "+" :
-                handicap.startsWith("-") ? "-" : "";
+            if (line.equals("0")) return totalOrHandicap.equals("0");
+            var sign = handicap.startsWith("-") ? "-" : "+";
             return totalOrHandicap.equals(sign + line);
         }
     }
