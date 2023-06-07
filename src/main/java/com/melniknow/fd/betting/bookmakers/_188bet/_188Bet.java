@@ -51,13 +51,9 @@ public class _188Bet implements IBookmaker {
         var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.pollingEvery(Duration.ofMillis(100));
 
-        while (true) {
-            var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
-            if (header.getAttribute("data-id") != null && header.getAttribute("data-id").equals("CenterPanelWrapper")) {
-                break;
-            }
-            ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
-        }
+        TimeUnit.SECONDS.sleep(5);
+        var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
 
         var marketData = getCorrectMarketData(info.BK_market_meta().get("marketName").getAsString());
 
