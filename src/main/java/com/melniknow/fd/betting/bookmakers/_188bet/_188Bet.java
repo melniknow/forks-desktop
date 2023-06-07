@@ -35,7 +35,7 @@ public class _188Bet implements IBookmaker {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
-            driver.manage().window().setSize(new Dimension(1000, 1000));
+            driver.manage().window().setSize(new Dimension(1300, 1000));
             driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
         } catch (TimeoutException ignored) {
             throw new RuntimeException("[188bet]: Страница не загружается!");
