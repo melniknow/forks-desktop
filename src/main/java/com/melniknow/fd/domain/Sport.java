@@ -1,10 +1,33 @@
 package com.melniknow.fd.domain;
 
 public enum Sport {
+//    AMERICAN_FOOTBALL,
+//    BASEBALL,
+//    BADMINTON,
+    BASKETBALL,
+//    CRICKET,
+//    ESPORTS_SOCCER,
+//    ESPORTS_BASKETBALL,
+//    ESPORTS_CS,
+//    ESPORTS_DOTA2,
+//    ESPORTS_STARCRAFT,
+//    ESPORTS_HOCKEY,
+//    ESPORTS_KOG,
+//    ESPORTS_LOL,
+//    ESPORTS_OVERWATCH,
+//    ESPORTS_RL,
+//    ESPORTS,
+//    ESPORTS_TENNIS,
+//    FLOORBALL,
+//    FUTSAL,
+    HANDBALL,
+    HOCKEY,
+//    HORSE_RACING,
+//    RUGBY,
+//    RUGBY_LEAGUE,
+//    RUGBY_UNION,
     SOCCER,
     TENNIS,
-    BASKETBALL,
-    VOLLEYBALL,
-    HANDBALL,
-    HOCKEY
+//    TABLE_TENNIS,
+    VOLLEYBALL
 }

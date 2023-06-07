@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting.bookmakers.parsers;
 
 import com.google.gson.JsonObject;
+import com.melniknow.fd.betting.bookmakers.pinnacle.PinnacleParser;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.BetType;
 import com.melniknow.fd.domain.Sport;
@@ -11,10 +12,6 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PinnacleParserTest {
-
-    /*
-    examples: HANDICAP_OT__P1(4)
-     */
 
     JsonObject getObjectIsSpecial(boolean isSpecial) {
         JsonObject meta = new JsonObject();
@@ -189,5 +186,56 @@ class PinnacleParserTest {
 
         assertEquals("Handicap (Games) – 1st Set", res.marketName() + " – " + res.partOfGame());
         assertEquals("-3.5", res.selectionName());
+    }
+
+    @Test
+    void teamTotals() {
+        JsonObject meta = new JsonObject();
+        meta.addProperty("is_special", false);
+        meta.addProperty("points", -3.5);
+        Parser.BetInfo info = new Parser.BetInfo("", "", BetType.TEAM_TOTALS, "P1__TOTALS__UNDER(1.5)",
+            "(games)", BigDecimal.valueOf(1), "Pidor1 vs Pidor2", "", meta, new JsonObject(), "");
+        Sport sport = Sport.SOCCER;
+
+        var parser = new PinnacleParser(info, sport);
+
+        var res = parser.parse();
+
+        assertEquals("Team Total – Match", res.marketName() + " – " + res.partOfGame());
+        assertEquals("Under 1.5", res.selectionName());
+    }
+
+    @Test
+    void teamTotalsFootball() {
+        JsonObject meta = new JsonObject();
+        meta.addProperty("is_special", false);
+        meta.addProperty("points", -3.5);
+        Parser.BetInfo info = new Parser.BetInfo("", "", BetType.TEAM_TOTALS, "P1__TOTALS__OVER(1)",
+            "(games)", BigDecimal.valueOf(1), "Pidor1 vs Pidor2", "", meta, new JsonObject(), "");
+        Sport sport = Sport.AMERICAN_FOOTBALL;
+
+        var parser = new PinnacleParser(info, sport);
+
+        var res = parser.parse();
+
+        assertEquals("Team Total – Game", res.marketName() + " – " + res.partOfGame());
+        assertEquals("Over 1", res.selectionName());
+    }
+
+    @Test
+    void teamTotalsSet1() {
+        JsonObject meta = new JsonObject();
+        meta.addProperty("is_special", false);
+        meta.addProperty("points", -3.5);
+        Parser.BetInfo info = new Parser.BetInfo("", "", BetType.TEAM_TOTALS, "HALF_01__P1__TOTALS__OVER(1)",
+            "(games)", BigDecimal.valueOf(1), "Pidor1 vs Pidor2", "", meta, new JsonObject(), "");
+        Sport sport = Sport.SOCCER;
+
+        var parser = new PinnacleParser(info, sport);
+
+        var res = parser.parse();
+
+        assertEquals("Team Total – 1st Half", res.marketName() + " – " + res.partOfGame());
+        assertEquals("Over 1", res.selectionName());
     }
 }

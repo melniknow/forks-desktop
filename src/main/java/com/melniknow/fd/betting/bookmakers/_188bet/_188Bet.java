@@ -208,7 +208,7 @@ public class _188Bet implements IBookmaker {
         for (int i = 0; i < 15; ++i) {
             try {
                 Context.log.info("[188bet]: Wait....");
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
                 wait.pollingEvery(Duration.ofMillis(100));
                 wait.until(driver1 -> driver1.findElement(bySuccessBet));
                 return true;

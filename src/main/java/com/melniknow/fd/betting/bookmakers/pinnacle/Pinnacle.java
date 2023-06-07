@@ -19,7 +19,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
-import java.util.List;
 
 public class Pinnacle implements IBookmaker {
 
@@ -49,13 +48,15 @@ public class Pinnacle implements IBookmaker {
         String marketName;
         String selectionName;
         if (!info.BK_market_meta().getAsJsonObject().get("is_special").getAsBoolean()) {
-            marketName = getMarketName(info.BK_bet(), sport, info.BK_href());
-            selectionName = getSelectionName(info, sport);
+            var parser = new PinnacleParser(info, sport);
+            var clickBox = parser.parse();
+            marketName = clickBox.marketName() + " – " + clickBox.partOfGame();
+            selectionName = clickBox.selectionName();
         } else {
-            marketName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
-            if (marketName.contains(" | ")) {
-                marketName = marketName.split(" \\| ")[0];
-                selectionName = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString().split(" \\| ")[1];
+            var marketNameFromMeta = info.BK_market_meta().getAsJsonObject().get("market_name").getAsString();
+            if (marketNameFromMeta.contains(" | ")) {
+                marketName = marketNameFromMeta.split(" \\| ")[0];
+                selectionName = marketNameFromMeta.split(" \\| ")[1];
             } else {
                 throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + info.BK_bet() + " | sport: " + sport);
             }
@@ -69,6 +70,12 @@ public class Pinnacle implements IBookmaker {
 
         var market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
 
+        // возможно, данные скрыты - раскроем
+        if (market.getAttribute("data-collapsed") != null && market.getAttribute("data-collapsed").equals("true")) {
+            market.click();
+        }
+        SeleniumSupport.clickOnSeeMore(driver, market);
+
         // Проверка входа в аккаунт
         try {
             driver.findElement(By.xpath("//button[text()='Log in']"));
@@ -81,19 +88,18 @@ public class Pinnacle implements IBookmaker {
         }
 
         WebElement button;
-        // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки с нулём
-        if (marketName.contains("Handicap") && selectionName.equals("0")) {
-            button = getButtonOnZeroHandicap(driver, market, selectionName, info.BK_bet());
+        // Этот случай нужно обработать отдельно, тк там просто две идентичные кнопки
+        if (marketName.contains("Handicap") || marketName.contains("Team Total")) {
+            button = getButtonOnHandicapOrTeamTotals(driver, market, selectionName, info.BK_bet());
         } else {
             try {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
                 // Находим нужную кнопку
-                button = SeleniumSupport.findElementWithClicking(driver, market,
-                    By.xpath(".//span[contains(text(), '" + selectionName + "')]"));
+                button = wait.until(driver1 -> market.findElement(By.xpath(".//span[contains(text(), '" + selectionName + "')]")));
             } catch (RuntimeException e) {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
             }
         }
-
         try {
             // Получаем текущий коэф и чекаем его
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
@@ -142,9 +148,8 @@ public class Pinnacle implements IBookmaker {
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) {
         Context.log.info("Call placeBetAndGetRealCf Pinnacle");
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
-            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
             curButton.click();
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), curSum, "pinnacle");
 
@@ -152,6 +157,7 @@ public class Pinnacle implements IBookmaker {
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
+//            removeAllPreviousWindows(driver);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -308,7 +314,8 @@ public class Pinnacle implements IBookmaker {
         try {
             // нажимаем на Remove all
             var removeAll = driver.findElement(SeleniumSupport.buildGlobalSpanByText("Remove all"));
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            wait.pollingEvery(Duration.ofMillis(100));
             wait.until(ExpectedConditions.elementToBeClickable(removeAll)).click();
             // Подтверждаем удаление предыдущих окон - Confirm
             var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));
@@ -339,24 +346,29 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    private static WebElement getButtonOnZeroHandicap(ChromeDriver driver, WebElement market, String selectionName, String bkBet) {
-        List<WebElement> buttons;
+    private static WebElement getButtonOnHandicapOrTeamTotals(ChromeDriver driver, WebElement market, String selectionName, String bkBet) {
         try {
-            // забираем эти 2 нуля
-            buttons = SeleniumSupport.findElementsWithClicking(driver, market, SeleniumSupport.buildLocalSpanByText(selectionName));
-        } catch (NoSuchElementException ignored) {
-            throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
-        }
-        if (buttons.size() != 2) {
-            throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
-        }
-        // первый в списке это команда слева, второй - справа
-        if (bkBet.contains("P1")) {
-            return buttons.get(0);
-        } else if (bkBet.contains("P2")) {
-            return buttons.get(1);
-        } else {
-            throw new RuntimeException("[pinnacle]: неподдерживаемый BetType: " + bkBet);
+            var childNodes = (WebElement) ((JavascriptExecutor) driver).executeScript("""              
+                return arguments[0].childNodes[1].childNodes[1];
+                """, market);
+
+            int goalIndex = bkBet.contains("P1") ? 0 : 1;
+
+            // забираем все кнопки
+            var buttons = childNodes.findElements(By.xpath("./child::*"));
+            for (var b : buttons) {
+                try {
+                    // кнопки идут парами: левый - правыый
+                    var twoButtons = b.findElements(By.xpath("./child::*"));
+                    if (twoButtons.size() != 2) {
+                        throw new RuntimeException("[pinnacle]: нарушена структура кнопок на странице, size = " + twoButtons.size());
+                    }
+                    return twoButtons.get(goalIndex).findElement(SeleniumSupport.buildLocalSpanByText(selectionName));
+                } catch (NoSuchElementException ignored) { }
+            }
+            throw new RuntimeException("[pinnacle]: Не найдена кнопка: " + bkBet + " selectionName = " + selectionName);
+        } catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[pinnacle]: Не найдена кнопка: " + bkBet + " selectionName = " + selectionName);
         }
     }
 
