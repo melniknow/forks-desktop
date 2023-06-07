@@ -35,7 +35,7 @@ public class _188Bet implements IBookmaker {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
-            driver.manage().window().setSize(new Dimension(1000, 1000));
+            driver.manage().window().setSize(new Dimension(1300, 1000));
             driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
         } catch (TimeoutException ignored) {
             throw new RuntimeException("[188bet]: Страница не загружается!");
@@ -47,17 +47,6 @@ public class _188Bet implements IBookmaker {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
 
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.pollingEvery(Duration.ofMillis(100));
-
-        while (true) {
-            var header = wait.until(driver1 -> driver1.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[2]")));
-            if (header.getAttribute("data-id") != null && header.getAttribute("data-id").equals("CenterPanelWrapper")) {
-                break;
-            }
-            ((JavascriptExecutor) driver).executeScript("arguments[0].remove() ", header);
-        }
 
         var marketData = getCorrectMarketData(info.BK_market_meta().get("marketName").getAsString());
 
