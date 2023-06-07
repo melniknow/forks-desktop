@@ -172,10 +172,9 @@ public class PinnacleParser {
     private void setFullGame() {
         if (partOfGame == null) {
             switch (sport) {
-                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL, ESPORTS, CRICKET, RUGBY_LEAGUE, RUGBY_UNION ->
+                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL /*, ESPORTS, CRICKET, RUGBY_LEAGUE, RUGBY_UNION */ ->
                     partOfGame = "Match";
-                case BASKETBALL, BASEBALL, FOOTBALL -> partOfGame = "Game";
-                case BOXING -> partOfGame = "Fight";
+                case BASKETBALL /*,, BASEBALL, AMERICAN_FOOTBALL */ -> partOfGame = "Game";
             }
         }
     }

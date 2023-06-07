@@ -100,7 +100,6 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("[pinnacle]: Коэффициенты события изменились. Не найдена кнопка: " + selectionName);
             }
         }
-
         try {
             // Получаем текущий коэф и чекаем его
             var buttonText = SeleniumSupport.getParentByDeep(button, 1).getText();
@@ -149,9 +148,8 @@ public class Pinnacle implements IBookmaker {
     @Override
     public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) {
         Context.log.info("Call placeBetAndGetRealCf Pinnacle");
+        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
-            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
             curButton.click();
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), curSum, "pinnacle");
 
@@ -159,6 +157,7 @@ public class Pinnacle implements IBookmaker {
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
+//            removeAllPreviousWindows(driver);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -315,7 +314,8 @@ public class Pinnacle implements IBookmaker {
         try {
             // нажимаем на Remove all
             var removeAll = driver.findElement(SeleniumSupport.buildGlobalSpanByText("Remove all"));
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            wait.pollingEvery(Duration.ofMillis(100));
             wait.until(ExpectedConditions.elementToBeClickable(removeAll)).click();
             // Подтверждаем удаление предыдущих окон - Confirm
             var confirm = wait.until(driver1 -> driver1.findElement(SeleniumSupport.buildGlobalSpanByText("Confirm")));

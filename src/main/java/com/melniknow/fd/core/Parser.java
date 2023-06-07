@@ -105,7 +105,7 @@ public class Parser {
             forkObject.get("fork_id").getAsString(),
             forkObject.get("income").getAsBigDecimal(),
             forkObject.get("event_id").getAsBigDecimal(),
-            Sport.valueOf(forkObject.get("sport").getAsString().toUpperCase()),
+            Sport.valueOf(forkObject.get("sport").getAsString().toUpperCase().replace("-", "_").replace(".", "_")),
             forkObject.get("is_middles").getAsBoolean(),
             BetType.valueOf(forkObject.get("bet_type").getAsString()),
             new BetInfo(forkObject.get("BK1_name").getAsString(), forkObject.get("BK1_event_id").getAsString(),

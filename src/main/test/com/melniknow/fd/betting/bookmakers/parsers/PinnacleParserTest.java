@@ -212,7 +212,7 @@ class PinnacleParserTest {
         meta.addProperty("points", -3.5);
         Parser.BetInfo info = new Parser.BetInfo("", "", BetType.TEAM_TOTALS, "P1__TOTALS__OVER(1)",
             "(games)", BigDecimal.valueOf(1), "Pidor1 vs Pidor2", "", meta, new JsonObject(), "");
-        Sport sport = Sport.FOOTBALL;
+        Sport sport = Sport.AMERICAN_FOOTBALL;
 
         var parser = new PinnacleParser(info, sport);
 
