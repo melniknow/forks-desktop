@@ -28,7 +28,6 @@ public class _188Bet implements IBookmaker {
 
     private WebElement curButton;
     private BigDecimal curSum;
-    private String curBetType;
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
@@ -46,7 +45,6 @@ public class _188Bet implements IBookmaker {
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
-        this.curBetType = info.BK_bet();
 
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
@@ -78,7 +76,7 @@ public class _188Bet implements IBookmaker {
             null;
 
         var buttons = BetsSupport.findElementsWithClicking(market,
-                By.xpath(".//div[contains(translate(text(),' ',''),'" + selectionName.replaceAll("\\s+", "") + "')]"))
+                By.xpath(".//div[translate(text(),' ','') = '" + selectionName.replaceAll("\\s+", "") + "']"))
             .stream()
             .map(e -> {
                 try {
@@ -90,25 +88,21 @@ public class _188Bet implements IBookmaker {
             .toList();
 
         try {
-            // FIXME не правильно выбираем кнопку
-            var button = Objects.requireNonNull(buttons.stream().filter(
-                b -> line == null || equalsForLine(BetsSupport.getTotalsByStr(b.getText()), line, handicap)).findFirst().orElse(null));
+            curButton = Objects.requireNonNull(buttons.stream().filter(
+                b -> {
+                    var cfText = line == null ?
+                        SeleniumSupport.getParentByDeep(b, 1).getText().split("\n")[1] :
+                        SeleniumSupport.getParentByDeep(b, 1).getText().split("\n")[2];
 
-            var cfText = line == null ?
-                SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[1] :
-                SeleniumSupport.getParentByDeep(button, 2).getText().split("\n")[2];
+                    var inaccuracy = new BigDecimal("0.01");
+                    var inaccuracy2 = new BigDecimal("0.05");
+                    var curCf = new BigDecimal(cfText);
 
-            var curCf = new BigDecimal(cfText);
-            Context.log.info("[188bet]: CurCf from clickOnBetType = " + curCf);
-            var inaccuracy = new BigDecimal("0.01");
-            var inaccuracy2 = new BigDecimal("0.05");
-            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0 ||
-                curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) {
-                throw new RuntimeException("[188bet]: коэффициент изменился - было %s, стало %s"
-                    .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf.setScale(2, RoundingMode.DOWN)));
-            }
-
-            curButton = button;
+                    return !(curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0 ||
+                        curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) ||
+                        line == null ||
+                        equalsForLine(BetsSupport.getTotalsByStr(b.getText()), line, handicap);
+                }).findFirst().orElse(null));
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
@@ -131,12 +125,13 @@ public class _188Bet implements IBookmaker {
     public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         Context.log.info("Call enterSumAndCheckCf _188Bet");
         try {
-            BigDecimal currentCf;
-            if (curBetType.contains("WIN")) {
-                currentCf = new BigDecimal(SeleniumSupport.getParentByDeep(curButton, 2).getText().split("\n")[1]);
-            } else {
-                currentCf = new BigDecimal(SeleniumSupport.getParentByDeep(curButton, 2).getText().split("\n")[2]);
-            }
+            var line = info.BK_market_meta().has("line") ?
+                info.BK_market_meta().get("line").getAsString() :
+                null;
+            var cfText = line == null ?
+                SeleniumSupport.getParentByDeep(curButton, 1).getText().split("\n")[1] :
+                SeleniumSupport.getParentByDeep(curButton, 1).getText().split("\n")[2];
+            var currentCf = new BigDecimal(cfText);
 
             Context.log.info("[188bet]: currentCf = " + currentCf);
 

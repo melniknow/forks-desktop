@@ -242,7 +242,6 @@ public class BetsSupport {
     }
 
     public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String marketSubName) {
-        // FIXME не правильно ищем маркет
         WebElement el;
         Actions actions = new Actions(driver);
         var yPos = 0L;
