@@ -244,8 +244,6 @@ public class BetsSupport {
     public static WebElement getMarketByMarketName(ChromeDriver driver, String marketName, String marketSubName) {
         WebElement el;
         Actions actions = new Actions(driver);
-        var a = driver.findElement(By.xpath("//*[@id='app']/div/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/h2"));
-        a.sendKeys();
 
         var yPos = 0L;
         for (var i = 0; i < 20; i++) {
