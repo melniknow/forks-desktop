@@ -28,6 +28,9 @@ public class Pinnacle implements IBookmaker {
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         try {
+            curButton = null;
+            curSum = null;
+
             Context.log.info("Call openLink Pinnacle");
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
@@ -122,7 +125,7 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public void enterSumAndCheckCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
+    public void checkCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
         Context.log.info("Call enterSumAndCheckCf Pinnacle");
         try {
             var currentCf = new BigDecimal(curButton.getText().split("\n")[1]);

@@ -1,7 +1,6 @@
 package com.melniknow.fd.betting;
 
 import com.melniknow.fd.Context;
-import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Logger;
@@ -119,10 +118,10 @@ public class BetMaker {
             var bet2 = bets.get(1);
 
             BigDecimal finalBet = bet1;
-            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.enterSumAndCheckCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), isValueWithOneDollar ? bkParams1.currency().minValue : finalBet));
+            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.checkCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), isValueWithOneDollar ? bkParams1.currency().minValue : finalBet));
 
             if (!isValue && !isVerifiedValue) {
-                var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.enterSumAndCheckCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
+                var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.checkCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
                 enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
             }
 
@@ -185,7 +184,7 @@ public class BetMaker {
                 balance2Rub, bet1Rub, bet2Rub, isValue || isVerifiedValue, isValueWithOneDollar, isVerifiedValue, isClosed, causeOfFail);
         } catch (InterruptedException e) {
             throw new InterruptedException();
-        } catch (ExecutionException e) { ;
+        } catch (ExecutionException e) {
             Context.log.info("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
         } catch (TimeoutException e) {

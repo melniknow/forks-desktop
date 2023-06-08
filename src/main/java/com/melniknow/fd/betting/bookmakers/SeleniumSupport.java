@@ -167,6 +167,14 @@ public class SeleniumSupport {
 
                 button.click();
             }
+            case BET365 -> {
+                driver.get(bookmaker.link);
+                var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+
+//                var loginInput = wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='Log In']")));
+//                wait.until(ExpectedConditions.elementToBeClickable(loginInput));
+//                loginInput.click();
+            }
         }
     }
 

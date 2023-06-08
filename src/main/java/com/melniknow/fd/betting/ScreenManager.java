@@ -18,10 +18,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +48,9 @@ public class ScreenManager {
 
                 var chromePrefs = new HashMap<String, Object>();
                 chromePrefs.put("intl.accept_languages", "en");
-                chromePrefs.put("profile.managed_default_content_settings.images", 2);
+
+                if (bookmaker != Bookmaker.BET365)
+                    chromePrefs.put("profile.managed_default_content_settings.images", 2);
 
                 options.setExperimentalOption("prefs", chromePrefs);
 
@@ -106,7 +105,6 @@ public class ScreenManager {
                 alert.accept();
 
                 switchWindow(driver);
-
                 if (!params.proxyIp().isEmpty()) {
                     driver.get("chrome-extension://hjocpjdeacglfchomobaagbmipeggnjg/options.html");
 
@@ -129,7 +127,12 @@ public class ScreenManager {
                 var dimension = new Dimension(screenX, screenY);
 
                 driver.manage().window().setSize(dimension);
-                driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+                driver.executeCdpCommand("Page.addScriptToEvaluateOnNewDocument",
+                    Map.of("source", """
+                        Object.defineProperty(navigator, 'webdriver', {
+                            get: () => undefined
+                        })
+                        """));
 
                 SeleniumSupport.login(driver, bookmaker);
             } catch (Exception e) {
