@@ -32,11 +32,11 @@ public class BetMaker {
                 "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
                 calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
                 "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
-            Logger.writeToLogSession(
-                calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
-                    "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
-                    calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
-                    "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
+//            Logger.writeToLogSession(
+//                calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
+//                    "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
+//                    calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
+//                    "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
 
             // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
