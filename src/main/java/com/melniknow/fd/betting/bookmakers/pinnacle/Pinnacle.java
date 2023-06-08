@@ -4,7 +4,6 @@ import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
-import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Currency;
@@ -65,11 +64,11 @@ public class Pinnacle implements IBookmaker {
             }
         }
 
-        Context.log.info("[pinnacle]: info.BK_game() = " + info.BK_game() + "\n" +
+        Context.log.info("\n\n[pinnacle]:\n info.BK_game() = " + info.BK_game() + "\n" +
             "[pinnacle]: info.BK_cf() = " + info.BK_cf() + "\n" +
             "[pinnacle]: info.BK_bet() = " + info.BK_bet() + "\n" +
             "[pinnacle]: marketName = " + marketName + "\n" +
-            "[pinnacle]: selectionName = " + selectionName);
+            "[pinnacle]: selectionName = " + selectionName + "\n\n");
 
         var market = getMarket(driver, SeleniumSupport.buildGlobalSpanByText(marketName));
 
@@ -77,7 +76,7 @@ public class Pinnacle implements IBookmaker {
         if (market.getAttribute("data-collapsed") != null && market.getAttribute("data-collapsed").equals("true")) {
             market.click();
         }
-        SeleniumSupport.clickOnSeeMore(driver, market);
+        clickOnSeeMore(driver, market);
 
         // Проверка входа в аккаунт
         try {
@@ -375,148 +374,12 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    private String getSelectionName(Parser.BetInfo info, Sport sport) {
-        var bkBet = info.BK_bet();
-        if (bkBet.contains("WIN__P1")) {
-            return BetsSupport.getTeamFirstNameByTitle(info.BK_game());
-        } else if (bkBet.contains("WIN__P2")) {
-            return BetsSupport.getTeamSecondNameByTitle(info.BK_game());
-        } else if (bkBet.contains("WIN__PX")) {
-            return "Draw";
-        } else if (bkBet.contains("GAME") && bkBet.contains("P1")) {
-            return BetsSupport.getTeamFirstNameByTitle(info.BK_game());
-        } else if (bkBet.contains("GAME") && bkBet.contains("P2")) {
-            return BetsSupport.getTeamSecondNameByTitle(info.BK_game());
-        }
-
-        String digits = bkBet;
-        digits = digits.substring(digits.indexOf("(") + 1);
-        digits = digits.substring(0, digits.indexOf(")"));
-
-        if (bkBet.contains("__OVER")) {
-            return "Over " + digits;
-        } else if (bkBet.contains("__UNDER")) {
-            return "Under " + digits;
-        } else if (bkBet.contains("HANDICAP")) {
-            digits = info.BK_market_meta().getAsJsonObject().get("points").getAsString();
-            Context.log.info("[pinnacle] points = " + digits);
-            if (digits.equals("0.0") || digits.equals("-0.0") || digits.equals("+0.0")) {
-                return "0";
-            }
-            if (digits.startsWith("-")) {
-                return digits;
-            }
-            return "+" + digits;
-        }
-        throw new RuntimeException("[pinnacle]: Don`t support BetType " + info.BK_bet() + "| sport: " + sport);
-    }
-
-    private String getMarketName(String betType, Sport sport, String ref) {
-        return getBetType(betType, sport, ref) + " – " + getPartOfGame(betType, sport);
-    }
-
-    private String getBetType(String betType, Sport sport, String ref) {
-        var tennisSuffix = "";
-        if (sport.equals(Sport.TENNIS) && ref.contains("(games)")) {
-            tennisSuffix = " (Games)";
-        } else if (sport.equals(Sport.TENNIS)) {
-            tennisSuffix = " (Sets)";
-        }
-        if (betType.contains("WIN")) {
-            return "Money Line" + tennisSuffix;
-        } else if (betType.contains("GAME")) {
-            return "Money Line (Games)";
-        } else if (betType.contains("TEAM_TOTALS")) {
-            return "Team Total" + tennisSuffix;
-        } else if (betType.contains("TOTALS")) {
-            return "Total" + tennisSuffix;
-        } else if (betType.contains("HANDICAP")) {
-            return "Handicap" + tennisSuffix;
-        }
-        throw new RuntimeException("[pinnacle]: Don`t support BetType " + betType + "| sport: " + sport);
-    }
-
-    private String getPartOfGame(String betType, Sport sport) {
-        switch (sport) {
-            case SOCCER, HANDBALL -> {
-                if (betType.contains("HALF_01__")) {
-                    return "1st Half";
-                } else if (betType.contains("HALF_02__")) {
-                    return "2nd Half";
-                }
-            }
-            case TENNIS, VOLLEYBALL -> {
-                if (betType.contains("SET_01__")) {
-                    return "1st Set";
-                } else if (betType.contains("SET_02__")) {
-                    return "2nd Set";
-                } else if (betType.contains("SET_03__")) {
-                    return "3rd Set";
-                } else if (betType.contains("SET_04__")) {
-                    return "4th Set";
-                } else if (betType.startsWith("GAME")) {
-                    betType = betType.substring(6);
-                    betType = removePrefix(betType);
-                    var set = Integer.parseInt(betType.split("_")[0]);
-                    betType = betType.substring(betType.indexOf("_") + 1);
-                    betType = removePrefix(betType);
-                    var game = Integer.parseInt(betType.split("_")[0]);
-                    return "Set " + set + " Game " + game;
-                }
-            }
-            case BASKETBALL -> {
-                if (betType.contains("HALF_01__")) {
-                    return "1st Half";
-                } else if (betType.contains("HALF_02__")) {
-                    return "2nd Half";
-                } else if (betType.contains("SET_01__")) {
-                    return "1st Quarter";
-                } else if (betType.contains("SET_02__")) {
-                    return "2nd Quarter";
-                } else if (betType.contains("SET_03__")) {
-                    return "3rd Quarter";
-                } else if (betType.contains("SET_04__")) {
-                    return "4th Quarter";
-                }
-            }
-            case HOCKEY -> {
-                if (betType.contains("SET_01__")) {
-                    return "1st Period";
-                } else if (betType.contains("SET_02__")) {
-                    return "2nd Period";
-                } else if (betType.contains("SET_03__")) {
-                    return "3rd Period";
-                }
-            }
-        }
-        var isFullGame = betType.startsWith("WIN") || betType.startsWith("TEAM_TOTALS") || betType.startsWith("TOTALS") || betType.startsWith("HANDICAP");
-        if (isFullGame) {
-            switch (sport) {
-                case SOCCER, TENNIS, HANDBALL, VOLLEYBALL -> { return "Match"; }
-                case BASKETBALL -> { return "Game"; }
-                case HOCKEY -> { return "Regulation Time"; }
-            }
-        }
-        throw new RuntimeException("[pinnacle]: Don`t support BetType:" + betType + "| sport: " + sport);
-    }
-
-    private static String removePrefix(String str) {
-        var newStr = str;
-        while (newStr.startsWith("_") || newStr.startsWith("0")) {
-            newStr = newStr.substring(1);
-        }
-        return newStr;
-    }
-
     private static WebElement getMarketOnTheFilter(ChromeDriver driver, By by) {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
             wait.pollingEvery(Duration.ofMillis(100));
             var market = wait.until(driver1 -> driver1.findElement(by));
-            market = SeleniumSupport.getParentByDeep(market, 2);
-
-            SeleniumSupport.clickOnSeeMore(driver, market);
-            return market;
+            return SeleniumSupport.getParentByDeep(market, 2);
         } catch (TimeoutException | StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: Маркет не найден в фильтре");
         }
@@ -543,6 +406,17 @@ public class Pinnacle implements IBookmaker {
             throw new RuntimeException("[pinnacle]: Событие пропало со страницы");
         } catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e) {
             throw new RuntimeException("[pinnacle] На странице отсутствуют элементы");
+        }
+    }
+
+    private static void clickOnSeeMore(ChromeDriver driver, WebElement market) {
+        try {
+            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
+            waitForSeeMore.pollingEvery(Duration.ofMillis(100));
+            var seeMore = waitForSeeMore.until(driver1 -> market.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
+            waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
+        } catch (TimeoutException | StaleElementReferenceException ignored) {
+            Context.log.info("[pinnacle] There isn`t 'See More'");
         }
     }
 }

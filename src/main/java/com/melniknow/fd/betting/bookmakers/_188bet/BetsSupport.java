@@ -81,7 +81,8 @@ public class BetsSupport {
     }
 
     public static boolean isPureMarket(WebElement market) {
-        // если в market.getText() нет "\n" - значит ставка на весь матч(там в строке только одно имя маркета)
+        if (market.getText().contains("\n") && market.getText().contains("Current Total"))
+            return true;
         return !market.getText().contains("\n");
     }
 
@@ -261,7 +262,7 @@ public class BetsSupport {
                     if (isPureMarket(parent) && marketSubName == null) {
                         flag = true;
                     } else if (isPureMarket(parent) && marketSubName != null && !marketSubName.isEmpty()) {
-                        flag = parent.getText().equals(marketName + " - " + marketSubName);
+                        flag = parent.getText().toLowerCase().split("\n")[0].equals(marketName.toLowerCase() + " - " + marketSubName.toLowerCase());
                     } else {
                         flag = parent.getText().split("\n")[1].equals(marketSubName);
                     }
