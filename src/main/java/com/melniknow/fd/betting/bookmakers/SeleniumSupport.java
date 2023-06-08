@@ -22,10 +22,6 @@ public class SeleniumSupport {
         return By.xpath(".//span[text()='" + text + "']");
     }
 
-    public static By buildLocalDivByText(String text) {
-        return By.xpath(".//div[text()='" + text + "']");
-    }
-
     public static By buildLocalH4ByText(String text) {
         return By.xpath(".//h4[text()='" + text + "']");
     }
@@ -34,65 +30,8 @@ public class SeleniumSupport {
         return By.xpath("//span[text()='" + text + "']");
     }
 
-    public static By buildGlobalDivByText(String text) {
-        return By.xpath("//div[text()='" + text + "']");
-    }
-
     public static By buildGlobalH4ByText(String text) {
         return By.xpath("//h4[text()='" + text + "']");
-    }
-
-    /***
-     * @return нужную кнопку, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопку
-     */
-    public static WebElement findElementWithClicking(ChromeDriver driver, WebElement market, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        WebElement res;
-        try {
-            res = wait.until(driver1 -> market.findElement(by));
-            return res;
-        } catch (TimeoutException e) {
-            market.click();
-            try {
-                clickOnSeeMore(driver, market);
-                res = wait.until(driver1 -> market.findElement(by));
-                return res;
-            } catch (TimeoutException | StaleElementReferenceException e1) {
-                throw new RuntimeException("Коэффициенты события изменились [pinnacle]: " + by);
-            }
-        }
-    }
-
-    /***
-     * @return лист нужных кнопок, но если маркет "свернут", то функция нажмёт на него и ещё раз попытается забрать кнопки
-     */
-    public static List<WebElement> findElementsWithClicking(ChromeDriver driver, WebElement market, By by) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-        List<WebElement> res;
-        try {
-            res = wait.until(driver1 -> market.findElements(by));
-            return res;
-        } catch (TimeoutException e) {
-            market.click();
-            try {
-                clickOnSeeMore(driver, market);
-                res = wait.until(driver1 -> market.findElements(by));
-                return res;
-            } catch (TimeoutException | StaleElementReferenceException e1) {
-                throw new RuntimeException("Button not found [pinnacle] with by: " + by);
-            }
-        }
-    }
-
-    public static void clickOnSeeMore(ChromeDriver driver, WebElement market) {
-        try {
-            WebDriverWait waitForSeeMore = new WebDriverWait(driver, Duration.ofSeconds(1));
-            waitForSeeMore.pollingEvery(Duration.ofMillis(100));
-            var seeMore = waitForSeeMore.until(driver1 -> market.findElement(By.xpath(".//span[contains(text(), 'See more')]")));
-            waitForSeeMore.until(ExpectedConditions.elementToBeClickable(seeMore)).click();
-        } catch (TimeoutException | StaleElementReferenceException ignored) {
-            Context.log.info("[pinnacle] There isn`t 'See More'");
-        }
     }
 
     public static void login(ChromeDriver driver, Bookmaker bookmaker) throws InterruptedException {

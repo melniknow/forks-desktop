@@ -61,6 +61,11 @@ public class _188Bet implements IBookmaker {
         var marketSubName = marketData.get(1);
         var selectionName = getCorrectSelectionName(info.BK_market_meta().get("selectionName").getAsString(), info.BK_game());
 
+        Context.log.info("\n[188bet]\n" +
+            "marketName = " + marketName + "\n" +
+            "marketSubName = " + marketSubName + "\n" +
+            "selectionName = " + selectionName + "\n");
+
         var market = BetsSupport.getMarketByMarketName(driver, marketName, marketSubName);
 
         var line = info.BK_market_meta().has("line") ?
@@ -70,6 +75,11 @@ public class _188Bet implements IBookmaker {
         var handicap = info.BK_bet().contains("HANDICAP") ?
             extractContentInBrackets(info.BK_bet()).get(0) :
             null;
+
+        Context.log.info("\n[188bet]\n" +
+            "line = " + line + "\n" +
+            "handicap = " + handicap + "\n\n");
+
 
         var buttons = BetsSupport.findElementsWithClicking(market,
                 By.xpath(".//div[translate(text(),' ','') = '" + selectionName.replaceAll("\\s+", "") + "']"))
