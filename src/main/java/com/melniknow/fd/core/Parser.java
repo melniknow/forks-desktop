@@ -41,7 +41,7 @@ public class Parser {
 
         var url = UrlBuilder.fromString("http://194.67.68.124:8080/forks")
             .addParameter("bk2_name", buildArrayParamsWithLowerCase(params.bookmakers.stream().map(n -> n.nameInAPI)))
-            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(Enum::name)))
+            .addParameter("sport", buildArrayParamsWithLowerCase(params.sports.stream().map(n -> n.name)))
             .addParameter("is_middles", Integer.toString(params.middles))
             .addParameter("bet_types", buildArrayParamsWithUpperCase(params.types.stream().map(Enum::name)))
             .addParameter("min_cf", "1.01")
