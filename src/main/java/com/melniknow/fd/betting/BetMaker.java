@@ -118,20 +118,14 @@ public class BetMaker {
             var bet2 = bets.get(1);
 
             BigDecimal finalBet = bet1;
-            var enterSumAndCHeckCfFuture1 = executor.submit(() -> realization1.checkCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), isValueWithOneDollar ? bkParams1.currency().minValue : finalBet));
-
-            if (!isValue && !isVerifiedValue) {
-                var enterSumAndCHeckCfFuture2 = executor.submit(() -> realization2.checkCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), bet2));
-                enterSumAndCHeckCfFuture2.get(30, TimeUnit.SECONDS);
-            }
-
-            enterSumAndCHeckCfFuture1.get(30, TimeUnit.SECONDS);
 
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
 
             try {
-                var betFuture1 = executor.submit(() -> realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(), new ShoulderInfo(true, null, null, null)));
+                var betFuture1 = executor.submit(() ->
+                    realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(),
+                        new ShoulderInfo(true, null, null, null), isValueWithOneDollar ? bkParams1.currency().minValue : finalBet));
                 realCf1 = betFuture1.get(kSecondsForPlaceBet, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 var errorMessage = "Не удалось поставить вилку" + e.getCause().getLocalizedMessage();
@@ -149,7 +143,9 @@ public class BetMaker {
                 try {
                     BigDecimal finalRealCf = realCf1;
                     String bk1name = calculated.fork().betInfo1().BK_name();
-                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(), new ShoulderInfo(false, finalRealCf, finalBet, bk1name)));
+                    var betFuture2 = executor.submit(() ->
+                        realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(),
+                            new ShoulderInfo(false, finalRealCf, finalBet, bk1name), bet2));
                     realCf2 = betFuture2.get(kSecondsForPlaceBet, TimeUnit.SECONDS);
                 } catch (ExecutionException | TimeoutException e) {
                     if (bookmaker1Final.equals(Bookmaker._188BET)) { // Пытаемся сделать кешаут из 188bet

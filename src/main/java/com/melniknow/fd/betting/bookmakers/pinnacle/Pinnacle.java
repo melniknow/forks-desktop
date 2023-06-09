@@ -124,36 +124,17 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public void checkCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
-        Context.log.info("Call enterSumAndCheckCf Pinnacle");
-        try {
-            var currentCf = new BigDecimal(curButton.getText().split("\n")[1]);
-
-            Context.log.info("[pinnacle]: Current Cf = " + currentCf);
-
-            var inaccuracy = new BigDecimal("0.01");
-
-            if (currentCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s"
-                    .formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf.setScale(2, RoundingMode.DOWN)));
-            }
-
-            if (sum.compareTo(new BigDecimal("1")) < 0) {
-                throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
-            }
-            this.curSum = sum;
-        } catch (IndexOutOfBoundsException e) {
-            throw new RuntimeException("[pinnacle]: не получилось взять кэффициент из кнопки: " + curButton.getText());
-        }
-    }
-
-    @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
         Context.log.info("Call placeBetAndGetRealCf Pinnacle");
+
+        if (sum.compareTo(new BigDecimal("1")) < 0) {
+            throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
+        }
+
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             curButton.click();
-            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), curSum, "pinnacle");
+            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
 
             return waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
         } catch (StaleElementReferenceException e) {

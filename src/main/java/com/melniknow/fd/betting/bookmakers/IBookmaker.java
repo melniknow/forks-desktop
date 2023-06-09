@@ -9,6 +9,5 @@ import java.math.BigDecimal;
 public interface IBookmaker {
     void openLink(Bookmaker bookmaker, Parser.BetInfo info);
     BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException;
-    void checkCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum);
-    BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) throws InterruptedException;
+    BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) throws InterruptedException;
 }
