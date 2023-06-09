@@ -106,7 +106,7 @@ public class SeleniumSupport {
                 button.click();
             }
             case BET365 -> {
-                driver.manage().deleteAllCookies();
+                driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
                 driver.get(bookmaker.link);
             }
         }
