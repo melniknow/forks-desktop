@@ -24,9 +24,9 @@ public class Bet365 implements IBookmaker {
         try {
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
             driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
-
             driver.manage().window().setSize(new Dimension(1300, 1000));
-            driver.get(info.BK_href());
+
+            if (!driver.getCurrentUrl().equals(info.BK_href())) driver.get(info.BK_href());
         } catch (TimeoutException e) {
             throw new RuntimeException("[Bet365]: Страница не загружается!");
         }
