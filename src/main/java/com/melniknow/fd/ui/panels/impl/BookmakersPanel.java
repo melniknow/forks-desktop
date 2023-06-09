@@ -75,14 +75,14 @@ public class BookmakersPanel implements IPanel {
         profileTextCheck(bookmaker.name() + "linkField", linkField);
         grid.add(linkField, 1, y++);
 
-        var login = new Label("Логин *");
+        var login = new Label("Логин");
         grid.add(login, 0, y);
         var loginField = new TextField();
         loginField.setPrefHeight(40);
         profileTextCheck(bookmaker.name() + "loginField", loginField);
         grid.add(loginField, 1, y++);
 
-        var password = new Label("Пароль *");
+        var password = new Label("Пароль");
         grid.add(password, 0, y);
         var passwordField = new TextField();
         passwordField.setPrefHeight(40);
@@ -182,6 +182,14 @@ public class BookmakersPanel implements IPanel {
         proxyPasswordField.setPromptText("1234");
         grid.add(proxyPasswordField, 1, y++);
 
+        var dolphinId = new Label("DolphinAnti ID");
+        grid.add(dolphinId, 0, y);
+        var dolphinIdField = new TextField();
+        profileTextCheck(bookmaker.name() + "dolphinIdField", dolphinIdField);
+        dolphinIdField.setPrefHeight(40);
+        dolphinIdField.setPromptText("98746743");
+        grid.add(dolphinIdField, 1, y++);
+
         var saveButton = new Button("Сохранить данные " + bookmaker.nameInAPI);
         saveButton.setPrefHeight(40);
         saveButton.setDefaultButton(true);
@@ -254,9 +262,7 @@ public class BookmakersPanel implements IPanel {
         saveButton.setOnAction(event -> {
             try {
                 if (currencyField.getValue() == null || minimumField.getText().isEmpty() || maximumField.getText().isEmpty() ||
-                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() || roundingField.getValue() == null ||
-                    loginField.getText() == null || passwordField.getText() == null || loginField.getText().isEmpty() ||
-                    passwordField.getText().isEmpty())
+                    minimumRatioField.getText().isEmpty() || maximumRatioField.getText().isEmpty() || roundingField.getValue() == null)
                     throw new RuntimeException();
 
                 var port = proxyPortField.getText().isEmpty() ? null : Integer.parseInt(proxyPortField.getText());
@@ -267,7 +273,7 @@ public class BookmakersPanel implements IPanel {
                     proxyLoginField.getText(), proxyPasswordField.getText(), screenSizeField.getValue(),
                     new BigDecimal(minimumRatioField.getText()), new BigDecimal(maximumRatioField.getText()),
                     new BigDecimal(roundingField.getValue()),
-                    loginField.getText(), passwordField.getText()));
+                    loginField.getText(), passwordField.getText(), dolphinIdField.getText()));
 
                 Controller.runButton.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
                 Controller.bundleTab.setDisable(Context.parserParams.bookmakers().size() != Context.betsParams.size());
@@ -300,6 +306,7 @@ public class BookmakersPanel implements IPanel {
                 json.addProperty(bookmaker.name() + "roundingField", roundingField.getValue());
                 json.addProperty(bookmaker.name() + "loginField", loginField.getText());
                 json.addProperty(bookmaker.name() + "passwordField", passwordField.getText());
+                json.addProperty(bookmaker.name() + "dolphinIdField", dolphinIdField.getText());
 
                 Context.profile.save();
                 Context.log.info("Настройки букмекера " + bookmaker + " - " + Context.betsParams.get(bookmaker));

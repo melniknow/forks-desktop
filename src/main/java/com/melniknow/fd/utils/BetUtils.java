@@ -14,7 +14,7 @@ public class BetUtils {
                              String proxyLogin, String proxyPassword, String screenSize,
                              BigDecimal minCf,
                              BigDecimal maxCf, BigDecimal accuracy,
-                             String login, String password) { }
+                             String login, String password, String dolphinAntiId) { }
 
     // Поставленная вилка
     public record CompleteBetsFork(MathUtils.CalculatedFork calculatedFork, String income,
