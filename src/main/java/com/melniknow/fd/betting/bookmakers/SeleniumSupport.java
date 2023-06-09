@@ -105,10 +105,7 @@ public class SeleniumSupport {
 
                 button.click();
             }
-            case BET365 -> {
-                driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
-                driver.get(bookmaker.link);
-            }
+            case BET365 -> driver.get(bookmaker.link);
         }
     }
 
