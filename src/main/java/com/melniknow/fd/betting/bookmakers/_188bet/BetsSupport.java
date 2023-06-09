@@ -101,7 +101,7 @@ public class BetsSupport {
     }
 
     public static void clearPreviousBets(ChromeDriver driver) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         try {
             ((JavascriptExecutor) driver).executeScript("""
@@ -112,13 +112,21 @@ public class BetsSupport {
                 catch(Exception) {}
                 """);
             TimeUnit.MILLISECONDS.sleep(1000);
+            WebElement elem = driver.findElement(By.xpath("//h3[@data-txt-selection-count]"));
+            if (elem.getAttribute("data-txt-selection-count").equals("0")) {
+                try {
+                    wait.until(driver1 -> driver1.findElement(By.xpath("//h3[text()='Bet Slip']"))).click();
+                }  catch (Exception ignored1) { }
+                return;
+            }
+
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(800);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
             TimeUnit.MILLISECONDS.sleep(800);
         } catch (NoSuchElementException | StaleElementReferenceException |
-                 ElementNotInteractableException ignored) {
-        } catch (InterruptedException | TimeoutException e) {
+                 ElementNotInteractableException | TimeoutException ignored) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e.getMessage());
         }
     }

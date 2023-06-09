@@ -130,34 +130,6 @@ public class _188Bet implements IBookmaker {
         return result;
     }
 
-    @Override
-    public void checkCf(Bookmaker bookmaker, Parser.BetInfo info, BigDecimal sum) {
-        Context.log.info("Call enterSumAndCheckCf _188Bet");
-        try {
-            var line = info.BK_market_meta().has("line") ?
-                info.BK_market_meta().get("line").getAsString() :
-                null;
-            var cfText = line == null ?
-                SeleniumSupport.getParentByDeep(curButton, 1).getText().split("\n")[1] :
-                SeleniumSupport.getParentByDeep(curButton, 1).getText().split("\n")[2];
-            var currentCf = new BigDecimal(cfText);
-
-            Context.log.info("[188bet]: currentCf = " + currentCf);
-
-            var inaccuracy = new BigDecimal("0.01");
-            if (currentCf.add(inaccuracy).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[188bet]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), currentCf));
-            }
-
-            if (sum.compareTo(new BigDecimal("50")) < 0) {
-                throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
-            }
-            this.curSum = sum;
-        } catch (StaleElementReferenceException | IndexOutOfBoundsException e) {
-            throw new RuntimeException("[188bet]: Не получилось взять коэффициент из кнопки");
-        }
-    }
-
     // это 4 состояния, в которых мы можем пребывать когда пытаемся поставить ставку
     private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
@@ -165,17 +137,22 @@ public class _188Bet implements IBookmaker {
     private static final By bySuccessBet = By.xpath("//h4[text()='Your bet has been successfully placed.']");
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo) {
+    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
         Context.log.info("Call placeBetAndGetRealCf _188Bet");
+
+        if (sum.compareTo(new BigDecimal("50")) < 0) {
+            throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
+        }
+
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             this.curButton.click();
             try {
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
             } catch (RuntimeException e) {
                 BetsSupport.clearPreviousBets(driver);
                 this.curButton.click();
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), curSum, "188bet");
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
             }
             // от сюда мы выёдем только если поставили
             waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
