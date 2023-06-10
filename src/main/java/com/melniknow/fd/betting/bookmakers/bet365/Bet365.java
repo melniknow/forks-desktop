@@ -13,6 +13,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +32,7 @@ public class Bet365 implements IBookmaker {
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
+<<<<<<< HEAD
         this.driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
 //        Context.log.info("Call openLink Bet365");
@@ -42,7 +45,21 @@ public class Bet365 implements IBookmaker {
 //        } catch (TimeoutException e) {
 //            throw new RuntimeException("[Bet365]: Страница не загружается!");
 //        }
+=======
+        curButton = null;
+      
+        Context.log.info("Call openLink Bet365");
+        try {
+            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+            driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
+            driver.navigate().to(info.BK_href());
+        } catch (TimeoutException e) {
+            throw new RuntimeException("[Bet365]: Страница не загружается!");
+        }
+>>>>>>> c105a5a49d90ee2bd53c45c5fa1165330ef07429
     }
+    // "Asian Handicap (0-0)|+1| +1|University Azzurri FC"
+    //
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
         var name = info.BK_market_meta().get("name").getAsString();
@@ -67,27 +84,7 @@ public class Bet365 implements IBookmaker {
     private static final By byBetClosed = By.className("TODO");
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
-
-//        Context.log.info("Call placeBetAndGetRealCf Bet365");
-//
-//        if (sum.compareTo(new BigDecimal("1")) < 0) {
-//            throw new RuntimeException("[bet365]: Не ставим ставки меньше 1, sum = " + sum);
-//        }
-//
-//        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-//        try {
-//            this.curButton.click();
-//            enterSum(driver, sum);
-//            // TODO rm prev windows
-//            var realCf = waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
-//            closeAfterSuccess(driver);
-//            return realCf;
-//        } catch (StaleElementReferenceException e) {
-//            throw new RuntimeException("[bet365]: событие пропало со страницы (не смогли нажать на кнопку)");
-//        } catch (RuntimeException e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
+    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) throws InterruptedException {
         return null;
     }
 

@@ -34,6 +34,7 @@ public class ScreenManager {
     private final ConcurrentMap<Bookmaker, ChromeDriver> screenStorage = new ConcurrentHashMap<>();
 
     public ScreenManager() {
+        // FIXME: [build] путь до exe в нашей папке
         WebDriverManager.chromedriver().setup();
     }
 
@@ -43,7 +44,7 @@ public class ScreenManager {
 
         Context.parsingPool.execute(() -> {
             try {
-                if (bookmaker != Bookmaker.BET365) {
+                if (true) {
                     var options = new ChromeOptions();
                     options.addArguments("--remote-allow-origins=*");
                     options.addArguments("ignore-certificate-errors");
@@ -171,13 +172,13 @@ public class ScreenManager {
                     var port = jsonParser.getAsJsonObject().getAsJsonObject("automation")
                         .getAsJsonPrimitive("port").getAsLong();
 
-                    // FIXME: [build] путь до exe в нашей папке
-                    var dolphinChromeDriverPath = "/home/arkady/chromedriver-linux";
-
-                    System.setProperty("webdriver.chrome.driver", dolphinChromeDriverPath);
-
                     ChromeOptions options = new ChromeOptions();
-                    options.setExperimentalOption("debuggerAddress", "localhost:" + port);
+//                    options.addArguments("--remote-allow-origins=*");
+//                    options.addArguments("ignore-certificate-errors");
+//                    options.addArguments("--disable-blink-features=AutomationControlled");
+//                    options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+//                    options.setExperimentalOption("useAutomationExtension", false);
+                    options.addArguments("--remote-debugging-port=" + port);
                     var driver = new ChromeDriver(options);
 
                     screenStorage.put(bookmaker, driver);
