@@ -45,7 +45,7 @@ public class SeleniumSupport {
                 var wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 
                 var startButton = wait.until(driver_ -> driver_.findElement(By.xpath("//button/span[text()='Log in']/parent::button")));
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(10);
                 wait.until(ExpectedConditions.elementToBeClickable(startButton));
                 startButton.click();
 

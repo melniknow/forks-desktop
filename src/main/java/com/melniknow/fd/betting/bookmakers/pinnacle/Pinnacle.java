@@ -22,13 +22,13 @@ import java.time.Duration;
 public class Pinnacle implements IBookmaker {
 
     private WebElement curButton;
-    private BigDecimal curSum;
+    private BigDecimal realSum;
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         try {
             curButton = null;
-            curSum = null;
+            realSum = null;
 
             Context.log.info("Call openLink Pinnacle");
             var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
@@ -124,7 +124,7 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
+    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
         Context.log.info("Call placeBetAndGetRealCf Pinnacle");
 
         if (sum.compareTo(new BigDecimal("1")) < 0) {
@@ -132,11 +132,12 @@ public class Pinnacle implements IBookmaker {
         }
 
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+        realSum = sum;
         try {
             curButton.click();
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
 
-            return waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
+            return new BetUtils.BetData(waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo), realSum);
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
@@ -228,7 +229,7 @@ public class Pinnacle implements IBookmaker {
                 Context.log.info("[pinnacle]: newSum = " + newSum + " | with cf = " + curCf);
 
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), newSum, "pinnacle");
-
+                realSum = newSum;
                 for (int i = 0; i < 10; ++i) {
                     if (clickIfIsClickable(driver)) {
                         return;

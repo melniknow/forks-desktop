@@ -27,12 +27,12 @@ import static com.melniknow.fd.betting.bookmakers._188bet.BetsSupport.*;
 public class _188Bet implements IBookmaker {
 
     private WebElement curButton;
-    private BigDecimal curSum;
+    private BigDecimal realSum;
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         curButton = null;
-        curSum = null;
+        realSum = null;
 
         Context.log.info("Call openLink _188Bet");
         try {
@@ -137,13 +137,13 @@ public class _188Bet implements IBookmaker {
     private static final By bySuccessBet = By.xpath("//h4[text()='Your bet has been successfully placed.']");
 
     @Override
-    public BigDecimal placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
+    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
         Context.log.info("Call placeBetAndGetRealCf _188Bet");
 
         if (sum.compareTo(new BigDecimal("50")) < 0) {
             throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
         }
-
+        realSum = sum;
         var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
             this.curButton.click();
@@ -162,7 +162,7 @@ public class _188Bet implements IBookmaker {
             // чтобы закрыть окошко мы нажимаем на "ОК", тк крестик после успешной ставки пропадает
             BetsSupport.closeAfterSuccessfulBet(driver);
             Context.log.info("[188bet]: Final cf = " + realCf);
-            return realCf;
+            return new BetUtils.BetData(realCf, realSum);
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[188bet]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
@@ -254,9 +254,11 @@ public class _188Bet implements IBookmaker {
                 Context.log.info("[188bet]: newSum = " + newSum + " | with cf = " + curCf);
 
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), newSum, "188bet");
-
+                realSum = newSum;
                 // кликаем на PlaceBet
-                clickIfIsClickable(driver, byPlaceBet);
+                for (int i = 0; i < 10; ++i) {
+                    if (clickIfIsClickable(driver, byPlaceBet)) return;
+                }
             }
         } else {
             throw new RuntimeException("[188bet]: Коэфициент на первом плече упал");

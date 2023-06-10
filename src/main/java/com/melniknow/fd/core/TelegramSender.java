@@ -27,11 +27,16 @@ public class TelegramSender {
     }
 
     public static String getForkAsMessage(BetUtils.CompleteBetsFork completedFork) {
+        var realIncome = completedFork.realIncome() == null ?
+            completedFork.calculatedFork().fork().income() :
+            completedFork.realIncome();
+
         var fork = completedFork.calculatedFork().fork();
+
         return String.format(
             "Поставлена вилка! " + "\u26A1" + "\u26A1" + "\u26A1" + "\n\n" +
                 "<i>Имя профиля:</i> <b>" + ProfileTab.profileSessionName + "</b>" + "\n" +
-                "<i>Доход:</i> <b>" + fork.income() + "</b>" + "\n" +
+                "<i>Доход:</i> <b>" + realIncome + "</b>" + "\n" +
                 "<i>Спорт:</i> <b>" + fork.sport() + "</b>" + "\n" +
                 "<i>Тип ставки:</i> <b>" + fork.betType() + "</b>" + "\n\n" +
 
