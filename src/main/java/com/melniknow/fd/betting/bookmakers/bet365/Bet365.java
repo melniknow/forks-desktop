@@ -9,17 +9,16 @@ import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.Arrays;
 
 public class Bet365 implements IBookmaker {
     private WebElement curButton;
@@ -41,7 +40,21 @@ public class Bet365 implements IBookmaker {
 //        }
     }
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
+//        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+//
+//        var name = info.BK_market_meta().get("name").getAsString();
+//        var names = Arrays.stream(name.split("\\|")).toList();
+//        if (names.isEmpty())
+//            throw new RuntimeException("[bet365] пустые метаданные");
+//        if (names.size() == 2) {
+//            findButtonInSimpleTable(driver, getMarketByMarketName(driver, names.get(0)),  names.get(1));
+//        } else if (names.size() == 3) {
+//            findButtonInTable(driver, getMarketByMarketName(driver, names.get(0)), names.get(1), names.get(2));
+//        } else {
+//            throw new RuntimeException("[bet365]: неподдерживаемая ставка: " + names);
+//        }
+
         return null;
     }
 
@@ -218,6 +231,32 @@ public class Bet365 implements IBookmaker {
         } catch (Exception e) {
             Context.log.info("[bet365]: Не смогли закрыть купон после успешной ставки. Ошибка: " + e.getMessage());
         }
+    }
+
+    private WebElement getMarketByMarketName(ChromeDriver driver, String marketName) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.pollingEvery(Duration.ofMillis(100));
+            var elem = wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='%s']".formatted(marketName))));
+            Context.log.info("[bet365]: Find market");
+            ((JavascriptExecutor) driver).executeScript("""
+                            arguments[0].scrollIntoView()
+                            window.scrollBy(0, -100)
+                            """, elem);
+            return SeleniumSupport.getParentByDeep(elem, 2);
+        } catch (Exception e) {
+            var message = "[bet365]: Не найден маркет " + marketName;
+            Context.log.info(message);
+            throw new RuntimeException(message);
+        }
+    }
+
+    private void findButtonInSimpleTable(ChromeDriver driver, WebElement market, String buttonName) {
+
+    }
+
+    private void findButtonInTable(ChromeDriver driver, WebElement market, String rowName, String columnName) {
+
     }
 }
 

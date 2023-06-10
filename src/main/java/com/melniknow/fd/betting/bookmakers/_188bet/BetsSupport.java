@@ -106,8 +106,8 @@ public class BetsSupport {
         try {
             ((JavascriptExecutor) driver).executeScript("""
                 try {
-                    var el = document.querySelector('[data-btn-remove-all="true"]')
-                    el.click()
+                    var el = document.getElementById("BottomNav");
+                    el.childNodes[2].click()
                 }
                 catch(Exception) {}
                 """);
