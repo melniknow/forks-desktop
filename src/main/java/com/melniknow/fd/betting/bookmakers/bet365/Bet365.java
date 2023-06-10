@@ -4,14 +4,15 @@ import com.melniknow.fd.Context;
 import com.melniknow.fd.betting.bookmakers.IBookmaker;
 import com.melniknow.fd.betting.bookmakers.SeleniumSupport;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
-import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
-import com.melniknow.fd.betting.bookmakers.pinnacle.Pinnacle;
 import com.melniknow.fd.core.Parser;
 import com.melniknow.fd.domain.Bookmaker;
 import com.melniknow.fd.domain.Sport;
 import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -48,8 +49,8 @@ public class Bet365 implements IBookmaker {
     private static final By byPlaceBet = By.xpath("//div[text()='Place Bet']");
     private static final By byAccepChangeAndPlaceBet = By.xpath("//div[text()='Accept Change and']");
     private static final By byEnterSum = By.cssSelector("[placeholder='Set Stake']");
-    private static final By byBetSuccess = By.className("bss-ReceiptContent_Done ");
-    private static final By byCloseBet = By.className("bss-RemoveButton ");
+    private static final By byBetSuccess = By.className("bss-ReceiptContent_Done");
+    private static final By byCloseBet = By.className("bss-RemoveButton");
     private static final By byBetClosed = By.className("TODO");
 
     @Override

@@ -111,8 +111,10 @@ public class Pinnacle implements IBookmaker {
                 "[pinnacle]: Current Cf from click = " + curCf);
 
             var inaccuracy = new BigDecimal("0.01");
-            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0) {
-                throw new RuntimeException("[pinnacle]: коэффициент упал - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
+            var inaccuracy2 = new BigDecimal("0.05");
+            if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0 ||
+                 curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) {
+                throw new RuntimeException("[pinnacle]: коэффициент изменился - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
             // сохраняем всю кнопку
             this.curButton = SeleniumSupport.getParentByDeep(button, 1);
