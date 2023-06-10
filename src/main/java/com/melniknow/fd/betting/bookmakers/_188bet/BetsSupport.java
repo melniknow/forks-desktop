@@ -106,12 +106,12 @@ public class BetsSupport {
         try {
             ((JavascriptExecutor) driver).executeScript("""
                 try {
-                    var el = document.querySelector('[data-btn-remove-all="true"]')
-                    el.click()
+                    var el = document.getElementById("BottomNav");
+                    el.childNodes[2].click()
                 }
                 catch(Exception) {}
                 """);
-            TimeUnit.MILLISECONDS.sleep(1000);
+            TimeUnit.MILLISECONDS.sleep(1500);
             WebElement elem = driver.findElement(By.xpath("//h3[@data-txt-selection-count]"));
             if (elem.getAttribute("data-txt-selection-count").equals("0")) {
                 try {
@@ -121,9 +121,9 @@ public class BetsSupport {
             }
 
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-trash-can='true']")))).click();
-            TimeUnit.MILLISECONDS.sleep(800);
+            TimeUnit.MILLISECONDS.sleep(1000);
             wait.until((ExpectedConditions.elementToBeClickable(By.cssSelector("[data-btn-remove-all='true']")))).click();
-            TimeUnit.MILLISECONDS.sleep(800);
+            TimeUnit.MILLISECONDS.sleep(1000);
         } catch (NoSuchElementException | StaleElementReferenceException |
                  ElementNotInteractableException | TimeoutException ignored) {
         } catch (InterruptedException e) {
