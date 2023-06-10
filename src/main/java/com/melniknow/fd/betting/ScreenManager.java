@@ -35,11 +35,7 @@ public class ScreenManager {
 
     public ScreenManager() {
         // FIXME: [build] путь до exe в нашей папке
-        var dolphinChromeDriverPath = "/home/sergey/chromedriver/chromedriver-linux";
-
-        System.setProperty("webdriver.chrome.driver", dolphinChromeDriverPath);
         WebDriverManager.chromedriver().setup();
-        System.setProperty("webdriver.chrome.driver", dolphinChromeDriverPath);
     }
 
     public synchronized void createScreenForBookmaker(Bookmaker bookmaker) {
@@ -48,7 +44,7 @@ public class ScreenManager {
 
         Context.parsingPool.execute(() -> {
             try {
-                if (bookmaker != Bookmaker.BET365) {
+                if (true) {
                     var options = new ChromeOptions();
                     options.addArguments("--remote-allow-origins=*");
                     options.addArguments("ignore-certificate-errors");
@@ -177,11 +173,11 @@ public class ScreenManager {
                         .getAsJsonPrimitive("port").getAsLong();
 
                     ChromeOptions options = new ChromeOptions();
-                    options.addArguments("--remote-allow-origins=*");
-                    options.addArguments("ignore-certificate-errors");
-                    options.addArguments("--disable-blink-features=AutomationControlled");
-                    options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-                    options.setExperimentalOption("useAutomationExtension", false);
+//                    options.addArguments("--remote-allow-origins=*");
+//                    options.addArguments("ignore-certificate-errors");
+//                    options.addArguments("--disable-blink-features=AutomationControlled");
+//                    options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+//                    options.setExperimentalOption("useAutomationExtension", false);
                     options.addArguments("--remote-debugging-port=" + port);
                     var driver = new ChromeDriver(options);
 
