@@ -176,7 +176,7 @@ public class _188Bet implements IBookmaker {
     private void waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) throws InterruptedException {
         // в цикле - жмём на кнопку - пытаемся подождать результата
         var isFirstClick = true;
-        for (int i = 0; i < 15; ++i) {
+        for (int i = 0; i < 25; ++i) {
             updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
             isFirstClick = false;
             if (waitSuccess(driver)) {
@@ -190,7 +190,7 @@ public class _188Bet implements IBookmaker {
 
     private boolean waitSuccess(ChromeDriver driver) {
         // вечно ждать нельзя!
-        for (int i = 0; i < 15; ++i) {
+        for (int i = 0; i < 30; ++i) {
             try {
                 Context.log.info("[188bet]: Wait....");
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
@@ -198,6 +198,8 @@ public class _188Bet implements IBookmaker {
                 wait.until(driver1 -> driver1.findElement(bySuccessBet));
                 return true;
             } catch (Exception e) {
+                if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                    throw new RuntimeException("[188bet]: Не можем дождаться постановки ставки");
                 // Пока мы ждали ничего не произошло? (ставка могла закрыться или поменяться коэфы и тд)
                 if (windowContains(driver, byAccepChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byClosedBet)) {
                     Context.log.info("[188bet]: Exit from wait");
@@ -219,7 +221,26 @@ public class _188Bet implements IBookmaker {
             // чекаем, мейби ставка вовсе закрыта
             if (windowContains(driver, byClosedBet)) {
                 Context.log.info("[188bet]: Событие закрыто");
-                throw new RuntimeException("[188bet]: Событие закрыто");
+                if (!shoulderInfo.isFirst()) {
+                    int i = 0;
+                    while (true) {
+                        if (windowContains(driver, byClosedBet)) {
+                            try {
+                                Context.log.info("[188bet]: Ждём открытия события");
+                                if (++i == 30)
+                                    throw new RuntimeException("[188bet]: Событие закрыто");
+                                TimeUnit.SECONDS.sleep(2);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException("[188bet]: Событие закрыто");
+                            }
+                        } else {
+                            Context.log.info("[188bet]: Дождались открытия!");
+                            break;
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("[188bet]: Событие закрыто");
+                }
             }
         }
         // если всё ок, то получаем коэф

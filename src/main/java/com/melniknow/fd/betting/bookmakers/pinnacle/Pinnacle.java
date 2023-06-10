@@ -18,6 +18,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 public class Pinnacle implements IBookmaker {
 
@@ -113,7 +114,7 @@ public class Pinnacle implements IBookmaker {
             var inaccuracy = new BigDecimal("0.01");
             var inaccuracy2 = new BigDecimal("0.05");
             if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) < 0 ||
-                 curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) {
+                curCf.subtract(inaccuracy2).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) > 0) {
                 throw new RuntimeException("[pinnacle]: коэффициент изменился - было %s, стало %s".formatted(info.BK_cf().setScale(2, RoundingMode.DOWN), curCf));
             }
             // сохраняем всю кнопку
@@ -191,7 +192,27 @@ public class Pinnacle implements IBookmaker {
         if (!isFirstClick) {
             // Ставка закрыта?
             if (SeleniumSupport.windowContains(driver, byBetClosed)) {
-                throw new RuntimeException("[pinnacle]: Ставка закрыта");
+                Context.log.info("[pinnacle]: Событие закрыто");
+                if (!shoulderInfo.isFirst()) {
+                    int i = 0;
+                    while (true) {
+                        if (SeleniumSupport.windowContains(driver, byBetClosed)) {
+                            try {
+                                Context.log.info("[pinnacle]: Ждём открытия события");
+                                if (++i == 30)
+                                    throw new RuntimeException("[pinnacle]: Событие закрыто");
+                                TimeUnit.SECONDS.sleep(2);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException("[pinnacle]: Событие закрыто");
+                            }
+                        } else {
+                            Context.log.info("[pinnacle]: Дождались открытия!");
+                            break;
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("[pinnacle]: Событие закрыто");
+                }
             }
             // Кнопка может быть не активна
             if (!isActivePlaceBet(driver)) {
