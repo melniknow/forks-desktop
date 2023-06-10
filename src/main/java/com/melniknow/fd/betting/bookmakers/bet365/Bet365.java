@@ -11,7 +11,6 @@ import com.melniknow.fd.utils.BetUtils;
 import com.melniknow.fd.utils.MathUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -22,15 +21,20 @@ import java.util.Arrays;
 
 public class Bet365 implements IBookmaker {
     private WebElement curButton;
+    private ChromeDriver driver;
+
+    public Bet365() {
+        this.curButton = null;
+        this.driver = null;
+    }
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-        curButton = null;
-
+        this.driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
 //        Context.log.info("Call openLink Bet365");
 //        try {
-//            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+//
 //            driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
 //            driver.manage().window().setSize(new Dimension(1300, 1000));
 //
@@ -41,21 +45,17 @@ public class Bet365 implements IBookmaker {
     }
     @Override
     public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
-//        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-//
-//        var name = info.BK_market_meta().get("name").getAsString();
-//        var names = Arrays.stream(name.split("\\|")).toList();
-//        if (names.isEmpty())
-//            throw new RuntimeException("[bet365] пустые метаданные");
-//        if (names.size() == 2) {
-//            findButtonInSimpleTable(driver, getMarketByMarketName(driver, names.get(0)),  names.get(1));
-//        } else if (names.size() == 3) {
-//            findButtonInTable(driver, getMarketByMarketName(driver, names.get(0)), names.get(1), names.get(2));
-//        } else {
-//            throw new RuntimeException("[bet365]: неподдерживаемая ставка: " + names);
-//        }
-
-        return null;
+        var name = info.BK_market_meta().get("name").getAsString();
+        var names = Arrays.stream(name.split("\\|")).toList();
+        if (names.isEmpty())
+            throw new RuntimeException("[bet365] пустые метаданные");
+        if (names.size() == 2) {
+            return findButtonInSimpleTable(getMarketByMarketName(names.get(0)), names.get(1));
+        } else if (names.size() == 3) {
+            return findButtonInTable(getMarketByMarketName(names.get(0)), names.get(1), names.get(2));
+        } else {
+            throw new RuntimeException("[bet365]: неподдерживаемая ставка: " + names);
+        }
     }
 
     private static final By byAccepChanges = By.xpath("//div[text()='Accept Change']");
@@ -91,19 +91,19 @@ public class Bet365 implements IBookmaker {
         return null;
     }
 
-    private BigDecimal waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
+    private BigDecimal waitLoop(String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
         var isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
-            updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
+            updateOdds(bkName, oldCf, shoulderInfo, isFirstClick);
             isFirstClick = false;
-            if (waitSuccess(driver)) {
+            if (waitSuccess()) {
                 return getCurrentCf(driver);
             }
         }
         throw new RuntimeException("[bet365]: Плечо не может быть проставлено - не можем дождаться обработки ставки(1)");
     }
 
-    private boolean waitSuccess(ChromeDriver driver) {
+    private boolean waitSuccess() {
         for (int i = 0; i < 30; ++i) {
             try {
                 Context.log.info("[bet365]: Wait....");
@@ -124,7 +124,7 @@ public class Bet365 implements IBookmaker {
         throw new RuntimeException("[bet365]: Плечо не может быть проставлено - не можем дождаться обработки ставки(2)");
     }
 
-    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
+    private void updateOdds(String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
         if (!isFirstClick) {
             // Ставка закрыта?
             if (SeleniumSupport.windowContains(driver, byBetClosed)) {
@@ -137,7 +137,7 @@ public class Bet365 implements IBookmaker {
         if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[bet365]: Click Place 1");
             for (int i = 0; i < 10; ++i) {
-                if (clickIfIsClickable(driver)) {
+                if (clickIfIsClickable()) {
                     return;
                 }
             }
@@ -165,7 +165,7 @@ public class Bet365 implements IBookmaker {
 
                 for (int i = 0; i < 10; ++i) {
                     Context.log.info("[bet365]: Click Place 2");
-                    if (clickIfIsClickable(driver)) {
+                    if (clickIfIsClickable()) {
                         return;
                     }
                 }
@@ -175,7 +175,7 @@ public class Bet365 implements IBookmaker {
         }
     }
 
-    private static boolean clickIfIsClickable(ChromeDriver driver) {
+    private boolean clickIfIsClickable() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         wait.pollingEvery(Duration.ofMillis(100));
         try {
@@ -233,16 +233,16 @@ public class Bet365 implements IBookmaker {
         }
     }
 
-    private WebElement getMarketByMarketName(ChromeDriver driver, String marketName) {
+    private WebElement getMarketByMarketName(String marketName) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             wait.pollingEvery(Duration.ofMillis(100));
             var elem = wait.until(driver1 -> driver1.findElement(By.xpath("//div[text()='%s']".formatted(marketName))));
             Context.log.info("[bet365]: Find market");
             ((JavascriptExecutor) driver).executeScript("""
-                            arguments[0].scrollIntoView()
-                            window.scrollBy(0, -100)
-                            """, elem);
+                arguments[0].scrollIntoView()
+                window.scrollBy(0, -100)
+                """, elem);
             return SeleniumSupport.getParentByDeep(elem, 2);
         } catch (Exception e) {
             var message = "[bet365]: Не найден маркет " + marketName;
@@ -251,12 +251,76 @@ public class Bet365 implements IBookmaker {
         }
     }
 
-    private void findButtonInSimpleTable(ChromeDriver driver, WebElement market, String buttonName) {
-
+    private BigDecimal findButtonInSimpleTable(WebElement market, String buttonName) {
+        return null;
     }
 
-    private void findButtonInTable(ChromeDriver driver, WebElement market, String rowName, String columnName) {
+    private BigDecimal findButtonInTable(WebElement market, String rowName, String columnName) {
+        var subMarket = market.findElements(By.xpath("./child::*")).get(1);
+        var table = subMarket.findElements(By.xpath("./child::*")).get(0);
+        var column = getColumnByName(table, columnName);
+        var firstColumn = table.findElements(By.xpath("./child::*")).get(0);
+        this.curButton = getButtonInColumnByLineIndex(column, getIndexOfCorrectLineInColumn(firstColumn, rowName));
+        return getCfFromButton(curButton);
+    }
 
+    private WebElement getColumnByName(WebElement table, String columnName) {
+        var columns = table.findElements(By.xpath("./child::*"));
+        for (var col : columns) {
+            if (containsName(col, By.xpath(".//div[text()='%s']".formatted(columnName))))
+                return col;
+        }
+        throw new RuntimeException("[bet365] не найден нужный столбик в таблице событий");
+    }
+
+    private int getIndexOfCorrectLineInColumn(WebElement column, String lineName) {
+        var rows = column.findElements(By.xpath("./child::*"));
+        int index = 0;
+        for (var row : rows) {
+            if (containsName(row, By.xpath(".//div[text()='%s']".formatted(lineName))))
+                return index;
+            index++;
+        }
+        throw new RuntimeException("[bet365] не найдена нужная строка в таблице событий");
+    }
+
+    private WebElement getButtonInColumnByLineIndex(WebElement column, int lineIndex) {
+        var rowsInColumn = column.findElements(By.xpath("./child::*"));
+        return rowsInColumn.get(lineIndex);
+    }
+
+    private BigDecimal getCfFromButton(WebElement button) {
+        if (button.getText().contains("\n"))
+            return new BigDecimal(button.getText().split("\n")[1]);
+        return new BigDecimal(button.getText());
+    }
+
+    private boolean containsName(WebElement elem, By by) {
+        try {
+            elem.findElement(by);
+            return true;
+        } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
+            return false;
+        }
+    }
+
+    private BigDecimal findButtonInAsianHandicapTable(WebElement market, String columnName, String rowName) {
+        var subMarket = market.findElements(By.xpath("./child::*")).get(1);
+        var table = subMarket.findElements(By.xpath("./child::*")).get(0);
+        var column = getColumnByName(table, columnName);
+        this.curButton = getButtonInColumnByName(column, rowName);
+        return getCfFromButton(curButton);
+    }
+
+    private WebElement getButtonInColumnByName(WebElement column, String lineName) {
+        var rows = column.findElements(By.xpath("./child::*"));
+        for (var row : rows) {
+            if (containsName(row, By.xpath(".//span[text()='%s']".formatted(lineName))))
+                return row;
+        }
+        throw new RuntimeException("[bet365] не найдена нужная строка в таблице событий");
     }
 }
 
