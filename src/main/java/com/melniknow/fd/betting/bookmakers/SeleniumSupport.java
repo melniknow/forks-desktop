@@ -122,7 +122,7 @@ public class SeleniumSupport {
         }
     }
 
-    private static void clearBetSum(WebElement enterSumButton, String betSum) {
+    public static void clearBetSum(WebElement enterSumButton, String betSum) {
         for (int i = 0; i < betSum.length(); ++i) {
             enterSumButton.sendKeys(Keys.BACK_SPACE);
         }
@@ -149,6 +149,17 @@ public class SeleniumSupport {
             throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
         } catch (TimeoutException e) {
             throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон - Не найдено поле ввода".formatted(bkName));
+        }
+    }
+
+    public static boolean windowContains(ChromeDriver driver, By by) {
+        try {
+            driver.findElement(by);
+            return true;
+        } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
+                throw new RuntimeException();
+            return false;
         }
     }
 }

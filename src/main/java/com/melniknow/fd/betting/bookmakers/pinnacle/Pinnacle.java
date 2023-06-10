@@ -174,20 +174,21 @@ public class Pinnacle implements IBookmaker {
                 return true;
             } catch (Exception e) {
                 // После попытки подождать чекаем ничего ли не произошло пока мы ждали?
-                if (windowContains(driver, byOddsChanges) || isActivePlaceBet(driver) || windowContains(driver, byBetClosed)) {
+                if (SeleniumSupport.windowContains(driver, byOddsChanges) || isActivePlaceBet(driver) || SeleniumSupport.windowContains(driver, byBetClosed)) {
                     Context.log.info("[pinnacle]: Exit from wait");
                     // что-то появилось, ждать бесполезно идём нажимать на новую кнопку
                     return false;
                 }
             }
         }
-        throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
+        Context.log.info("[pinnacle]: wait stop!");
+        throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено - не можем дождаться обработки ставки");
     }
 
     private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
         if (!isFirstClick) {
             // Ставка закрыта?
-            if (windowContains(driver, byBetClosed)) {
+            if (SeleniumSupport.windowContains(driver, byBetClosed)) {
                 throw new RuntimeException("[pinnacle]: Ставка закрыта");
             }
             // Кнопка может быть не активна
@@ -212,14 +213,13 @@ public class Pinnacle implements IBookmaker {
                 Context.log.info("[pinnacle]: Max minus: newIncome = " + newIncome);
                 throw new RuntimeException("[pinnacle]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
-                // считаем новую сумму
-                Context.log.info("[pinnacle]: Click Place 2");
                 // забираем наши валюты
                 var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
                 var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
 
                 var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).accuracy().intValue();
 
+                // считаем новую сумму
                 var newSum = shoulderInfo.cf1()
                     .multiply(shoulderInfo.sum1().multiply(currencyFirstShoulder))
                     .divide(curCf, 2, RoundingMode.DOWN)
@@ -230,6 +230,7 @@ public class Pinnacle implements IBookmaker {
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), newSum, "pinnacle");
 
                 for (int i = 0; i < 10; ++i) {
+                    Context.log.info("[pinnacle]: Click Place 2");
                     if (clickIfIsClickable(driver)) {
                         return;
                     }
@@ -237,17 +238,6 @@ public class Pinnacle implements IBookmaker {
             }
         } else {
             throw new RuntimeException("[pinnacle]: Коэфициент на первом плече упал. Было - " + oldCf + " стало - " + curCf);
-        }
-    }
-
-    private static boolean windowContains(ChromeDriver driver, By by) {
-        try {
-            driver.findElement(by);
-            return true;
-        } catch (Exception e) {
-            if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
-                throw new RuntimeException();
-            return false;
         }
     }
 

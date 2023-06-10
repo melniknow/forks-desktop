@@ -27,12 +27,10 @@ import static com.melniknow.fd.betting.bookmakers._188bet.BetsSupport.*;
 public class _188Bet implements IBookmaker {
 
     private WebElement curButton;
-    private BigDecimal curSum;
 
     @Override
     public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
         curButton = null;
-        curSum = null;
 
         Context.log.info("Call openLink _188Bet");
         try {
@@ -186,6 +184,7 @@ public class _188Bet implements IBookmaker {
                 return;
             }
         }
+        Context.log.info("[188bet]: wait stop!");
         throw new RuntimeException("[188bet]: Плечо не может быть проставлено");
     }
 

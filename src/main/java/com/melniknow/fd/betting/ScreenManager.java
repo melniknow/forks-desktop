@@ -172,7 +172,7 @@ public class ScreenManager {
                         .getAsJsonPrimitive("port").getAsLong();
 
                     // FIXME: [build] путь до exe в нашей папке
-                    var dolphinChromeDriverPath = "/home/sergey/chromedriver/chromedriver-linux";
+                    var dolphinChromeDriverPath = "/home/arkady/chromedriver-linux";
 
                     System.setProperty("webdriver.chrome.driver", dolphinChromeDriverPath);
 
