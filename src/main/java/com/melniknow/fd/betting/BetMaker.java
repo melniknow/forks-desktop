@@ -1,6 +1,7 @@
 package com.melniknow.fd.betting;
 
 import com.melniknow.fd.Context;
+import com.melniknow.fd.betting.bookmakers.AccountCuttingException;
 import com.melniknow.fd.betting.bookmakers.ShoulderInfo;
 import com.melniknow.fd.betting.bookmakers._188bet.BetsSupport;
 import com.melniknow.fd.core.Logger;
@@ -26,17 +27,13 @@ public class BetMaker {
         var executor = Executors.newFixedThreadPool(2);
 
         try {
-
-            Context.log.info("Ставки перед началом make" + "\n" +
+            var message = "Ставки перед началом make" + "\n" +
                 calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
                 "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
                 calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
-                "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
-            Logger.writeToLogSession(
-                calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
-                    "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
-                    calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
-                    "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
+                "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n";
+            Context.log.info(message);
+            Logger.writeToLogSession(message);
 
             // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
@@ -115,6 +112,7 @@ public class BetMaker {
             var bet1 = bets.get(0);
             var bet2 = bets.get(1);
 
+
             var enterSumFuture1 = executor.submit(() -> realization1.enterSum(isValueWithOneDollar ? bkParams1.currency().minValue : bet1));
 
             if (!isValue && !isVerifiedValue) {
@@ -186,6 +184,9 @@ public class BetMaker {
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } catch (ExecutionException e) {
+            if (e.getCause() instanceof AccountCuttingException) {
+                // TODO: BOT STOP
+            }
             Context.log.info("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
             throw new RuntimeException("Ошибка в постановке ставки - " + e.getCause().getLocalizedMessage());
         } catch (TimeoutException e) {

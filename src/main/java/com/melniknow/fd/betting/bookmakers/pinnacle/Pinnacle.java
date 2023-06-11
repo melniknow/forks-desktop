@@ -141,8 +141,9 @@ public class Pinnacle implements IBookmaker {
         }
         try {
             curButton.click();
-            // span: Above Maximum Stake
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), realSum, "pinnacle");
+            if (SeleniumSupport.fastContains(driver, By.xpath("//span[text()='Above Maximum Stake']")))
+                throw new RuntimeException("[pinnacle]: Превышен лимит ставки");
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: ставка закрыта");
         }
@@ -183,7 +184,7 @@ public class Pinnacle implements IBookmaker {
                 return true;
             } catch (Exception e) {
                 // После попытки подождать чекаем ничего ли не произошло пока мы ждали?
-                if (SeleniumSupport.windowContains(driver, byOddsChanges) || isActivePlaceBet(driver) || SeleniumSupport.windowContains(driver, byBetClosed)) {
+                if (SeleniumSupport.fastContains(driver, byOddsChanges) || isActivePlaceBet(driver) || SeleniumSupport.fastContains(driver, byBetClosed)) {
                     Context.log.info("[pinnacle]: Exit from wait");
                     // что-то появилось, ждать бесполезно идём нажимать на новую кнопку
                     return false;
@@ -197,7 +198,7 @@ public class Pinnacle implements IBookmaker {
     private void updateOdds(ShoulderInfo shoulderInfo, boolean isFirstClick) {
         if (!isFirstClick) {
             // Ставка закрыта?
-            if (SeleniumSupport.windowContains(driver, byBetClosed)) {
+            if (SeleniumSupport.fastContains(driver, byBetClosed)) {
                 waitOfClosedBet(shoulderInfo.isFirst());
             }
             // Кнопка может быть не активна
@@ -255,7 +256,7 @@ public class Pinnacle implements IBookmaker {
         if (!isFirstShoulder) {
             int i = 0;
             while (true) {
-                if (SeleniumSupport.windowContains(driver, byBetClosed)) {
+                if (SeleniumSupport.fastContains(driver, byBetClosed)) {
                     try {
                         Context.log.info("[pinnacle]: Ждём открытия события");
                         if (++i == 30)

@@ -131,7 +131,7 @@ public class SeleniumSupport {
     public static void enterSum(ChromeDriver driver, By by, BigDecimal sum, String bkName) {
         try {
             for (int trying = 0; trying < 3; ++trying) {
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
                 var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
                 for (int i = 0; i < 15; ++i) {
                     var betSum = enterSumButton.getAttribute("value");
@@ -142,17 +142,46 @@ public class SeleniumSupport {
                     clearBetSum(enterSumButton, betSum);
                 }
                 enterSumButton.sendKeys(sum.toPlainString());
-                if (enterSumButton.getAttribute("value").equals(sum.toPlainString())) {
+                var expectedSum = sum.toPlainString();
+                String expectedSumWithComma = formatNumber(expectedSum);
+                var realSum = enterSumButton.getAttribute("value");
+                if (realSum.equals(expectedSum) || realSum.equals(expectedSumWithComma)) {
                     return;
                 }
             }
-            throw new RuntimeException("[%s]: бот не смог очистить поле ввода".formatted(bkName));
+            throw new RuntimeException(new AccountCuttingException("[%s]: Аккаунт порезан".formatted(bkName)));
         } catch (TimeoutException e) {
             throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон - Не найдено поле ввода".formatted(bkName));
         }
     }
 
-    public static boolean windowContains(ChromeDriver driver, By by) {
+    public static String formatNumber(String number) {
+        // Check if the number contains a decimal point
+        int dotIndex = number.indexOf('.');
+        String integerPart = number;
+        String decimalPart = "";
+        if (dotIndex >= 0) {
+            integerPart = number.substring(0, dotIndex);
+            decimalPart = number.substring(dotIndex + 1);
+        }
+        // Insert commas every three digits from the right
+        StringBuilder sb = new StringBuilder();
+        int len = integerPart.length();
+        for (int i = 0; i < len; i++) {
+            char c = integerPart.charAt(i);
+            sb.append(c);
+            if ((len - i - 1) % 3 == 0 && i < len - 1) {
+                sb.append(',');
+            }
+        }
+        // Append the decimal part if present
+        if (!decimalPart.isEmpty()) {
+            sb.append('.').append(decimalPart);
+        }
+        return sb.toString();
+    }
+
+    public static boolean fastContains(ChromeDriver driver, By by) {
         try {
             driver.findElement(by);
             return true;

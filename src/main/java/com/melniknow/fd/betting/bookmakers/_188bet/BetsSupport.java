@@ -116,7 +116,7 @@ public class BetsSupport {
             if (elem.getAttribute("data-txt-selection-count").equals("0")) {
                 try {
                     wait.until(driver1 -> driver1.findElement(By.xpath("//h3[text()='Bet Slip']"))).click();
-                }  catch (Exception ignored1) { }
+                }  catch (Exception ignored) { }
                 return;
             }
 

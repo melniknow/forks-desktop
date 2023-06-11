@@ -109,7 +109,7 @@ public class Bet365 implements IBookmaker {
                 return true;
             } catch (Exception e) {
                 // После попытки подождать чекаем ничего ли не произошло пока мы ждали?
-                if (SeleniumSupport.windowContains(driver, byAccepChanges) || SeleniumSupport.windowContains(driver, byPlaceBet)) { // TODO add closed bet handle
+                if (SeleniumSupport.fastContains(driver, byAccepChanges) || SeleniumSupport.fastContains(driver, byPlaceBet)) { // TODO add closed bet handle
                     Context.log.info("[bet365]: Exit from wait");
                     // что-то появилось, ждать бесполезно идём нажимать на новую кнопку
                     return false;
@@ -123,7 +123,7 @@ public class Bet365 implements IBookmaker {
     private void updateOdds(String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
         if (!isFirstClick) {
             // Ставка закрыта?
-            if (SeleniumSupport.windowContains(driver, byBetClosed)) {
+            if (SeleniumSupport.fastContains(driver, byBetClosed)) {
                 throw new RuntimeException("[bet365]: Ставка закрыта");
             }
         }

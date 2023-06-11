@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.channels.AcceptPendingException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +136,7 @@ public class _188Bet implements IBookmaker {
 
     @Override
     public void enterSum(BigDecimal sum) {
-        Context.log.info("Call enterSum _188Bet");
+        Context.log.info("[188bet]: Call enterSum _188Bet");
         this.realSum = sum;
         if (realSum.compareTo(new BigDecimal("50")) < 0) {
             throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + realSum);
@@ -145,7 +146,7 @@ public class _188Bet implements IBookmaker {
             try {
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
             } catch (RuntimeException e) {
-                Context.log.info("Кинули exception: " + e.getMessage());
+                Context.log.info("[188bet]: Кинули exception: " + e.getMessage());
                 BetsSupport.clearPreviousBets(driver);
                 this.curButton.click();
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
@@ -174,6 +175,8 @@ public class _188Bet implements IBookmaker {
             Context.log.info("[188bet]: Final cf = " + realCf);
             return new BetUtils.BetData(realCf, realSum);
         } catch (RuntimeException e) {
+            if (e.getCause() instanceof AcceptPendingException)
+                throw e;
             BetsSupport.closeBetWindow(driver);
             Context.log.info("[188bet]: Don`t Place Bet" + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -324,5 +327,4 @@ public class _188Bet implements IBookmaker {
             throw new RuntimeException("[188bet]: Событие закрыто");
         }
     }
-
 }
