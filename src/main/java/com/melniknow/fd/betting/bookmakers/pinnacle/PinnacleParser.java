@@ -85,7 +85,7 @@ public class PinnacleParser {
     }
 
     private String getSet(String set) {
-        switch (this.sport) {
+        switch (this.sport) { // TODO
             case TENNIS, VOLLEYBALL -> {
                 switch (set) {
                     case "1" -> { return "1st Set"; }
@@ -107,6 +107,15 @@ public class PinnacleParser {
                     case "1" -> { return "1st Period"; }
                     case "2" -> { return "2nd Period"; }
                     case "3" -> { return "3rd Period"; }
+                }
+            }
+            case ESPORTS_DOTA2, ESPORTS_CS -> {
+                switch (set) {
+                    case "1" -> { return "Map 1"; }
+                    case "2" -> { return "Map 2"; }
+                    case "3" -> { return "Map 3"; }
+                    case "4" -> { return "Map 4"; }
+                    case "5" -> { return "Map 5"; }
                 }
             }
         }

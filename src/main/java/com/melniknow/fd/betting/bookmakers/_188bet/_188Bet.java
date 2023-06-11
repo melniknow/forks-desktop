@@ -150,6 +150,7 @@ public class _188Bet implements IBookmaker {
             try {
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
             } catch (RuntimeException e) {
+                Context.log.info("Кинули exception: " + e.getMessage());
                 BetsSupport.clearPreviousBets(driver);
                 this.curButton.click();
                 SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
@@ -198,6 +199,7 @@ public class _188Bet implements IBookmaker {
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
                 wait.pollingEvery(Duration.ofMillis(100));
                 wait.until(driver1 -> driver1.findElement(bySuccessBet));
+                Context.log.info("[188bet]: Success....");
                 return true;
             } catch (Exception e) {
                 if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)

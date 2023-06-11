@@ -102,7 +102,7 @@ public class BetsSupport {
 
     public static void clearPreviousBets(ChromeDriver driver) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-
+        Context.log.info("Start to close previousBets");
         try {
             ((JavascriptExecutor) driver).executeScript("""
                 try {

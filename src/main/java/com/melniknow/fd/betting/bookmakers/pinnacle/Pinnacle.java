@@ -139,7 +139,7 @@ public class Pinnacle implements IBookmaker {
         try {
             curButton.click();
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
-
+            // span: Above Maximum Stake
             return new BetUtils.BetData(waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo), realSum);
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
