@@ -119,7 +119,7 @@ public class _188Bet implements IBookmaker {
             curButton.click();
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException | IndexOutOfBoundsException e) {
-            throw new RuntimeException("[188bet]: Событие пропало со страницы");
+            throw new RuntimeException("[188bet]: Событие пропало со страницы или упал коэффициент");
         }
 
         return BetsSupport.betCorrectBalance(bookmaker, driver, Context.betsParams.get(bookmaker).currency());

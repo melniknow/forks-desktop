@@ -135,7 +135,7 @@ public class SeleniumSupport {
                 var enterSumButton = wait.until(driver_ -> driver_.findElement(by));
                 for (int i = 0; i < 15; ++i) {
                     var betSum = enterSumButton.getAttribute("value");
-                    Context.log.info("[" + bkName + "]: Перевводим сумму с " + betSum + " НА " + sum);
+                    Context.log.info("[%s]: Перевводим сумму с %s на %s".formatted(bkName, betSum, sum));
                     if (betSum.isEmpty()) {
                         break;
                     }
@@ -143,13 +143,13 @@ public class SeleniumSupport {
                 }
                 enterSumButton.sendKeys(sum.toPlainString());
                 var expectedSum = sum.toPlainString();
-                String expectedSumWithComma = formatNumber(expectedSum);
+                var expectedSumWithComma = formatNumber(expectedSum);
                 var realSum = enterSumButton.getAttribute("value");
                 if (realSum.equals(expectedSum) || realSum.equals(expectedSumWithComma)) {
                     return;
                 }
             }
-            throw new RuntimeException(new AccountCuttingException("[%s]: Аккаунт порезан".formatted(bkName)));
+            throw new RuntimeException(new AccountCuttingException("[%s]: Аккаунт порезан!".formatted(bkName)));
         } catch (TimeoutException e) {
             throw new RuntimeException("[%s]: Ошибка при вводе суммы в купон - Не найдено поле ввода".formatted(bkName));
         }
