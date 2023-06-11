@@ -116,6 +116,7 @@ public class _188Bet implements IBookmaker {
                         line == null ||
                         equalsForLine(BetsSupport.getTotalsByStr(b.getText()), line, handicap);
                 }).findFirst().orElse(null));
+            curButton.click();
         } catch (NullPointerException | StaleElementReferenceException |
                  ElementNotInteractableException | IndexOutOfBoundsException e) {
             throw new RuntimeException("[188bet]: Событие пропало со страницы");
@@ -142,15 +143,11 @@ public class _188Bet implements IBookmaker {
             throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + realSum);
         }
         try {
-            this.curButton.click();
-            try {
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
-            } catch (RuntimeException e) {
-                Context.log.info("[188bet]: Кинули exception: " + e.getMessage());
+            if (!SeleniumSupport.fastContains(driver, By.cssSelector("[data-ctr-quickbet='true']"))) {
                 BetsSupport.clearPreviousBets(driver);
                 this.curButton.click();
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
             }
+            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[188bet]: ставка закрыта");
         }
@@ -244,7 +241,9 @@ public class _188Bet implements IBookmaker {
         if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[188bet]: Click Place 1");
             // кликаем на PlaceBet
-            clickIfIsClickable(byPlaceBet);
+            for (int i = 0; i < 10; ++i) {
+                if (clickIfIsClickable(byPlaceBet)) return;
+            }
         } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             Context.log.info("[188bet] newIncome = " + newIncome);
