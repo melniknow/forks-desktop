@@ -32,11 +32,11 @@ public class BetMaker {
                 "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
                 calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
                 "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
-//            Logger.writeToLogSession(
-//                calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
-//                    "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
-//                    calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
-//                    "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
+            Logger.writeToLogSession(
+                calculated.fork().betInfo1().BK_name() + ": " + calculated.fork().betInfo1().BK_bet() + " \n" +
+                    "Cf = " + calculated.fork().betInfo1().BK_cf() + " \n" +
+                    calculated.fork().betInfo2().BK_name() + ": " + calculated.fork().betInfo2().BK_bet() + " \n" +
+                    "Cf = " + calculated.fork().betInfo2().BK_cf() + " \n");
 
             // Берём двух букмекеров в вилке
             var bookmaker1 = BetUtils.getBookmakerByNameInApi(calculated.fork().betInfo1().BK_name());
@@ -72,23 +72,21 @@ public class BetMaker {
             var realization1 = bookmaker1Final.realization;
             var realization2 = bookmaker2Final.realization;
 
-            var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1()));
+            var openLink1 = executor.submit(() -> realization1.openLink(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport()));
 
             if (!isValue) { // Если это не валуй по заходим
-                var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2()));
+                var openLink2 = executor.submit(() -> realization2.openLink(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport()));
                 openLink2.get(60, TimeUnit.SECONDS);
             }
 
             openLink1.get(60, TimeUnit.SECONDS);
 
-            var futureBalance1 = executor.submit(() ->
-                realization1.clickOnBetTypeAndReturnBalanceAsRub(bookmaker1Final, calculatedFinal.fork().betInfo1(), calculatedFinal.fork().sport(), true));
+            var futureBalance1 = executor.submit(realization1::clickOnBetTypeAndReturnBalanceAsRub);
 
             var balance2Rub = new BigDecimal("1000000000");
 
             if (!isValue) {
-                var futureBalance2 = executor.submit(() ->
-                    realization2.clickOnBetTypeAndReturnBalanceAsRub(bookmaker2Final, calculatedFinal.fork().betInfo2(), calculatedFinal.fork().sport(), !isVerifiedValue));
+                var futureBalance2 = executor.submit(realization2::clickOnBetTypeAndReturnBalanceAsRub);
                 balance2Rub = futureBalance2.get(30, TimeUnit.SECONDS);
                 if (isVerifiedValue) { // Если это проверяемый валуй, то мы проверив баланс, перезаписываем его на большое число
                     balance2Rub = new BigDecimal("1000000000");
@@ -117,6 +115,15 @@ public class BetMaker {
             var bet1 = bets.get(0);
             var bet2 = bets.get(1);
 
+            var enterSumFuture1 = executor.submit(() -> realization1.enterSum(isValueWithOneDollar ? bkParams1.currency().minValue : bet1));
+
+            if (!isValue && !isVerifiedValue) {
+                var enterSumFuture2 = executor.submit(() -> realization2.enterSum(bet2));
+                enterSumFuture2.get(30, TimeUnit.SECONDS);
+            }
+
+            enterSumFuture1.get(30, TimeUnit.SECONDS);
+
             var realCf1 = BigDecimal.ZERO;
             var realCf2 = BigDecimal.ZERO;
 
@@ -125,8 +132,7 @@ public class BetMaker {
 
             try {
                 var betFuture1 = executor.submit(() ->
-                    realization1.placeBetAndGetRealCf(bookmaker1Final, calculatedFinal.fork().betInfo1(),
-                        new ShoulderInfo(true, null, null, null), isValueWithOneDollar ? bkParams1.currency().minValue : bet1));
+                    realization1.placeBetAndGetRealCf(new ShoulderInfo(true, null, null, null)));
                 var betData = betFuture1.get(kSecondsForPlaceBet, TimeUnit.SECONDS);
                 realCf1 = betData.realCf();
                 realSum1 = betData.realSum();
@@ -146,9 +152,7 @@ public class BetMaker {
                 try {
                     BigDecimal finalRealCf = realCf1;
                     String bk1name = calculated.fork().betInfo1().BK_name();
-                    var betFuture2 = executor.submit(() ->
-                        realization2.placeBetAndGetRealCf(bookmaker2Final, calculatedFinal.fork().betInfo2(),
-                            new ShoulderInfo(false, finalRealCf, bet1, bk1name), bet2));
+                    var betFuture2 = executor.submit(() -> realization2.placeBetAndGetRealCf(new ShoulderInfo(false, finalRealCf, bet1, bk1name)));
                     var betData = betFuture2.get(kSecondsForPlaceBet, TimeUnit.SECONDS);
                     realCf2 = betData.realCf();
                     realSum2 = betData.realSum();

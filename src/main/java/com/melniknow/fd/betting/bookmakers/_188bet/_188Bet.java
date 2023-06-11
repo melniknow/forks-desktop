@@ -27,17 +27,22 @@ import static com.melniknow.fd.betting.bookmakers._188bet.BetsSupport.*;
 public class _188Bet implements IBookmaker {
 
     private WebElement curButton;
+    private Parser.BetInfo info;
     private BigDecimal realSum;
+    private ChromeDriver driver;
+    private Bookmaker bookmaker;
 
     @Override
-    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-        curButton = null;
-        realSum = null;
-
+    public void openLink(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
         Context.log.info("Call openLink _188Bet");
-        try {
-            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
+        this.curButton = null;
+        this.info = info;
+        this.realSum = null;
+        this.bookmaker = bookmaker;
+        this.driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
+        try {
             driver.manage().window().setSize(new Dimension(1000, 1000));
             driver.get(info.BK_href().replace("https://sports.188sbk.com", "https://sports.188bet-sports.com") + "?c=207&u=https://www.188bedt.com");
         } catch (TimeoutException ignored) {
@@ -46,10 +51,8 @@ public class _188Bet implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) throws InterruptedException {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub() throws InterruptedException {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub _188Bet");
-
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
         var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.pollingEvery(Duration.ofMillis(100));
@@ -130,6 +133,28 @@ public class _188Bet implements IBookmaker {
         return result;
     }
 
+    @Override
+    public void enterSum(BigDecimal sum) {
+        Context.log.info("Call enterSum _188Bet");
+        this.realSum = sum;
+        if (realSum.compareTo(new BigDecimal("50")) < 0) {
+            throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + realSum);
+        }
+        try {
+            this.curButton.click();
+            try {
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
+            } catch (RuntimeException e) {
+                Context.log.info("Кинули exception: " + e.getMessage());
+                BetsSupport.clearPreviousBets(driver);
+                this.curButton.click();
+                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), realSum, "188bet");
+            }
+        } catch (StaleElementReferenceException e) {
+            throw new RuntimeException("[188bet]: ставка закрыта");
+        }
+    }
+
     // это 4 состояния, в которых мы можем пребывать когда пытаемся поставить ставку
     private static final By byAccepChanges = By.xpath("//h4[text()='Accept Changes']");
     private static final By byPlaceBet = By.xpath("//h4[text()='Place Bet']");
@@ -137,35 +162,17 @@ public class _188Bet implements IBookmaker {
     private static final By bySuccessBet = By.xpath("//h4[text()='Your bet has been successfully placed.']");
 
     @Override
-    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
+    public BetUtils.BetData placeBetAndGetRealCf(ShoulderInfo shoulderInfo) {
         Context.log.info("Call placeBetAndGetRealCf _188Bet");
-
-        if (sum.compareTo(new BigDecimal("50")) < 0) {
-            throw new RuntimeException("[188bet]: Минимальная ставка на 188bet - 50, а бот пытается поставить: " + sum);
-        }
-        realSum = sum;
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         try {
-            this.curButton.click();
-            try {
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
-            } catch (RuntimeException e) {
-                Context.log.info("Кинули exception: " + e.getMessage());
-                BetsSupport.clearPreviousBets(driver);
-                this.curButton.click();
-                SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Enter Stake']"), sum, "188bet");
-            }
             // от сюда мы выёдем только если поставили
-            waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo);
-
+            waitLoop(shoulderInfo);
             // тут мы забираем коэффициент после успешной ставки
             var realCf = BetsSupport.getCurrentCf(driver);
             // чтобы закрыть окошко мы нажимаем на "ОК", тк крестик после успешной ставки пропадает
             BetsSupport.closeAfterSuccessfulBet(driver);
             Context.log.info("[188bet]: Final cf = " + realCf);
             return new BetUtils.BetData(realCf, realSum);
-        } catch (StaleElementReferenceException e) {
-            throw new RuntimeException("[188bet]: событие пропало со страницы (не смогли нажать на кнопку)");
         } catch (RuntimeException e) {
             BetsSupport.closeBetWindow(driver);
             Context.log.info("[188bet]: Don`t Place Bet" + e.getMessage());
@@ -176,13 +183,13 @@ public class _188Bet implements IBookmaker {
         }
     }
 
-    private void waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) throws InterruptedException {
+    private void waitLoop(ShoulderInfo shoulderInfo) throws InterruptedException {
         // в цикле - жмём на кнопку - пытаемся подождать результата
         var isFirstClick = true;
         for (int i = 0; i < 25; ++i) {
-            updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
+            updateOdds(shoulderInfo, isFirstClick);
             isFirstClick = false;
-            if (waitSuccess(driver)) {
+            if (waitSuccess()) {
                 Context.log.info("188BET SUCCESS");
                 return;
             }
@@ -191,7 +198,7 @@ public class _188Bet implements IBookmaker {
         throw new RuntimeException("[188bet]: Плечо не может быть проставлено");
     }
 
-    private boolean waitSuccess(ChromeDriver driver) {
+    private boolean waitSuccess() {
         // вечно ждать нельзя!
         for (int i = 0; i < 30; ++i) {
             try {
@@ -205,7 +212,7 @@ public class _188Bet implements IBookmaker {
                 if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException)
                     throw new RuntimeException("[188bet]: Не можем дождаться постановки ставки");
                 // Пока мы ждали ничего не произошло? (ставка могла закрыться или поменяться коэфы и тд)
-                if (windowContains(driver, byAccepChanges) || windowContains(driver, byPlaceBet) || windowContains(driver, byClosedBet)) {
+                if (windowContains(byAccepChanges) || windowContains(byPlaceBet) || windowContains(byClosedBet)) {
                     Context.log.info("[188bet]: Exit from wait");
                     // ждать нечего - выходим, чтобы снова нажимать на кнопку
                     return false;
@@ -215,46 +222,26 @@ public class _188Bet implements IBookmaker {
         throw new RuntimeException("[188bet]: Плечо не может быть проставлено");
     }
 
-    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) throws InterruptedException {
+    private void updateOdds(ShoulderInfo shoulderInfo, boolean isFirstClick) throws InterruptedException {
         // чекаем, мейби коэфы поменялись
         if (!isFirstClick) {
-            if (clickIfIsClickable(driver, byAccepChanges)) {
+            if (clickIfIsClickable(byAccepChanges)) {
                 Context.log.info("[188bet]: Click byAccepChanges");
                 TimeUnit.MILLISECONDS.sleep(300);
             }
             // чекаем, мейби ставка вовсе закрыта
-            if (windowContains(driver, byClosedBet)) {
-                Context.log.info("[188bet]: Событие закрыто");
-                if (!shoulderInfo.isFirst()) {
-                    int i = 0;
-                    while (true) {
-                        if (windowContains(driver, byClosedBet)) {
-                            try {
-                                Context.log.info("[188bet]: Ждём открытия события");
-                                if (++i == 30)
-                                    throw new RuntimeException("[188bet]: Событие закрыто");
-                                TimeUnit.SECONDS.sleep(2);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException("[188bet]: Событие закрыто");
-                            }
-                        } else {
-                            Context.log.info("[188bet]: Дождались открытия!");
-                            break;
-                        }
-                    }
-                } else {
-                    throw new RuntimeException("[188bet]: Событие закрыто");
-                }
+            if (windowContains(byClosedBet)) {
+                waitOfClosedBet(shoulderInfo.isFirst());
             }
         }
         // если всё ок, то получаем коэф
         var curCf = BetsSupport.getCurrentCf(driver);
         Context.log.info("[188bet]: curCf = " + curCf);
         var inaccuracy = new BigDecimal("0.01");
-        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
+        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[188bet]: Click Place 1");
             // кликаем на PlaceBet
-            clickIfIsClickable(driver, byPlaceBet);
+            clickIfIsClickable(byPlaceBet);
         } else if (!shoulderInfo.isFirst()) { // Мы второе плечо - пересчитываем и пытаемся перекрыться если коэф упал
             var newIncome = MathUtils.calculateIncome(curCf, shoulderInfo.cf1());
             Context.log.info("[188bet] newIncome = " + newIncome);
@@ -264,10 +251,10 @@ public class _188Bet implements IBookmaker {
             } else {
                 Context.log.info("[188bet]: Click Place 2");
                 // забираем наши валюты
-                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
+                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(info.BK_name())).currency());
                 var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
 
-                var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).accuracy().intValue();
+                var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(info.BK_name())).accuracy().intValue();
 
                 // считаем новую сумму
                 var newSum = shoulderInfo.cf1()
@@ -281,7 +268,7 @@ public class _188Bet implements IBookmaker {
                 realSum = newSum;
                 // кликаем на PlaceBet
                 for (int i = 0; i < 10; ++i) {
-                    if (clickIfIsClickable(driver, byPlaceBet)) return;
+                    if (clickIfIsClickable(byPlaceBet)) return;
                 }
             }
         } else {
@@ -289,7 +276,7 @@ public class _188Bet implements IBookmaker {
         }
     }
 
-    private static boolean clickIfIsClickable(ChromeDriver driver, By by) {
+    private boolean clickIfIsClickable(By by) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
             var button = wait.until(driver_ -> driver_.findElement(by));
@@ -303,7 +290,7 @@ public class _188Bet implements IBookmaker {
     }
 
     // Узнать содержится ли эелемент на текущей странице
-    private static boolean windowContains(ChromeDriver driver, By by) {
+    private boolean windowContains(By by) {
         try {
             var wait = new WebDriverWait(driver, Duration.ofMillis(300));
             wait.until(
@@ -313,4 +300,29 @@ public class _188Bet implements IBookmaker {
             return false;
         }
     }
+
+    private void waitOfClosedBet(boolean isFirstShoulder) {
+        Context.log.info("[188bet]: Событие закрыто");
+        if (!isFirstShoulder) {
+            int i = 0;
+            while (true) {
+                if (windowContains(byClosedBet)) {
+                    try {
+                        Context.log.info("[188bet]: Ждём открытия события");
+                        if (++i == 30)
+                            throw new RuntimeException("[188bet]: Событие закрыто");
+                        TimeUnit.SECONDS.sleep(2);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException("[188bet]: Событие закрыто");
+                    }
+                } else {
+                    Context.log.info("[188bet]: Дождались открытия!");
+                    break;
+                }
+            }
+        } else {
+            throw new RuntimeException("[188bet]: Событие закрыто");
+        }
+    }
+
 }

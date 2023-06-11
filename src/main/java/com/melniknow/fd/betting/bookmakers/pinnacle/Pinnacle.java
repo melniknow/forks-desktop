@@ -23,17 +23,24 @@ import java.util.concurrent.TimeUnit;
 public class Pinnacle implements IBookmaker {
 
     private WebElement curButton;
+    private Parser.BetInfo info;
+    private Sport sport;
     private BigDecimal realSum;
+    private ChromeDriver driver;
+    private Bookmaker bookmaker;
 
     @Override
-    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
+    public void openLink(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
+        Context.log.info("Call openLink Pinnacle");
+
+        this.curButton = null;
+        this.info = info;
+        this.sport = sport;
+        this.realSum = null;
+        this.bookmaker = bookmaker;
+        this.driver = Context.screenManager.getScreenForBookmaker(bookmaker);
+
         try {
-            curButton = null;
-            realSum = null;
-
-            Context.log.info("Call openLink Pinnacle");
-            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-
             // ебаный oddscorp присылает ru
             driver.get(info.BK_href().replace("https://www.pinnacle.com/ru/", "https://www.pinnacle.com/en/"));
         } catch (TimeoutException e) {
@@ -42,9 +49,8 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub() {
         Context.log.info("Call clickOnBetTypeAndReturnBalanceAsRub Pinnacle");
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
         removeAllPreviousWindows(driver);
 
         // Далее ебанутейшая логика с нахождением marketName, selectionName
@@ -127,26 +133,25 @@ public class Pinnacle implements IBookmaker {
     }
 
     @Override
-    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) {
-        Context.log.info("Call placeBetAndGetRealCf Pinnacle");
-
-        if (sum.compareTo(new BigDecimal("1")) < 0) {
-            throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + sum);
+    public void enterSum(BigDecimal sum) {
+        Context.log.info("Call enterSum Pinnacle");
+        this.realSum = sum;
+        if (realSum.compareTo(new BigDecimal("1")) < 0) {
+            throw new RuntimeException("[pinnacle]: Не ставим ставки меньше 1,  sum = " + realSum);
         }
-
-        var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-        realSum = sum;
         try {
             curButton.click();
-            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), sum, "pinnacle");
             // span: Above Maximum Stake
-            return new BetUtils.BetData(waitLoop(driver, info.BK_name(), info.BK_cf(), shoulderInfo), realSum);
+            SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), realSum, "pinnacle");
         } catch (StaleElementReferenceException e) {
-            throw new RuntimeException("[pinnacle]: событие пропало со страницы (не смогли нажать на кнопку)");
-        } catch (RuntimeException e) {
-//            removeAllPreviousWindows(driver);
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("[pinnacle]: ставка закрыта");
         }
+    }
+
+    @Override
+    public BetUtils.BetData placeBetAndGetRealCf(ShoulderInfo shoulderInfo) {
+        Context.log.info("Call placeBetAndGetRealCf Pinnacle");
+        return new BetUtils.BetData(waitLoop(shoulderInfo), realSum);
     }
 
     // наши состояния во время простановки ставки
@@ -155,20 +160,20 @@ public class Pinnacle implements IBookmaker {
     private static final By byBetSuccess = SeleniumSupport.buildGlobalSpanByText("Bet Accepted");
     private static final By byBetClosed = SeleniumSupport.buildGlobalSpanByText("Bet not accepted. Please try again or remove this selection from your Bet Slip.");
 
-    private BigDecimal waitLoop(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo) {
+    private BigDecimal waitLoop(ShoulderInfo shoulderInfo) {
         // в цикле - жмём на кнопку - пытаемся подождать результата
         var isFirstClick = true;
         for (int i = 0; i < 15; ++i) {
-            updateOdds(driver, bkName, oldCf, shoulderInfo, isFirstClick);
+            updateOdds(shoulderInfo, isFirstClick);
             isFirstClick = false;
-            if (waitSuccess(driver)) {
-                return getCurrentCf(driver, true, oldCf);
+            if (waitSuccess()) {
+                return getCurrentCf( true, info.BK_cf());
             }
         }
         throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено");
     }
 
-    private boolean waitSuccess(ChromeDriver driver) {
+    private boolean waitSuccess() {
         for (int i = 0; i < 30; ++i) {
             try {
                 Context.log.info("[pinnacle]: Wait....");
@@ -189,41 +194,21 @@ public class Pinnacle implements IBookmaker {
         throw new RuntimeException("[pinnacle]: Плечо не может быть проставлено - не можем дождаться обработки ставки");
     }
 
-    private void updateOdds(ChromeDriver driver, String bkName, BigDecimal oldCf, ShoulderInfo shoulderInfo, boolean isFirstClick) {
+    private void updateOdds(ShoulderInfo shoulderInfo, boolean isFirstClick) {
         if (!isFirstClick) {
             // Ставка закрыта?
             if (SeleniumSupport.windowContains(driver, byBetClosed)) {
-                Context.log.info("[pinnacle]: Событие закрыто");
-                if (!shoulderInfo.isFirst()) {
-                    int i = 0;
-                    while (true) {
-                        if (SeleniumSupport.windowContains(driver, byBetClosed)) {
-                            try {
-                                Context.log.info("[pinnacle]: Ждём открытия события");
-                                if (++i == 30)
-                                    throw new RuntimeException("[pinnacle]: Событие закрыто");
-                                TimeUnit.SECONDS.sleep(2);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException("[pinnacle]: Событие закрыто");
-                            }
-                        } else {
-                            Context.log.info("[pinnacle]: Дождались открытия!");
-                            break;
-                        }
-                    }
-                } else {
-                    throw new RuntimeException("[pinnacle]: Событие закрыто");
-                }
+                waitOfClosedBet(shoulderInfo.isFirst());
             }
             // Кнопка может быть не активна
             if (!isActivePlaceBet(driver)) {
-                Context.log.info("[pinnacle]: Is not active");
+                Context.log.info("[pinnacle]: Is not active place bet");
                 return;
             }
         }
-        var curCf = getCurrentCf(driver, false, oldCf);
+        var curCf = getCurrentCf(false, info.BK_cf());
         var inaccuracy = new BigDecimal("0.01");
-        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(oldCf.setScale(2, RoundingMode.DOWN)) >= 0) {
+        if (curCf.add(inaccuracy).setScale(2, RoundingMode.DOWN).compareTo(info.BK_cf().setScale(2, RoundingMode.DOWN)) >= 0) {
             Context.log.info("[pinnacle]: Click Place 1");
             for (int i = 0; i < 10; ++i) {
                 if (clickIfIsClickable(driver)) {
@@ -238,10 +223,10 @@ public class Pinnacle implements IBookmaker {
                 throw new RuntimeException("[pinnacle]: превышен максимальный минус: maxMinus = " + Context.parserParams.maxMinus() + ", а текущий минус = " + newIncome);
             } else {
                 // забираем наши валюты
-                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).currency());
+                var currencySecondShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(info.BK_name())).currency());
                 var currencyFirstShoulder = Context.currencyToRubCourse.get(Context.betsParams.get(BetUtils.getBookmakerByNameInApi(shoulderInfo.bk1Name())).currency());
 
-                var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(bkName)).accuracy().intValue();
+                var scale = Context.betsParams.get(BetUtils.getBookmakerByNameInApi(info.BK_name())).accuracy().intValue();
 
                 // считаем новую сумму
                 var newSum = shoulderInfo.cf1()
@@ -261,7 +246,31 @@ public class Pinnacle implements IBookmaker {
                 }
             }
         } else {
-            throw new RuntimeException("[pinnacle]: Коэфициент на первом плече упал. Было - " + oldCf + " стало - " + curCf);
+            throw new RuntimeException("[pinnacle]: Коэфициент на первом плече упал. Было - " + info.BK_cf() + " стало - " + curCf);
+        }
+    }
+
+    private void waitOfClosedBet(boolean isFirstShoulder) {
+        Context.log.info("[pinnacle]: Событие закрыто");
+        if (!isFirstShoulder) {
+            int i = 0;
+            while (true) {
+                if (SeleniumSupport.windowContains(driver, byBetClosed)) {
+                    try {
+                        Context.log.info("[pinnacle]: Ждём открытия события");
+                        if (++i == 30)
+                            throw new RuntimeException("[pinnacle]: Событие закрыто");
+                        TimeUnit.SECONDS.sleep(2);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException("[pinnacle]: Событие закрыто");
+                    }
+                } else {
+                    Context.log.info("[pinnacle]: Дождались открытия!");
+                    break;
+                }
+            }
+        } else {
+            throw new RuntimeException("[pinnacle]: Событие закрыто");
         }
     }
 
@@ -292,7 +301,7 @@ public class Pinnacle implements IBookmaker {
         }
     }
 
-    private BigDecimal getCurrentCf(ChromeDriver driver, boolean isAfterSuccess, BigDecimal expectedCf) {
+    private BigDecimal getCurrentCf(boolean isAfterSuccess, BigDecimal expectedCf) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             var curCfTest = wait.until(driver1 -> driver1.findElement(By.cssSelector("[data-test-id='SelectionDetails-Odds']")));
@@ -414,4 +423,5 @@ public class Pinnacle implements IBookmaker {
             Context.log.info("[pinnacle] There isn`t 'See More'");
         }
     }
+
 }

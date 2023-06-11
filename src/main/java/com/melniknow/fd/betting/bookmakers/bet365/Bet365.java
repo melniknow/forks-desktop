@@ -23,6 +23,8 @@ import java.util.Arrays;
 
 public class Bet365 implements IBookmaker {
     private WebElement curButton;
+    private Parser.BetInfo info;
+    private BigDecimal realSum;
     private ChromeDriver driver;
 
     public Bet365() {
@@ -31,8 +33,12 @@ public class Bet365 implements IBookmaker {
     }
 
     @Override
-    public void openLink(Bookmaker bookmaker, Parser.BetInfo info) {
-<<<<<<< HEAD
+    public void openLink(Bookmaker bookmaker, Parser.BetInfo info, Sport sport) {
+        Context.log.info("Call openLink bet365");
+
+        this.curButton = null;
+        this.info = info;
+        this.realSum = null;
         this.driver = Context.screenManager.getScreenForBookmaker(bookmaker);
 
 //        Context.log.info("Call openLink Bet365");
@@ -45,23 +51,11 @@ public class Bet365 implements IBookmaker {
 //        } catch (TimeoutException e) {
 //            throw new RuntimeException("[Bet365]: Страница не загружается!");
 //        }
-=======
-        curButton = null;
-      
-        Context.log.info("Call openLink Bet365");
-        try {
-            var driver = Context.screenManager.getScreenForBookmaker(bookmaker);
-            driver.switchTo().window(driver.getWindowHandles().stream().findFirst().orElse(null));
-            driver.navigate().to(info.BK_href());
-        } catch (TimeoutException e) {
-            throw new RuntimeException("[Bet365]: Страница не загружается!");
-        }
->>>>>>> c105a5a49d90ee2bd53c45c5fa1165330ef07429
     }
     // "Asian Handicap (0-0)|+1| +1|University Azzurri FC"
     //
     @Override
-    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub(Bookmaker bookmaker, Parser.BetInfo info, Sport sport, boolean isNeedToClick) {
+    public BigDecimal clickOnBetTypeAndReturnBalanceAsRub() {
         var name = info.BK_market_meta().get("name").getAsString();
         var names = Arrays.stream(name.split("\\|")).toList();
         if (names.isEmpty())
@@ -75,6 +69,11 @@ public class Bet365 implements IBookmaker {
         }
     }
 
+    @Override
+    public void enterSum(BigDecimal sum) {
+        this.realSum = sum;
+    }
+
     private static final By byAccepChanges = By.xpath("//div[text()='Accept Change']");
     private static final By byPlaceBet = By.xpath("//div[text()='Place Bet']");
     private static final By byAccepChangeAndPlaceBet = By.xpath("//div[text()='Accept Change and']");
@@ -84,7 +83,7 @@ public class Bet365 implements IBookmaker {
     private static final By byBetClosed = By.className("TODO");
 
     @Override
-    public BetUtils.BetData placeBetAndGetRealCf(Bookmaker bookmaker, Parser.BetInfo info, ShoulderInfo shoulderInfo, BigDecimal sum) throws InterruptedException {
+    public BetUtils.BetData placeBetAndGetRealCf(ShoulderInfo shoulderInfo) {
         return null;
     }
 
