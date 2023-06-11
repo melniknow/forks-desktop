@@ -143,7 +143,7 @@ public class Pinnacle implements IBookmaker {
             curButton.click();
             SeleniumSupport.enterSum(driver, By.cssSelector("[placeholder='Stake']"), realSum, "pinnacle");
             if (SeleniumSupport.fastContains(driver, By.xpath("//span[text()='Above Maximum Stake']")))
-                throw new RuntimeException("[pinnacle]: Превышен лимит ставки");
+                throw new RuntimeException("[pinnacle]: Превышен лимит ставки sum = " + sum);
         } catch (StaleElementReferenceException e) {
             throw new RuntimeException("[pinnacle]: ставка закрыта");
         }
