@@ -6,7 +6,6 @@ module com.melniknow.fd {
     requires java.net.http;
     requires urlbuilder;
     requires com.google.gson;
-    requires io.github.bonigarcia.webdrivermanager;
     requires org.seleniumhq.selenium.chrome_driver;
     requires org.seleniumhq.selenium.support;
     requires org.apache.httpcomponents.httpcore;
