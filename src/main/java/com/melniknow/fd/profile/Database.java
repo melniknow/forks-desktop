@@ -8,7 +8,7 @@ import java.util.List;
 public class Database {
     private static final String url = "jdbc:mysql://151.248.119.228:3306/u2028999_forks_desktop";
     private static final String user = "u2028999_forks";
-    private static final String password = "Nhfccf60$";
+    private static final String password = "d06bf2be458a4d7a24728104554eb2d5";
 
     public static String getJsonByProfileName(String profileName) {
         try (var connection = DriverManager.getConnection(url, user, password);
