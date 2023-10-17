@@ -1,4 +1,4 @@
-# [Forks Desktop](http://nepolypoker.ru)
+# [Forks Desktop]
 
 Десктопное приложение для автоматизации вилок на JavaFX (Java 17)
 
